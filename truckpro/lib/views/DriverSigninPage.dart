@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:studentapp/utils/DBHelper.dart';
-import 'package:studentapp/views/MyHomePage.dart';
-import 'package:studentapp/views/taskGridWidget.dart';
+import 'package:truckpro/views/MyHomePage.dart';
+
 
 
 class SignInPage extends StatefulWidget {
@@ -12,6 +11,7 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
 
   void _showErrorDialog(String errorMessage) {
     showDialog(
@@ -35,10 +35,9 @@ class _SignInPageState extends State<SignInPage> {
 
   void _handleSignIn(BuildContext context) async {
     final email = _emailController.text;
-    final password = sha_256(_passwordController.text);
-    final dbHelper = DBHelper();
+    final password = _passwordController.text;
 
-    final user = await dbHelper.getUserByEmail(email);
+    final user = null;//await dbHelper.getUserByEmail(email);
     
     if (user != null && user.password == password) {
       Navigator.of(context).pushReplacement(
