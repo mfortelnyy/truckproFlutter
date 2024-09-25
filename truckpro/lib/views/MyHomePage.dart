@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:studentapp/models/student.dart';
-import 'package:studentapp/views/taskGridWidget.dart';
+import 'package:truckpro/models/user.dart';
 
 
 class MyHomePage extends StatelessWidget {
-  final Student student;
+  final User user;
 
-  MyHomePage(this.student);
+  MyHomePage(this.user);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Page'),
       ),
-      body: TaskGridWidget(student), 
+      body:   ButtonBar(key: key,)
       );
   }
 }
+
