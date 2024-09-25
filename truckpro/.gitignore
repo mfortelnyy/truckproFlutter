@@ -42,4 +42,4 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-/lib/utils
+/lib/utils/database_helper.dart
