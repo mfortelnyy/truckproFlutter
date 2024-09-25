@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:studentapp/utils/DBHelper.dart';
-import 'package:studentapp/models/student.dart';
-import 'package:studentapp/views/StudentSigninPage.dart';
-class StudentSignupPage extends StatefulWidget {
+import 'package:truckpro/models/user.dart';
+
+class DriverSignupPage extends StatefulWidget {
   @override
-  _StudentSignupPageState createState() => _StudentSignupPageState();
+  _DriverSignupPageState createState() => _DriverSignupPageState();
 }
 
-class _StudentSignupPageState extends State<StudentSignupPage> {
-  final TextEditingController _nameController = TextEditingController();
+class _DriverSignupPageState extends State<DriverSignupPage> {
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _verifyPasswordController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
 
  void _showErrorDialog(String errorMessage) {
     showDialog(
@@ -33,10 +36,12 @@ class _StudentSignupPageState extends State<StudentSignupPage> {
   }
 
   void _handleSignup() async {
+    
+
     // Get user input
-    final String name = _nameController.text;
+    final String first_name = _firstNameController.text;
     final String email = _emailController.text;
-    final String password = sha_256(_passwordController.text);
+    final String password = _passwordController.text;
 
     // Validate email format
     if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -44,9 +49,10 @@ class _StudentSignupPageState extends State<StudentSignupPage> {
       _showErrorDialog('Invalid email format');
       return;
     }
+  }
 
     // Check if the email already exists
-    Student? existingUser = await DBHelper().getUserByEmail(email);
+    /*User? existingUser = await DBHelper().getUserByEmail(email);
 
     if (existingUser != null) {
       _showErrorDialog('Email already exists. Please use a different email.');
@@ -66,12 +72,12 @@ class _StudentSignupPageState extends State<StudentSignupPage> {
         ),
       );
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Student Signup'),
+        title: Text('User Signup'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -79,17 +85,29 @@ class _StudentSignupPageState extends State<StudentSignupPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Name'),
+              controller: _firstNameController,
+              decoration: InputDecoration(labelText: 'First Name'),
+            ),
+            TextField(
+              controller: _lastNameController,
+              decoration: InputDecoration(labelText: 'Last Name'),
             ),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(labelText: 'Email'),
             ),
             TextField(
+              controller: _phoneController,
+              decoration: InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
               controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(labelText: 'Password'),
+            ),
+            TextField(
+              controller: _verifyPasswordController,
+              decoration: InputDecoration(labelText: 'Email'),
             ),
             ElevatedButton(
               onPressed: _handleSignup,
@@ -100,8 +118,5 @@ class _StudentSignupPageState extends State<StudentSignupPage> {
       ),
     );
   }
-
-  String sha_256(String s){
-    return s;
-  }
 }
+
