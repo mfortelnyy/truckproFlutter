@@ -1,12 +1,92 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+import 'package:flutter/material.dart';
+class AdminHomePage extends StatefulWidget {
+  final AdminApiService adminService;
 
-namespace lib.views
-{
-    public class AdminHomePage.dart
-    {
-        
-    }
+  AdminHomePage({required this.adminService});
+
+  @override
+  _AdminHomePagedState createState() => _AdminHomePageState();
+}
+
+class _AdminHomePageState extends State<AdminHomePage> {
+  late Future<List<dynamic>> _companies;
+  late Future<List<dynamic>> _drivers;
+
+  @override
+  void initState() {
+    super.initState();
+    _companies = widget.adminService.getAllCompanies();
+    _drivers = widget.adminService.getAllDrivers();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Admin Dashboard'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: FutureBuilder<List<dynamic>>(
+              future: _companies,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('No companies found'));
+                } else {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      var company = snapshot.data![index];
+                      return ListTile(
+                        title: Text(company['name']), 
+                        subtitle: Text('ID: ${company['id']}'),
+                      );
+                    },
+                  );
+                }
+              },
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<dynamic>>(
+              future: _drivers,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('No drivers found'));
+                } else {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      var driver = snapshot.data![index];
+                      return ListTile(
+                        title: Text(driver['name']),
+                        subtitle: Text('Driver ID: ${driver['id']}'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DriverLogsView(driverId: driver['id'], adminService: widget.adminService),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
