@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 namespace lib.utils
 {
-    public class adminApiService.dart
+    public class AdminApiService
     {
         final String baseUrl = 'https://';
 
