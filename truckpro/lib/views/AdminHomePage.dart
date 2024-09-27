@@ -21,7 +21,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   void initState() {
     super.initState();
     _companies = widget.adminService.getAllCompanies(widget.token);
-    _drivers = widget.adminService.getAllDrivers();
+    _drivers = widget.adminService.getAllDrivers(widget.token);
   }
 
   @override
