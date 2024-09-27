@@ -1,19 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 import 'dart:convert'; //for JSON encoding/decoding
 import 'package:http/http.dart' as http; 
 
-namespace lib.utils
-{
-    public class AdminApiService
+    class AdminApiService
     {
-        final String baseUrl = 'https://';
+        final String baseUrl = 'https://localhost:443';
 
-        Future<List<dynamic>> getAllCompanies() async {
-            final response = await http.get(Uri.parse('$baseUrl/adm/getAllCompanies'));
-
+        Future<List<dynamic>> getAllCompanies(String token) async {
+          print("token passed:  $token");
+            final response = await http.get(Uri.parse('$baseUrl/adm/getAllCompanies'), 
+                                            headers: 
+                                              {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': 'Bearer $token'
+                                                
+                                              });
+            print("response in get all comapnies ${response.statusCode}");
             if (response.statusCode == 200) {
             return json.decode(response.body);
             } else {
@@ -78,4 +80,3 @@ namespace lib.utils
 
 
     }
-}
