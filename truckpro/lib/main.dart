@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'views/DriverSigninPage.dart';
-import 'utils/adminApiService.dart';
 
 
 void main() {
@@ -12,7 +11,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AdminApiService adminService = AdminApiService();
 
     return MaterialApp(
       home: SignInPage(),
