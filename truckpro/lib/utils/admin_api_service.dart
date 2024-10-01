@@ -1,6 +1,8 @@
 
 import 'dart:convert'; //for JSON encoding/decoding
-import 'package:http/http.dart' as http; 
+import 'package:http/http.dart' as http;
+import 'package:truckpro/models/log_entry.dart';
+import 'package:truckpro/models/manager_signup_dto.dart'; 
 
     class AdminApiService
     {
@@ -59,11 +61,12 @@ import 'package:http/http.dart' as http;
             }
         }
 
-        Future<List<dynamic>> getLogsByDriverId(int driverId) async {
+        Future<List<LogEntry>> getLogsByDriverId(int driverId) async {
             final response = await http.get(Uri.parse('$baseUrl/adm/getLogsByDriverId?driverId=$driverId'));
 
             if (response.statusCode == 200) {
-            return json.decode(response.body);
+            List<dynamic> jsonList = json.decode(response.body);
+            return jsonList.map((json) => LogEntry.fromJson(json)).toList();
             } else {
             throw Exception('Failed to load logs');
             }
@@ -83,6 +86,12 @@ import 'package:http/http.dart' as http;
             }
         }
 
-
+        Future<String?> signUpManager(ManagerSignUpDto manager) async {
+            final response = await http.post(
+            Uri.parse('$baseUrl/signUpManager'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(manager.toJson()),
+            );
+        }
 
     }
