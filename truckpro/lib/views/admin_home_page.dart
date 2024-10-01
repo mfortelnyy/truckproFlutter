@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-
-import '../utils/adminApiService.dart';
+import '../utils/admin_api_service.dart';
+import 'companies_view.dart'; 
+import 'drivers_view.dart';
+import 'logs_view.dart'; 
 
 class AdminHomePage extends StatefulWidget {
   final AdminApiService adminService;
@@ -43,15 +45,32 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No companies found'));
                 } else {
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      var company = snapshot.data![index];
-                      return ListTile(
-                        title: Text(company['name']), 
-                        subtitle: Text('ID: ${company['id']}'),
-                      );
-                    },
+                  return Column(
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          var company = snapshot.data![index];
+                          return ListTile(
+                            title: Text(company['name']), 
+                            subtitle: Text('ID: ${company['id']}'),
+                          );
+                        },
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CompaniesView(adminService: widget.adminService, token: widget.token),
+                            ),
+                          );
+                        },
+                        child: const Text('Show All Companies'),
+                      ),
+                    ],
                   );
                 }
               },
@@ -68,23 +87,40 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No drivers found'));
                 } else {
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      var driver = snapshot.data![index];
-                      return ListTile(
-                        title: Text(driver['firstName']),
-                        subtitle: Text('Driver ID: ${driver['id']}'),
-                        onTap: () {
+                  return Column(
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          var driver = snapshot.data![index];
+                          return ListTile(
+                            title: Text(driver['firstName']),
+                            subtitle: Text('Driver ID: ${driver['id']}'),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LogsView(driverId: driver['id'], adminService: widget.adminService),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DriverLogsView(driverId: driver['id'], adminService: widget.adminService),
+                              builder: (context) => DriversView(adminService: widget.adminService, token: widget.token, drivers: ,),
                             ),
                           );
                         },
-                      );
-                    },
+                        child: const Text('Show All Drivers'),
+                      ),
+                    ],
                   );
                 }
               },
@@ -94,7 +130,4 @@ class _AdminHomePageState extends State<AdminHomePage> {
       ),
     );
   }
-  
-  DriverLogsView({required driverId, required AdminApiService adminService}) {}
 }
- 
