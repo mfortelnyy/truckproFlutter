@@ -51,28 +51,7 @@ class _DriverSignupPageState extends State<DriverSignupPage> {
     }
   }
 
-    // Check if the email already exists
-    /*User? existingUser = await DBHelper().getUserByEmail(email);
 
-    if (existingUser != null) {
-      _showErrorDialog('Email already exists. Please use a different email.');
-      return;
-    }
-    
-
-    // Create a Student object
-    final Student student = Student(name: name, email: email, password: password);
-
-    // Save the student in the database
-    final dbHelper = DBHelper();
-    dbHelper.insertStudent(student);
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => SignInPage(),
-        ),
-      );
-  }
-*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
