@@ -59,7 +59,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                             title: Text(company.name), 
                             subtitle: Text('ID: ${company.id}'),
                             onTap: () {
-                              Future<List<User>> drivers = widget.adminService.getDriversByCompanyId(company.id);
+                              Future<List<User>> drivers = widget.adminService.getDriversByCompanyId(company.id, widget.token);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
