@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:truckpro/models/company.dart';
+import '../models/user.dart';
 import '../utils/admin_api_service.dart';
 import 'companies_view.dart'; 
 import 'drivers_view.dart';
@@ -16,8 +18,8 @@ class AdminHomePage extends StatefulWidget {
 
 class AdminHomePageState extends State<AdminHomePage> {
   
-  late Future<List<dynamic>> _companies;
-  late Future<List<dynamic>> _drivers;
+  late Future<List<Company>> _companies;
+  late Future<List<User>> _drivers;
 
   @override
   void initState() {
@@ -35,7 +37,7 @@ class AdminHomePageState extends State<AdminHomePage> {
       body: Column(
         children: [
           Expanded(
-            child: FutureBuilder<List<dynamic>>(
+            child: FutureBuilder<List<Company>>(
               future: _companies,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -54,8 +56,17 @@ class AdminHomePageState extends State<AdminHomePage> {
                         itemBuilder: (context, index) {
                           var company = snapshot.data![index];
                           return ListTile(
-                            title: Text(company['name']), 
-                            subtitle: Text('ID: ${company['id']}'),
+                            title: Text(company.name), 
+                            subtitle: Text('ID: ${company.id}'),
+                            onTap: () {
+                              Future<List<User>> drivers = widget.adminService.getDriversByCompanyId(company.id);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DriversView(driversFuture: drivers, adminService: widget.adminService,),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -64,7 +75,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CompaniesView(companies: snapshot.data!, token: widget.token),
+                              builder: (context) => CompaniesView(companiesFuture: _companies, token: widget.token),
                             ),
                           );
                         },
@@ -77,7 +88,7 @@ class AdminHomePageState extends State<AdminHomePage> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<dynamic>>(
+            child: FutureBuilder<List<User>>(
               future: _drivers,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -96,13 +107,14 @@ class AdminHomePageState extends State<AdminHomePage> {
                         itemBuilder: (context, index) {
                           var driver = snapshot.data![index];
                           return ListTile(
-                            title: Text(driver['firstName']),
-                            subtitle: Text('Driver ID: ${driver['id']}'),
+                            title: Text(driver.firstName),
+                            subtitle: Text('Driver ID: ${driver.id}'),
                             onTap: () {
+                              var logs = widget.adminService.getLogsByDriverId(driver.id);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => LogsView(logs: snapshot.data!),
+                                  builder: (context) => LogsView(logsFuture: logs),
                                 ),
                               );
                             },
@@ -114,7 +126,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DriversView(adminService: widget.adminService, token: widget.token, drivers: snapshot.data!),
+                              builder: (context) => DriversView(adminService: widget.adminService, driversFuture: _drivers),
                             ),
                           );
                         },
