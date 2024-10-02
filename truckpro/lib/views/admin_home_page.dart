@@ -11,10 +11,10 @@ class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key, required this.adminService, required this.token});
 
   @override
-  _AdminHomePageState createState() => _AdminHomePageState();
+  AdminHomePageState createState() => AdminHomePageState();
 }
 
-class _AdminHomePageState extends State<AdminHomePage> {
+class AdminHomePageState extends State<AdminHomePage> {
   
   late Future<List<dynamic>> _companies;
   late Future<List<dynamic>> _drivers;
@@ -64,7 +64,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CompaniesView(adminService: widget.adminService, token: widget.token),
+                              builder: (context) => CompaniesView(companies: snapshot.data!, token: widget.token),
                             ),
                           );
                         },
@@ -102,7 +102,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => LogsView(driverId: driver['id'], adminService: widget.adminService),
+                                  builder: (context) => LogsView(logs: snapshot.data!),
                                 ),
                               );
                             },
@@ -114,7 +114,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DriversView(adminService: widget.adminService, token: widget.token, drivers: ,),
+                              builder: (context) => DriversView(adminService: widget.adminService, token: widget.token, drivers: snapshot.data!),
                             ),
                           );
                         },
