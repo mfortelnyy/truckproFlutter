@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:truckpro/models/log_entry.dart';
 
 class LogsView extends StatelessWidget {
-  final List<LogEntry> logs;
+  final List<dynamic> logs;
 
   LogsView({required this.logs});
 
