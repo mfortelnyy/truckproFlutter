@@ -36,7 +36,7 @@ import 'package:truckpro/models/user.dart';
                                                 "Authorization": "Bearer $token"
                                                 
                                               });
-            print("get all drivers respinse code: ${response.statusCode}");
+            print("get all drivers response code: ${response.statusCode}");
             if (response.statusCode == 200) {
             List<dynamic> jsonList = json.decode(response.body);
             return jsonList.map((json) => User.fromJson(json)).toList(); // map JSON to User objects
@@ -55,11 +55,18 @@ import 'package:truckpro/models/user.dart';
             }
         }
 
-        Future<List<User>> getDriversByCompanyId(int companyId) async {
-            final response = await http.get(Uri.parse('$baseUrl/adm/getDriversByCompanyId?companyId=$companyId'));
+        Future<List<User>> getDriversByCompanyId(int companyId, String token) async {
+            final response = await http.get(Uri.parse('$baseUrl/adm/getDriversByCompanyId?companyId=$companyId'),
+                                            headers: 
+                                              {
+                                                "Content-Type": "application/json",
+                                                "Authorization": "Bearer $token"
+                                                
+                                              });
 
             if (response.statusCode == 200) {
-            return json.decode(response.body);
+              List<dynamic> jsonList = json.decode(response.body);
+              return jsonList.map((json) => User.fromJson(json)).toList(); 
             } else {
             throw Exception('Failed to load drivers');
             }
