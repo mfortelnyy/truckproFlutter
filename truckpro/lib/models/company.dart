@@ -1,12 +1,12 @@
 class Company {
-  final int id;
+  final int? id;
   final String name;
   //final String email;
   //final String address;
   //final String phoneNumber;
 
   Company({
-    required this.id,
+    this.id,
     required this.name,
     //required this.email,
     //required this.address,
