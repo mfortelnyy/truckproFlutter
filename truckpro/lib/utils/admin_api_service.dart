@@ -1,15 +1,17 @@
 
 import 'dart:convert'; //for JSON encoding/decoding
 import 'package:http/http.dart' as http;
+import 'package:truckpro/models/company.dart';
 import 'package:truckpro/models/log_entry.dart';
-import 'package:truckpro/models/manager_signup_dto.dart'; 
+import 'package:truckpro/models/manager_signup_dto.dart';
+import 'package:truckpro/models/user.dart'; 
 
     class AdminApiService
     {
         final String baseUrl = 'https://localhost:443';
 
-        Future<List<dynamic>> getAllCompanies(String token) async {
-          print("token passed:  $token");
+        Future<List<Company>> getAllCompanies(String token) async {
+          //print("token passed:  $token");
             final response = await http.get(Uri.parse('$baseUrl/adm/getAllCompanies'), 
                                             headers: 
                                               {
@@ -19,13 +21,14 @@ import 'package:truckpro/models/manager_signup_dto.dart';
                                               });
             print("response in get all comapnies ${response.statusCode}");
             if (response.statusCode == 200) {
-            return json.decode(response.body);
+            List<dynamic> jsonList = json.decode(response.body);
+            return jsonList.map((json) => Company.fromJson(json)).toList(); // map JSON to Company objects
             } else {
             throw Exception('Failed to load companies');
             }
         }
 
-        Future<List<dynamic>> getAllDrivers(String token) async {
+        Future<List<User>> getAllDrivers(String token) async {
             final response = await http.get(Uri.parse('$baseUrl/adm/getAllDrivers'),
                                             headers: 
                                               {
@@ -35,13 +38,14 @@ import 'package:truckpro/models/manager_signup_dto.dart';
                                               });
             print("get all drivers respinse code: ${response.statusCode}");
             if (response.statusCode == 200) {
-            return json.decode(response.body);
+            List<dynamic> jsonList = json.decode(response.body);
+            return jsonList.map((json) => User.fromJson(json)).toList(); // map JSON to User objects
             } else {
             throw Exception('Failed to load drivers');
             }
         }
 
-        Future<dynamic> getDriverById(int userId) async {
+        Future<User> getDriverById(int userId) async {
             final response = await http.get(Uri.parse('$baseUrl/adm/getDriverById?userId=$userId'));
 
             if (response.statusCode == 200) {
@@ -51,7 +55,7 @@ import 'package:truckpro/models/manager_signup_dto.dart';
             }
         }
 
-        Future<List<dynamic>> getDriversByCompanyId(int companyId) async {
+        Future<List<User>> getDriversByCompanyId(int companyId) async {
             final response = await http.get(Uri.parse('$baseUrl/adm/getDriversByCompanyId?companyId=$companyId'));
 
             if (response.statusCode == 200) {
