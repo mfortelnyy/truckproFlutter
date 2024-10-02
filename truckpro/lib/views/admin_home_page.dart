@@ -3,8 +3,10 @@ import 'package:truckpro/models/company.dart';
 import '../models/user.dart';
 import '../utils/admin_api_service.dart';
 import 'companies_view.dart'; 
+import 'create_company_screen.dart';
 import 'drivers_view.dart';
-import 'logs_view.dart'; 
+import 'logs_view.dart';
+import 'signup_manager_screen.dart'; 
 
 class AdminHomePage extends StatefulWidget {
   final AdminApiService adminService;
@@ -34,6 +36,7 @@ class AdminHomePageState extends State<AdminHomePage> {
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
       ),
+      drawer: _buildDrawer(context),
       body: Column(
         children: [
           Expanded(
@@ -51,7 +54,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                     children: [
                       ListView.builder(
                         shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
+                        physics: const ScrollPhysics(),
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           var company = snapshot.data![index];
@@ -142,4 +145,44 @@ class AdminHomePageState extends State<AdminHomePage> {
       ),
     );
   }
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text('Admin Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+          ),
+          ListTile(
+            leading: Icon(Icons.business),
+            title: const Text('Create Company'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateCompanyScreen(adminService: widget.adminService, token: widget.token),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.person_add),
+            title: const Text('Sign Up Manager'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SignUpManagerScreen(adminService: widget.adminService, token: widget.token),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
 }
