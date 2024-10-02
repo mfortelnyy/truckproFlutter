@@ -1,16 +1,16 @@
 class Company {
   final int id;
   final String name;
-  final String email;
-  final String address;
-  final String phoneNumber;
+  //final String email;
+  //final String address;
+  //final String phoneNumber;
 
   Company({
     required this.id,
     required this.name,
-    required this.email,
-    required this.address,
-    required this.phoneNumber,
+    //required this.email,
+    //required this.address,
+    //required this.phoneNumber,
   });
 
   //create a Company from JSON data
@@ -18,9 +18,9 @@ class Company {
     return Company(
       id: json['id'],
       name: json['name'],
-      email: json['email'],
-      address: json['address'],
-      phoneNumber: json['phone_number'],
+      //email: json['email'],
+      //address: json['address'],
+      //phoneNumber: json['phone_number'],
     );
   }
 
@@ -29,9 +29,9 @@ class Company {
     return {
       'id': id,
       'name': name,
-      'email': email,
-      'address': address,
-      'phone_number': phoneNumber,
+      //'email': email,
+      //'address': address,
+      //'phone_number': phoneNumber,
     };
   }
 }
