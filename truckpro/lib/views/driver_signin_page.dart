@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:truckpro/utils/adminApiService.dart';
-import 'package:truckpro/views/AdminHomePage.dart';
+import 'package:truckpro/utils/admin_api_service.dart';
+import 'package:truckpro/views/admin_home_page.dart';
 //import 'package:truckpro/views/MyHomePage.dart';
 import 'package:truckpro/utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -9,11 +9,13 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 //import 'DriverHomePage.dart';  
 
 class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
+
   @override
-  _SignInPageState createState() => _SignInPageState();
+  SignInPageState createState() => SignInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final LoginService _loginService = LoginService(); 
