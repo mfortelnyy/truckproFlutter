@@ -55,7 +55,9 @@ import 'package:truckpro/models/user.dart';
             }
         }
 
-        Future<List<User>> getDriversByCompanyId(int companyId, String token) async {
+        Future<List<User>> getDriversByCompanyId(int? companyId, String token) async {
+            
+            if(companyId == null) throw new Exception("null compnay id");
             final response = await http.get(Uri.parse('$baseUrl/adm/getDriversByCompanyId?companyId=$companyId'),
                                             headers: 
                                               {
@@ -83,11 +85,14 @@ import 'package:truckpro/models/user.dart';
             }
         }
 
-        Future<dynamic> createCompany(Map<String, dynamic> companyData) async {
+        Future<dynamic> createCompany(Company company, String token) async {
             final response = await http.post(
                 Uri.parse('$baseUrl/adm/createCompany'),
-                headers: {"Content-Type": "application/json"},
-                body: json.encode(companyData),
+                headers: {
+                  'Authorization': 'Bearer $token',
+                  "Content-Type": "application/json"
+                  },
+                body: json.encode(company.toJson()),
             );
 
             if (response.statusCode == 200) {
