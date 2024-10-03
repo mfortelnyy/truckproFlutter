@@ -1,5 +1,6 @@
 import 'dart:convert'; //for JSON encoding/decoding
-import 'package:http/http.dart' as http; 
+import 'package:http/http.dart' as http;
+import 'package:truckpro/models/signup_request.dart'; 
 import '../models/user.dart'; 
 
 class LoginService {
@@ -29,7 +30,7 @@ class LoginService {
         String responseBody = response.body;
         //split string by the token, choose the right side with token and trim the whitespace
        var token = responseBody.split("Token: ")[1].trim();
-       print("token:    ${token}");
+       //print("token:    ${token}");
        return token;
 
       } else {
@@ -42,8 +43,8 @@ class LoginService {
     }
   }
 
-  // Function to handle user sign-up
-  Future<User?> registerUser(String email, String password) async {
+  // handle user sign-up
+  Future<String?> registerUser(SignUpRequest signupDTO) async {
     try {
       final url = Uri.parse('$_baseUrl/signup');
       final response = await http.post(
@@ -51,20 +52,21 @@ class LoginService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
+        body: jsonEncode(signupDTO.toJson()),
       );
+      print(response.statusCode);
+      print(jsonDecode(response.body));
 
       if (response.statusCode == 200) {
-        return User.fromJson(jsonDecode(response.body));
+
+        return jsonDecode(response.body);
       } else {
-        throw Exception('Failed to register');
+        
+        return jsonDecode(response.body);
       }
     } catch (e) {
       //print(e);
-      return null;
+      return "";
     }
   }
 }
