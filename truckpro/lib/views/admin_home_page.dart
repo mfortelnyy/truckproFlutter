@@ -52,26 +52,26 @@ class AdminHomePageState extends State<AdminHomePage> {
                 } else {
                   return Column(
                     children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const ScrollPhysics(),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          var company = snapshot.data![index];
-                          return ListTile(
-                            title: Text(company.name), 
-                            subtitle: Text('ID: ${company.id}'),
-                            onTap: () {
-                              Future<List<User>> drivers = widget.adminService.getDriversByCompanyId(company.id, widget.token);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DriversView(driversFuture: drivers, adminService: widget.adminService,),
-                                ),
-                              );
-                            },
-                          );
-                        },
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            var company = snapshot.data![index];
+                            return ListTile(
+                              title: Text(company.name), 
+                              subtitle: Text('ID: ${company.id}'),
+                              onTap: () {
+                                Future<List<User>> drivers = widget.adminService.getDriversByCompanyId(company.id, widget.token);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DriversView(driversFuture: drivers, adminService: widget.adminService,companyName: company.name,),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
                       ElevatedButton(
                         onPressed: () {
@@ -103,33 +103,33 @@ class AdminHomePageState extends State<AdminHomePage> {
                 } else {
                   return Column(
                     children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          var driver = snapshot.data![index];
-                          return ListTile(
-                            title: Text(driver.firstName),
-                            subtitle: Text('Driver ID: ${driver.id}'),
-                            onTap: () {
-                              var logs = widget.adminService.getLogsByDriverId(driver.id);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LogsView(logsFuture: logs),
-                                ),
-                              );
-                            },
-                          );
-                        },
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            var driver = snapshot.data![index];
+                            return ListTile(
+                              title: Text(driver.firstName),
+                              subtitle: Text('Driver ID: ${driver.id}'),
+                              onTap: () {
+                                var logs = widget.adminService.getLogsByDriverId(driver.id);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LogsView(logsFuture: logs),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DriversView(adminService: widget.adminService, driversFuture: _drivers),
+                              builder: (context) => DriversView(adminService: widget.adminService, driversFuture: _drivers, companyName: null,),
                             ),
                           );
                         },
@@ -145,6 +145,7 @@ class AdminHomePageState extends State<AdminHomePage> {
       ),
     );
   }
+
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -184,5 +185,4 @@ class AdminHomePageState extends State<AdminHomePage> {
       ),
     );
   }
-
 }
