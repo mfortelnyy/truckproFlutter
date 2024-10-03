@@ -1,12 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:truckpro/utils/admin_api_service.dart';
-import 'dart:convert';
-
 import '../models/signup_request.dart';
-import '../models/user.dart';
 import '../utils/login_service.dart';
 
 class DriverSignupPage extends StatefulWidget {
@@ -85,7 +79,7 @@ class DriverSignupPageState extends State<DriverSignupPage> {
       companyId: _selectedCompanyId!, 
     );
 
-    // Make the signup request
+    // make the signup request
     String? res = await _loginService.registerUser(signupDTO);
     
     if (res!=null && res!.isNotEmpty) {
