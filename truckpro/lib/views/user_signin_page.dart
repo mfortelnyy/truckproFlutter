@@ -42,35 +42,17 @@ class SignInPageState extends State<SignInPage> {
   void _handleSignIn(BuildContext context) async {
     final email = _emailController.text;
     final password = _passwordController.text;
-    print('${email} + "    " + ${password}');
     String? token = await _loginService.loginUser(email, password);
-    print("token: ${token}");
+    
     if (token != null && token.length > 50) {
       //decode JWT token to get the role
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-      //get the role from the token
       String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      print('role: ${role}');
 
       //navigate to the appropriate homepage based on the role
-      if (role == 'manager') {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
-        );
-      } else if (role == 'driver') {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
-        );
-      } else if (role == 'admin') {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
-        );
-      } else {
-        //default
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
-        );
-      }
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
+      );
     } else {
       _showErrorDialog('Invalid email or password');
     }
@@ -80,76 +62,96 @@ class SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign In'),
+        title: const Text('User Log In'),
+        backgroundColor: Color.fromARGB(255, 241, 158, 89), 
+        elevation: 10,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                // Email input field
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: TextStyle(color: Colors.grey[800]),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // password input field
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: TextStyle(color: Colors.grey[800]),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Log In button
-                ElevatedButton(
-                  onPressed: () => _handleSignIn(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    textStyle: const TextStyle(fontSize: 18),
-                  ),
-                  child: const Text('Log In'),
-                ),
-
-                const SizedBox(height: 10),
-
-                // sign up button
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => DriverSignupPage()),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    backgroundColor: Colors.green, 
-                    textStyle: const TextStyle(fontSize: 18),
-                  ),
-                  child: const Text('Sign Up'),
-                ),
-              ],
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/registration_bg.png'), 
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.8),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 35),
+
+                    
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.8),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    ElevatedButton(
+                      onPressed: () => _handleSignIn(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        textStyle: const TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      child: const Text('Log In'),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    // Sign up button
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => DriverSignupPage()),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[700], 
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        textStyle: const TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      child: const Text('Sign Up'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
