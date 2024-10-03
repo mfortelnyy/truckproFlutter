@@ -6,8 +6,9 @@ import 'logs_view.dart';
 class DriversView extends StatelessWidget {
   final AdminApiService adminService;
   final Future<List<User>> driversFuture;  
+  final String? companyName;
 
-  const DriversView({super.key, required this.adminService, required this.driversFuture});
+  const DriversView({super.key, required this.adminService, required this.driversFuture, required this.companyName});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class DriversView extends StatelessWidget {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No logs found'));
+            return Center(child: Text('No drivers found for company:  $companyName'));
           } else {
             final drivers = snapshot.data!;
             return ListView.builder(
