@@ -6,7 +6,6 @@ import 'package:truckpro/views/driver_signup_page.dart';
 import '../utils/admin_api_service.dart';
 import 'admin_home_page.dart';
 
-
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
 
@@ -17,7 +16,7 @@ class SignInPage extends StatefulWidget {
 class SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final LoginService _loginService = LoginService(); 
+  final LoginService _loginService = LoginService();
 
   void _showErrorDialog(String errorMessage) {
     showDialog(
@@ -46,33 +45,30 @@ class SignInPageState extends State<SignInPage> {
     print('${email} + "    " + ${password}');
     String? token = await _loginService.loginUser(email, password);
     print("token: ${token}");
-    if (token != null && token.length>50) {
+    if (token != null && token.length > 50) {
       //decode JWT token to get the role
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-      //get the role from the token 
-      String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']; 
+      //get the role from the token
+      String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
       print('role: ${role}');
-
-      //if (!mounted) return;
-
 
       //navigate to the appropriate homepage based on the role
       if (role == 'manager') {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token,)),
+          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
         );
       } else if (role == 'driver') {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token,)),
+          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
         );
       } else if (role == 'admin') {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token,)),
+          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
         );
       } else {
         //default
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token,)),
+          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
         );
       }
     } else {
@@ -88,34 +84,73 @@ class SignInPageState extends State<SignInPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                // Email input field
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: TextStyle(color: Colors.grey[800]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // password input field
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Colors.grey[800]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Log In button
+                ElevatedButton(
+                  onPressed: () => _handleSignIn(context),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  child: const Text('Log In'),
+                ),
+
+                const SizedBox(height: 10),
+
+                // sign up button
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => DriverSignupPage()),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: Colors.green, 
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  child: const Text('Sign Up'),
+                ),
+              ],
             ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
-            ),
-            ElevatedButton(
-              onPressed: () => _handleSignIn(context),
-              child: const Text('Log In'),
-            ),
-            
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (context) => DriverSignupPage()),
-                            ),
-              child: const Text('Sign Up'),
-              style: ButtonStyle(),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
-
