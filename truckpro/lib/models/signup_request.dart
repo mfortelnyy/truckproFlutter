@@ -1,17 +1,32 @@
 class SignUpRequest {
+  final String firstName;
+  final String lastName;
   final String email;
+  final String phoneNumber;
   final String password;
-  final String name;
-  final String confirmpassword;
+  final String confirmPassword;
+  final int companyId;
 
-  SignUpRequest({required this.email, required this.password, required this.name, required this.confirmpassword});
+  SignUpRequest({
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.phoneNumber,
+    required this.password,
+    required this.confirmPassword,
+    required this.companyId,
+  });
 
   Map<String, dynamic> toJson() {
     return {
+      'firstName': firstName,
+      'lastName': lastName,
       'email': email,
+      'phone': phoneNumber,
       'password': password,
-      'confirmpassword': confirmpassword,
-      'name': name,
+      'confirmPassword': confirmPassword,
+      'role': 2,
+      'companyId': companyId
     };
   }
 }
