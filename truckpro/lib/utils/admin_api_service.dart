@@ -12,14 +12,14 @@ import 'package:truckpro/models/user.dart';
 
         Future<List<Company>> getAllCompanies(String token) async {
           //print("token passed:  $token");
-            final response = await http.get(Uri.parse('$baseUrl/adm/getAllCompanies'), 
+            final response = await http.get(Uri.parse('$baseUrl/getAllCompanies'), 
                                             headers: 
                                               {
                                                 "Content-Type": "application/json",
-                                                "Authorization": "Bearer $token"
+                                                //"Authorization": "Bearer $token"
                                                 
                                               });
-            print("response in get all comapnies ${response.statusCode}");
+            //print("response in get all comapnies ${response.statusCode}");
             if (response.statusCode == 200) {
             List<dynamic> jsonList = json.decode(response.body);
             return jsonList.map((json) => Company.fromJson(json)).toList(); // map JSON to Company objects
@@ -36,7 +36,7 @@ import 'package:truckpro/models/user.dart';
                                                 "Authorization": "Bearer $token"
                                                 
                                               });
-            print("get all drivers response code: ${response.statusCode}");
+            //print("get all drivers response code: ${response.statusCode}");
             if (response.statusCode == 200) {
             List<dynamic> jsonList = json.decode(response.body);
             return jsonList.map((json) => User.fromJson(json)).toList(); // map JSON to User objects
@@ -57,7 +57,7 @@ import 'package:truckpro/models/user.dart';
 
         Future<List<User>> getDriversByCompanyId(int? companyId, String token) async {
             
-            if(companyId == null) throw new Exception("null compnay id");
+            if(companyId == null) throw Exception("null compnay id");
             final response = await http.get(Uri.parse('$baseUrl/adm/getDriversByCompanyId?companyId=$companyId'),
                                             headers: 
                                               {
@@ -108,6 +108,8 @@ import 'package:truckpro/models/user.dart';
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode(manager.toJson()),
             );
+
+            return json.decode(response.body);
         }
 
     }
