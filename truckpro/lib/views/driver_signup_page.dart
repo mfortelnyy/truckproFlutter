@@ -1,21 +1,104 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:truckpro/models/user.dart';
+import 'package:http/http.dart' as http;
+import 'package:truckpro/utils/admin_api_service.dart';
+import 'dart:convert';
+
+import '../models/signup_request.dart';
+import '../models/user.dart';
+import '../utils/login_service.dart';
 
 class DriverSignupPage extends StatefulWidget {
+  const DriverSignupPage({super.key});
+
   @override
-  _DriverSignupPageState createState() => _DriverSignupPageState();
+  DriverSignupPageState createState() => DriverSignupPageState();
 }
 
-class _DriverSignupPageState extends State<DriverSignupPage> {
+class DriverSignupPageState extends State<DriverSignupPage> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _verifyPasswordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
+  final AdminApiService _adminService = AdminApiService(); 
+  final LoginService _loginService = LoginService(); 
 
- void _showErrorDialog(String errorMessage) {
+  var _companies = [];
+  int? _selectedCompanyId;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCompanies();
+  }
+
+  Future<void> _fetchCompanies() async {
+    try {
+      final companies = await _adminService.getAllCompanies("token"); 
+      setState(() {
+        _companies = companies;
+      });
+    } catch (e) {
+      print('Error fetching companies: $e');
+    }
+  }
+
+  void _handleSignup() async {
+    final String firstName = _firstNameController.text;
+    final String lastName = _lastNameController.text;
+    final String email = _emailController.text;
+    final String phone = _phoneController.text;
+    final String password = _passwordController.text;
+    final String confirmPassword = _confirmPasswordController.text;
+
+    // ensures company is selected
+    if (_selectedCompanyId == null) {
+      _showErrorDialog('Please select a company.');
+      return;
+    }
+
+    // validate email format
+    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(email)) {
+      _showErrorDialog('Invalid email format');
+      return;
+    }
+
+    // validate password matching
+    if (password != confirmPassword) {
+      _showErrorDialog('Passwords do not match!');
+      return;
+    }
+
+    // create DTO for signup
+    SignUpRequest signupDTO = SignUpRequest(
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: password,
+      confirmPassword: confirmPassword,
+      phoneNumber: phone,
+      companyId: _selectedCompanyId!, 
+    );
+
+    // Make the signup request
+    String? res = await _loginService.registerUser(signupDTO);
+    
+    if (res!=null && res!.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registration successful ${res}')),
+        
+      );
+    } else {
+      _showErrorDialog('Failed to register user. ${res}');
+    }
+  }
+
+  void _showErrorDialog(String errorMessage) {
     showDialog(
       context: context,
       builder: (context) {
@@ -35,28 +118,11 @@ class _DriverSignupPageState extends State<DriverSignupPage> {
     );
   }
 
-  void _handleSignup() async {
-    
-
-    // Get user input
-    final String first_name = _firstNameController.text;
-    final String email = _emailController.text;
-    final String password = _passwordController.text;
-
-    // Validate email format
-    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-        .hasMatch(email)) {
-      _showErrorDialog('Invalid email format');
-      return;
-    }
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Signup'),
+        title: const Text('Register Driver'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -77,7 +143,7 @@ class _DriverSignupPageState extends State<DriverSignupPage> {
             ),
             TextField(
               controller: _phoneController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: 'Phone Number'),
             ),
             TextField(
               controller: _passwordController,
@@ -85,12 +151,28 @@ class _DriverSignupPageState extends State<DriverSignupPage> {
               decoration: InputDecoration(labelText: 'Password'),
             ),
             TextField(
-              controller: _verifyPasswordController,
-              decoration: InputDecoration(labelText: 'Email'),
+              controller: _confirmPasswordController,
+              obscureText: true,
+              decoration: InputDecoration(labelText: 'Confirm Password'),
+            ),
+            DropdownButton<int>(
+              hint: Text('Select Company'),
+              value: _selectedCompanyId,
+              onChanged: (int? newValue) {
+                setState(() {
+                  _selectedCompanyId = newValue;
+                });
+              },
+              items: _companies.map((company) {
+                return DropdownMenuItem<int>(
+                  value: company.id,
+                  child: Text(company.name),
+                );
+              }).toList(),
             ),
             ElevatedButton(
               onPressed: _handleSignup,
-              child: Text('Sign Up'),
+              child: const Text('Sign Up'),
             ),
           ],
         ),
@@ -98,4 +180,3 @@ class _DriverSignupPageState extends State<DriverSignupPage> {
     );
   }
 }
-
