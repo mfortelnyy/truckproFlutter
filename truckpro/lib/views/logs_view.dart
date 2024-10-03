@@ -27,7 +27,7 @@ class LogsView extends StatelessWidget {
                 var log = logs[index];
                 return ListTile(
                   title: Text('Log Entry Type: ${log['logEntryType']}'),
-                  subtitle: Text('Start Time: ${log['startTime']}'), // Assuming log entry has a startTime
+                  subtitle: Text('Start Time: ${log['startTime']}'), 
                 );
               },
             );
