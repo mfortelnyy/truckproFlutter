@@ -1,9 +1,9 @@
 import 'dart:convert'; //for JSON encoding/decoding
 import 'package:http/http.dart' as http;
 import 'package:truckpro/models/signup_request.dart'; 
-import '../models/user.dart'; 
 
 class LoginService {
+  
   //base url of .net truckApi
   final String _baseUrl = 'https://localhost:443';
 
