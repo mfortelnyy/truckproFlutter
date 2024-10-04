@@ -37,11 +37,11 @@ class AdminHomePageState extends State<AdminHomePage> {
         title: const Text(
           'Admin Dashboard',
           style: TextStyle(
-            color: Colors.black, // Make AppBar text black to match the theme
+            color: Colors.black, 
           ),
         ),
-        backgroundColor: Colors.white, // White AppBar for a clean look
-        iconTheme: const IconThemeData(color: Colors.black), // Black icons in AppBar
+        backgroundColor: Colors.white, 
+        iconTheme: const IconThemeData(color: Colors.black), 
         elevation: 0, // Flat design
       ),
       drawer: _buildDrawer(context),
@@ -103,7 +103,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(255, 241, 158, 89), // Orange color for button
+                            backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -167,7 +167,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(255, 241, 158, 89), // Orange color for button
+                            backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -193,7 +193,7 @@ class AdminHomePageState extends State<AdminHomePage> {
         children: <Widget>[
           const DrawerHeader(
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 241, 158, 89), // Orange background for drawer header
+              color: Color.fromARGB(255, 241, 158, 89), 
             ),
             child: Text('Admin Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
@@ -210,7 +210,7 @@ class AdminHomePageState extends State<AdminHomePage> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.person_add, color: Colors.black), // Black icons
+            leading: const Icon(Icons.person_add, color: Colors.black),
             title: const Text('Sign Up Manager', style: TextStyle(color: Colors.black)),
             onTap: () {
               Navigator.push(
