@@ -6,12 +6,12 @@ import 'package:truckpro/models/user.dart';
 
 class ManagerApiService {
   final String baseUrl = 'https://localhost:443'; 
-  final String token;    
+  
 
-  ManagerApiService({required this.token});
+  ManagerApiService();
 
   //add drivers from an Excel file
-  Future<String> addDriversToCompany(int companyId, List<int> fileBytes) async {
+  Future<String> addDriversToCompany(int companyId, List<int> fileBytes, String token) async {
     final url = Uri.parse('$baseUrl/addDriversToCompany');
 
     var request = http.MultipartRequest('POST', url)
@@ -32,7 +32,7 @@ class ManagerApiService {
   }
 
   // send emails to pending users
-  Future<String> sendEmailToPendingUsers() async {
+  Future<String> sendEmailToPendingUsers(String token) async {
     final url = Uri.parse('$baseUrl/sendEmailToPendingUsers');
 
     try {
@@ -55,7 +55,7 @@ class ManagerApiService {
   }
 
   //get all active driving logs
-  Future<List<LogEntry>> getAllActiveDrivingLogs() async {
+  Future<List<LogEntry>> getAllActiveDrivingLogs(String token) async {
     final url = Uri.parse('$baseUrl/getAllActiveDrivingLogs');
 
     try {
@@ -78,7 +78,7 @@ class ManagerApiService {
   }
 
   //approve driving log by ID
-  Future<String> approveDrivingLogById(int logEntryId) async {
+  Future<String> approveDrivingLogById(int logEntryId, String token) async {
     final url = Uri.parse('$baseUrl/approveDrivingLogById?logEntryId=$logEntryId');
 
     try {
@@ -100,7 +100,7 @@ class ManagerApiService {
   }
 
   //get all drivers by company
-  Future<List<User>> getAllDriversByCompany() async {
+  Future<List<User>> getAllDriversByCompany(String token) async {
     final url = Uri.parse('$baseUrl/getAllDriversByCompany');
 
     try {
@@ -123,7 +123,7 @@ class ManagerApiService {
   }
 
   //get logs by driver ID
-  Future<List<LogEntry>> getLogsByDriverId(int driverId) async {
+  Future<List<LogEntry>> getLogsByDriverId(int driverId, String token) async {
     final url = Uri.parse('$baseUrl/geLogsByDriverId?driverId=$driverId');
 
     try {
@@ -146,7 +146,7 @@ class ManagerApiService {
   }
 
   // get images of driving log
-  Future<List<dynamic>> getImagesOfDrivingLog(int drivingLogId) async {
+  Future<List<dynamic>> getImagesOfDrivingLog(int drivingLogId, String token) async {
     final url = Uri.parse('$baseUrl/getImagesOfDrivingLog?drivingLogId=$drivingLogId');
 
     try {
@@ -168,7 +168,7 @@ class ManagerApiService {
   }
 
   // get registered users from pending users
-  Future<List<User>> getRegisteredFromPending() async {
+  Future<List<User>> getRegisteredFromPending(String token) async {
     final url = Uri.parse('$baseUrl/getRegisteredFromPending');
 
     try {
@@ -191,7 +191,7 @@ class ManagerApiService {
   }
 
   // get not registered users from pending users
-  Future<List<PendingUser>> getNotRegisteredFromPending() async {
+  Future<List<PendingUser>> getNotRegisteredFromPending(String token) async {
     final url = Uri.parse('$baseUrl/getNotRegisteredFromPending');
 
     try {

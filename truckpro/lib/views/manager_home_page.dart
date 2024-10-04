@@ -31,7 +31,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   void initState() {
     super.initState();
     
-    managerService = ManagerApiService(token: widget.token);
+    managerService = ManagerApiService();
 
     _fetchManagerData();
   }
@@ -43,10 +43,10 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     });
 
     try {
-      final drivers = await managerService.getAllDriversByCompany();
-      final pendingUsers = await managerService.getNotRegisteredFromPending();
-      final registeredUsers = await managerService.getRegisteredFromPending();
-      final activeDrivingLogs = await managerService.getAllActiveDrivingLogs();
+      final drivers = await managerService.getAllDriversByCompany(widget.token);
+      final pendingUsers = await managerService.getNotRegisteredFromPending(widget.token);
+      final registeredUsers = await managerService.getRegisteredFromPending(widget.token);
+      final activeDrivingLogs = await managerService.getAllActiveDrivingLogs(widget.token);
 
       setState(() {
         _drivers = drivers;
@@ -63,9 +63,9 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     }
   }
 
-  Future<void> _approveDrivingLog(int logEntryId) async {
+  Future<void> _approveDrivingLog(int logEntryId, String token) async {
     try {
-      await managerService.approveDrivingLogById(logEntryId);
+      await managerService.approveDrivingLogById(logEntryId, token);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Driving Log approved!')),
       );
@@ -103,6 +103,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
           ),
         ],
       ),
+      drawer: _buildDrawer(context),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
@@ -120,7 +121,6 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     if (_drivers.isEmpty) {
       return const Center(child: Text('No drivers found'));
     }
-
     return Expanded(
       child: ListView.builder(
         itemCount: _drivers.length,
