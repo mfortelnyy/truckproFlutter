@@ -6,7 +6,7 @@ import 'companies_view.dart';
 import 'create_company_screen.dart';
 import 'drivers_view.dart';
 import 'logs_view.dart';
-import 'signup_manager_screen.dart'; 
+import 'signup_manager_view.dart'; 
 
 class AdminHomePage extends StatefulWidget {
   final AdminApiService adminService;
@@ -216,7 +216,7 @@ class AdminHomePageState extends State<AdminHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SignUpManagerScreen(adminService: widget.adminService, token: widget.token),
+                  builder: (context) => ManagerSignupView(token: widget.token),
                 ),
               );
             },
