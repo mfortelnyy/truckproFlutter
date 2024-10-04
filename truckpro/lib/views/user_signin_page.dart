@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:truckpro/utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:truckpro/views/driver_signup_page.dart';
+import 'package:truckpro/views/manager_home_page.dart';
 
 import '../utils/admin_api_service.dart';
 import 'admin_home_page.dart';
@@ -50,9 +51,20 @@ class SignInPageState extends State<SignInPage> {
       String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
       //navigate to the appropriate homepage based on the role
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
-      );
+      switch (role) {
+        case "Admin":
+          Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
+          );
+        case "Manager":
+          Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => ManagerHomeScreen(token: token)),
+          );
+          
+          break;
+        default:
+      }
+      
     } else {
       _showErrorDialog('Invalid email or password');
     }
