@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:truckpro/models/signup_request.dart'; 
 
 class LoginService {
-  
+
   //base url of .net truckApi
   final String _baseUrl = 'https://localhost:443';
 
@@ -53,6 +53,36 @@ class LoginService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode(signupDTO.toJson()),
+      );
+      print(response.statusCode);
+      print(jsonDecode(response.body));
+
+      if (response.statusCode == 200) {
+
+        return jsonDecode(response.body);
+      } else {
+        
+        return jsonDecode(response.body);
+      }
+    } catch (e) {
+      //print(e);
+      return "";
+    }
+  }
+
+
+  // handle user change of password
+  Future<String?> updatePassword(int userId, String oldPassword, String newPassword ) async {
+    try {
+      final url = Uri.parse('$_baseUrl/updatePassword');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          "{'driverId': ${userId}, 'oldPassword': $oldPassword, 'newPassword': $newPassword}"
+        ),
       );
       print(response.statusCode);
       print(jsonDecode(response.body));
