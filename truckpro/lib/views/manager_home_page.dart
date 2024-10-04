@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/pending_user.dart';
 import 'package:truckpro/utils/admin_api_service.dart';
+import 'package:truckpro/views/update_password_view';
 import '../models/user.dart';
 import '../utils/manager_api_service.dart';
 import 'drivers_view.dart';
@@ -77,17 +78,20 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     }
   }
 
-  Future<void> _sendEmailToPendingUsers() async {
+  Future<void> _sendEmailToPendingUsers(String token) async {
     try {
-      await managerService.sendEmailToPendingUsers();
+      await managerService.sendEmailToPendingUsers(token);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Emails sent to pending users!')),
       );
       _fetchManagerData(); 
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if(mounted)
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -121,32 +125,53 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     if (_drivers.isEmpty) {
       return const Center(child: Text('No drivers found'));
     }
-    return Expanded(
-      child: ListView.builder(
-        itemCount: _drivers.length,
-        itemBuilder: (context, index) {
-          var driver = _drivers[index];
-          return Card(
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: _drivers.length,
+            itemBuilder: (context, index) {
+              var driver = _drivers[index];
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 2,
+                child: ListTile(
+                  title: Text(driver.firstName, style: const TextStyle(color: Colors.black)),
+                  subtitle: Text('Driver ID: ${driver.id}', style: TextStyle(color: Colors.grey[600])),
+                  onTap: () {
+                    var logs = managerService.getLogsByDriverId(driver.id, widget.token);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LogsView(logsFuture: logs),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DriversView(driversFuture: Future.value(_drivers), companyName: null, adminService: AdminApiService(),),
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            elevation: 2,
-            child: ListTile(
-              title: Text(driver.firstName, style: const TextStyle(color: Colors.black)),
-              subtitle: Text('Driver ID: ${driver.id}', style: TextStyle(color: Colors.grey[600])),
-              onTap: () {
-                var logs = managerService.getLogsByDriverId(driver.id);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LogsView(logsFuture: logs),
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
+          ),
+          child: const Text('Show All Drivers', style: TextStyle(color: Colors.white)),
+        ),
+      ]
     );
   }
 
@@ -173,23 +198,19 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               );
             },
           ),
-          ElevatedButton(
-            onPressed: () {
+          ListTile(
+            leading: const Icon(Icons.password_rounded, color: Colors.black),
+            title: const Text('Change Password', style: TextStyle(color: Colors.black)),
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DriversView(driversFuture: managerService.getAllDriversByCompany(), adminService: AdminApiService(), companyName: null,),
+                  builder: (context) => UpdatePasswordView(token: widget.token),
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text('Show All Drivers', style: TextStyle(color: Colors.white)),
           ),
+          
         ],
       ),
     );
