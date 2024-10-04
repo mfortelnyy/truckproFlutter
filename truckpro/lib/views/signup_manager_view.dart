@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:truckpro/models/manager_signup_dto.dart';
 import 'package:truckpro/utils/admin_api_service.dart';
-import 'package:truckpro/utils/manager_api_service.dart';
-import '../models/signup_request.dart';
-import '../utils/login_service.dart';
 
 class ManagerSignupView extends StatefulWidget {
   final String token;
@@ -20,8 +18,7 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  final ManagerApiService _managerService = ManagerApiService(); 
-  final LoginService _loginService = LoginService(); 
+  final AdminApiService _adminService = AdminApiService(); 
 
   var _companies = [];
   int? _selectedCompanyId;
@@ -41,7 +38,7 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
         _companies = companies;
       });
     } catch (e) {
-      print('Error fetching companies: $e');
+      //print('Error fetching companies: $e');
     }
   }
 
@@ -73,26 +70,29 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
     }
 
     // create DTO for signup
-    SignUpRequest signupDTO = SignUpRequest(
+    ManagerSignUpDto managerSignupDTO = ManagerSignUpDto(
       firstName: firstName,
       lastName: lastName,
       email: email,
       password: password,
       confirmPassword: confirmPassword,
-      phoneNumber: phone,
+      phone: phone,
+      role: 1,
       companyId: _selectedCompanyId!, 
     );
 
     // make the signup request
-    String? res = await _loginService.registerUser(signupDTO);
+    String? res = await _adminService.signUpManager(managerSignupDTO);
     
     if (res!=null && res.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration successful ${res}')),
-        
-      );
+      if(mounted)
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration successful $res')),   
+        );
+      }
     } else {
-      _showErrorDialog('Failed to register user. ${res}');
+      _showErrorDialog('Failed to register user. $res');
     }
   }
 
@@ -101,14 +101,14 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Error'),
+          title: const Text('Error'),
           content: Text(errorMessage),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -120,7 +120,7 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Driver Registration'),
+        title: const Text('Manager Registration - by admin'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0.5,
