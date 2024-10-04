@@ -82,7 +82,7 @@ class DriverSignupPageState extends State<DriverSignupPage> {
     // make the signup request
     String? res = await _loginService.registerUser(signupDTO);
     
-    if (res!=null && res!.isNotEmpty) {
+    if (res!=null && res.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registration successful ${res}')),
         
