@@ -1,9 +1,10 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:truckpro/utils/manager_api_service.dart';
 
 class UploadDriversScreen extends StatefulWidget {
   final String token;
-  final dynamic managerApiService;
+  final ManagerApiService managerApiService;
 
   const UploadDriversScreen({super.key, required this.managerApiService, required this.token});
 
@@ -24,7 +25,7 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['xls', 'xlsx'], // only  Excel files
+        allowedExtensions: ['xls', 'xlsx'], // only Excel files
       );
 
       if (result != null) {
@@ -34,6 +35,7 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
           _fileName = file.name;
         });
 
+        // Upload the file using the path
         _uploadFile(file.path!);
       } else {
         setState(() {
@@ -47,22 +49,20 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
     }
   }
 
-  
   Future<void> _uploadFile(String filePath) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      
-      await widget.managerApiService.uploadDriverEmails(filePath, widget.token);
+      await widget.managerApiService.addDriversToCompany(filePath, widget.token);
 
       setState(() {
         _isLoading = false;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File uploaded successfully!')),
+        const SnackBar(content: Text('File uploaded successfully!')),
       );
     } catch (e) {
       setState(() {
@@ -76,7 +76,7 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Upload Driver Emails'),
+        title: const Text('Upload Driver Emails'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -88,10 +88,10 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _pickFile,
-              child: Text('Pick Excel File'),
+              child: const Text('Pick Excel File'),
             ),
             const SizedBox(height: 20),
-            if (_isLoading) CircularProgressIndicator(),
+            if (_isLoading) const CircularProgressIndicator(),
           ],
         ),
       ),
