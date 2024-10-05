@@ -11,12 +11,16 @@ class ManagerApiService {
   ManagerApiService();
 
   //add drivers from an Excel file
-  Future<String> addDriversToCompany(int companyId, List<int> fileBytes, String token) async {
+  Future<String> addDriversToCompany(String filePath, String token) async {
     final url = Uri.parse('$baseUrl/addDriversToCompany');
 
     var request = http.MultipartRequest('POST', url)
-      ..headers['Authorization'] = 'Bearer $token'
-      ..files.add(http.MultipartFile.fromBytes('file', fileBytes, filename: 'drivers.xlsx'));
+      ..headers['Authorization'] = 'Bearer $token';
+    
+    // read the file from the file path and add it as MultipartFile
+    var fileBytes = await http.MultipartFile.fromPath('file', filePath);
+
+    request.files.add(fileBytes);
 
     try {
       final response = await request.send();
