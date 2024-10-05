@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/pending_user.dart';
 import 'package:truckpro/utils/admin_api_service.dart';
+import 'package:truckpro/views/pending_users_view.dart';
 import 'package:truckpro/views/update_password_view';
 import '../models/user.dart';
 import '../utils/manager_api_service.dart';
@@ -206,6 +207,18 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => UpdatePasswordView(token: widget.token),
+                ),
+              );
+            },
+          ),
+           ListTile(
+            leading: const Icon(Icons.pending_rounded, color: Colors.black),
+            title: const Text('Get All Pending Users', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PendingUsersView(pendingUsers: _pendingUsers),
                 ),
               );
             },
