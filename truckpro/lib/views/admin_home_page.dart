@@ -6,7 +6,7 @@ import 'companies_view.dart';
 import 'create_company_screen.dart';
 import 'drivers_view.dart';
 import 'logs_view.dart';
-import 'signup_manager_view.dart'; 
+import 'manager_signuo_view.dart'; 
 
 class AdminHomePage extends StatefulWidget {
   final AdminApiService adminService;
