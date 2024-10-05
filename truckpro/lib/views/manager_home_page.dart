@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/pending_user.dart';
@@ -14,18 +16,18 @@ class ManagerHomeScreen extends StatefulWidget {
   final String token;
 
   const ManagerHomeScreen({super.key, required this.token});
+  
 
   @override
   _ManagerHomeScreenState createState() => _ManagerHomeScreenState();
 }
 
 class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
-  late ManagerApiService managerService;
-
-  List<User> _drivers = [];
-  List<PendingUser> _pendingUsers = [];
-  List<User> _registeredUsers = [];
-  List<LogEntry> _activeDrivingLogs = [];
+  final ManagerApiService managerService = ManagerApiService();
+  late Future<List<User>> _drivers;
+  late Future<List<PendingUser>> _pendingUsers;
+  late Future<List<User>> _registeredUsers;
+  late Future<List<LogEntry>> _activeDrivingLogs;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -33,7 +35,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   void initState() {
     super.initState();
     
-    managerService = ManagerApiService();
+    
 
     _fetchManagerData();
   }
@@ -45,10 +47,10 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     });
 
     try {
-      final drivers = await managerService.getAllDriversByCompany(widget.token);
-      final pendingUsers = await managerService.getNotRegisteredFromPending(widget.token);
-      final registeredUsers = await managerService.getRegisteredFromPending(widget.token);
-      final activeDrivingLogs = await managerService.getAllActiveDrivingLogs(widget.token);
+      final drivers = managerService.getAllDriversByCompany(widget.token);
+      final pendingUsers = managerService.getNotRegisteredFromPending(widget.token);
+      final registeredUsers = managerService.getRegisteredFromPending(widget.token);
+      final activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
 
       setState(() {
         _drivers = drivers;
@@ -123,59 +125,72 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   }
 
   Widget _buildDriversList() {
-    if (_drivers.isEmpty) {
-      return const Center(child: Text('No drivers found'));
-    }
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: _drivers.length,
-            itemBuilder: (context, index) {
-              var driver = _drivers[index];
-              return Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 2,
-                child: ListTile(
-                  title: Text(driver.firstName, style: const TextStyle(color: Colors.black)),
-                  subtitle: Text('Driver ID: ${driver.id}', style: TextStyle(color: Colors.grey[600])),
-                  onTap: () {
-                    var logs = managerService.getLogsByDriverId(driver.id, widget.token);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LogsView(logsFuture: logs),
+  return Expanded(  
+    child: FutureBuilder<List<User>>(
+      future: managerService.getAllDriversByCompany(widget.token),  
+        builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No drivers found'));
+        } else {
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    var driver = snapshot.data![index];
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 2,
+                      child: ListTile(
+                        title: Text(driver.firstName, style: const TextStyle(color: Colors.black)),
+                        subtitle: Text('Driver ID: ${driver.id}', style: TextStyle(color: Colors.grey[600])),
+                        onTap: () {
+                          var logs = managerService.getLogsByDriverId(driver.id, widget.token);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LogsView(logsFuture: logs),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },
                 ),
-              );
-            },
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DriversView(driversFuture: Future.value(_drivers), companyName: null, adminService: AdminApiService(),),
               ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: const Text('Show All Drivers', style: TextStyle(color: Colors.white)),
-        ),
-      ]
-    );
-  }
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DriversView(adminService: AdminApiService(), driversFuture: Future.value(snapshot.data!), companyName: null,),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text('Show All Drivers', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        }
+      },
+    ),
+  );
+}
 
+ 
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -214,14 +229,14 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
            ListTile(
             leading: const Icon(Icons.pending_rounded, color: Colors.black),
             title: const Text('Get All Pending Users', style: TextStyle(color: Colors.black)),
-            onTap: () {
+            onTap: () {/*
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PendingUsersView(pendingUsers: _pendingUsers),
                 ),
               );
-            },
+            */},
           ),
           
         ],

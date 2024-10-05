@@ -71,8 +71,16 @@ class ManagerApiService {
       );
 
       if (response.statusCode == 200) {
+        
         var jsonList = json.decode(response.body);
-        return jsonList.map((json) => LogEntry.fromJson(json)).toList();
+        if(jsonList.isNotEmpty())
+        {
+          return jsonList.map((json) => LogEntry.fromJson(json)).toList();
+        }
+        else 
+        {
+          throw Exception('Failed to fetch active driving logs: ${response.body}');
+        }
       } else {
         throw Exception('Failed to fetch active driving logs: ${response.body}');
       }
@@ -103,7 +111,7 @@ class ManagerApiService {
     }
   }
 
-  //get all drivers by company
+  //get all drivers by company of the manager
   Future<List<User>> getAllDriversByCompany(String token) async {
     final url = Uri.parse('$baseUrl/getAllDriversByCompany');
 
@@ -114,10 +122,10 @@ class ManagerApiService {
           'Authorization': 'Bearer $token',
         },
       );
-
+      print("getting all comanies repnse code: ${response.statusCode}");
       if (response.statusCode == 200) {
-        var jsonList = json.decode(response.body);
-        return jsonList.map((json) => User.fromJson(json)).toList();
+          List<dynamic> jsonList = json.decode(response.body);
+          return jsonList.map((json) => User.fromJson(json)).toList(); 
       } else {
         throw Exception('Failed to fetch drivers: ${response.body}');
       }
@@ -208,7 +216,14 @@ class ManagerApiService {
 
       if (response.statusCode == 200) {
         var jsonList = json.decode(response.body);
-        return jsonList.map((json) => PendingUser.fromJson(json)).toList();
+        if(jsonList.isNotEmpty())
+        {
+          return jsonList.map((json) => PendingUser.fromJson(json)).toList();
+        }
+        else
+        {
+          throw Exception('Failed to fetch not registered users: ${response.body}');
+        }
       } else {
         throw Exception('Failed to fetch not registered users: ${response.body}');
       }

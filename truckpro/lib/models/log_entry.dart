@@ -1,6 +1,6 @@
 class LogEntry {
-  final String id;
-  final String userId;
+  final int id;
+  final int userId;
   final DateTime startTime;
   final DateTime endTime;
   final String logEntryType;
