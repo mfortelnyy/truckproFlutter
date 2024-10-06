@@ -73,14 +73,9 @@ class ManagerApiService {
       if (response.statusCode == 200) {
         
         var jsonList = json.decode(response.body);
-        if(jsonList.isNotEmpty())
-        {
-          return jsonList.map((json) => LogEntry.fromJson(json)).toList();
-        }
-        else 
-        {
-          throw Exception('Failed to fetch active driving logs: ${response.body}');
-        }
+        
+        return jsonList.map((json) => LogEntry.fromJson(json)).toList();
+
       } else {
         throw Exception('Failed to fetch active driving logs: ${response.body}');
       }
@@ -124,8 +119,9 @@ class ManagerApiService {
       );
       print("getting all comanies repnse code: ${response.statusCode}");
       if (response.statusCode == 200) {
-          List<dynamic> jsonList = json.decode(response.body);
-          return jsonList.map((json) => User.fromJson(json)).toList(); 
+           List<dynamic> jsonList = json.decode(response.body);
+           var result = jsonList.map((json) => User.fromJson(json)).toList(); 
+           return result;
       } else {
         throw Exception('Failed to fetch drivers: ${response.body}');
       }
@@ -147,8 +143,10 @@ class ManagerApiService {
       );
 
       if (response.statusCode == 200) {
-        var jsonList = json.decode(response.body);;
-        return jsonList.map((json) => LogEntry.fromJson(json)).toList();
+        var jsonList = json.decode(response.body) as List<dynamic>;
+        var res = jsonList.map((json) => LogEntry.fromJson(json)).toList();
+        return res;
+        //[{"id":1,"userId":2,"user":null,"startTime":"2024-09-19T01:16:25.6739627","endTime":null,"logEntryType":1,"imageUrls":null,"isApprovedByManager":false},{"id":2,"userId":2,"user":null,"startTime":"2024-09-19T02:52:22.2764388","endTime":null,"logEntryType":0,"imageUrls":["https://truckphotos.s3.amazonaws.com/a609e165-85c8-4a0b-b331-b6bce94c0489_1.png","https://truckphotos.s3.amazonaws.com/c67e03b7-e2c6-47b3-a1cf-de9d455ccc41_download.jfif"],"isApprovedByManager":false}]
       } else {
         throw Exception('Failed to fetch logs: ${response.body}');
       }
@@ -156,7 +154,6 @@ class ManagerApiService {
       throw Exception('Error: $e');
     }
   }
-
   // get images of driving log
   Future<List<dynamic>> getImagesOfDrivingLog(int drivingLogId, String token) async {
     final url = Uri.parse('$baseUrl/getImagesOfDrivingLog?drivingLogId=$drivingLogId');
@@ -182,6 +179,8 @@ class ManagerApiService {
   // get registered users from pending users
   Future<List<User>> getRegisteredFromPending(String token) async {
     final url = Uri.parse('$baseUrl/getRegisteredFromPending');
+
+    print("manager with token ${token}");
 
     try {
       final response = await http.get(
