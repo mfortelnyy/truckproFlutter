@@ -1,14 +1,17 @@
+import 'company.dart';
+
 class User {
-  final int id;
-  final String firstName;
-  final String lastName;
-  final String email;
-  final String password;
-  final String phone;
-  final int role;
-  final int companyId;
-  final bool emailVerified;
-  final String? emailVerificationToken;
+  int id;
+  String firstName;
+  String lastName;
+  String email;
+  String password;
+  String phone;
+  int role;
+  int companyId;
+  Company? company;
+  bool emailVerified;
+  String? emailVerificationToken;
 
   User(
   {
@@ -22,6 +25,7 @@ class User {
     required this.companyId,
     required this.emailVerified,
     required this.emailVerificationToken,    
+    this.company,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -35,7 +39,8 @@ class User {
       role: json['role'],
       companyId: json['companyId'],
       emailVerified: json['emailVerified'],
-      emailVerificationToken: json['emailVerificationToken']
+      emailVerificationToken: json['emailVerificationToken'],
+      company: json['company'],
     );
   }
 
@@ -49,7 +54,8 @@ class User {
       'role': role,
       'companyId': companyId,
       'emailVerified': emailVerified,
-      'emailVerificationToken': emailVerificationToken
+      'emailVerificationToken': emailVerificationToken,
+      'company': company
     };
   }
 }
