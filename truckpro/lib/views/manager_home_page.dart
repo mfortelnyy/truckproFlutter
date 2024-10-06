@@ -47,18 +47,20 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     });
 
     try {
+      print(widget.token);
       final drivers = managerService.getAllDriversByCompany(widget.token);
-      final pendingUsers = managerService.getNotRegisteredFromPending(widget.token);
+      /*final pendingUsers = managerService.getNotRegisteredFromPending(widget.token);
       final registeredUsers = managerService.getRegisteredFromPending(widget.token);
       final activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
-
+*/
       setState(() {
         _drivers = drivers;
-        _pendingUsers = pendingUsers;
+        _isLoading = false;
+        /*_pendingUsers = pendingUsers;
         _registeredUsers = registeredUsers;
         _activeDrivingLogs = activeDrivingLogs;
-        _isLoading = false;
-      });
+        
+      */});
     } catch (e) {
       setState(() {
         _errorMessage = "Failed to load data: $e";
@@ -127,8 +129,8 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   Widget _buildDriversList() {
   return Expanded(  
     child: FutureBuilder<List<User>>(
-      future: managerService.getAllDriversByCompany(widget.token),  
-        builder: (context, snapshot) {
+      future: _drivers,  
+            builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
