@@ -217,7 +217,7 @@ class ManagerApiService {
         
         var jsonList = json.decode(response.body);
   
-        return jsonList.map((json) => PendingUser.fromJson(json)).toList();
+        return jsonList.map<PendingUser>((json) => PendingUser.fromJson(json)).toList();
  
       } else {
         throw Exception('Failed to fetch not registered users: ${response.body}');
