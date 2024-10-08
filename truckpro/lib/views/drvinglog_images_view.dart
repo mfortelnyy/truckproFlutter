@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:truckpro/models/log_entry.dart';
+import 'package:truckpro/utils/manager_api_service.dart';
 
 class DrivingLogImagesView extends StatelessWidget {
-  final Future<List<String>> imageUrls; 
+  final Future<List<String>> imageUrls;
+  final LogEntry log;
+  final String token;
+  
 
-  const DrivingLogImagesView({super.key, required this.imageUrls});
+  const DrivingLogImagesView({
+    super.key,
+    required this.imageUrls,
+    required this.log,
+    required this.token,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +22,7 @@ class DrivingLogImagesView extends StatelessWidget {
         title: const Text('Driving Log Images'),
       ),
       body: FutureBuilder<List<String>>(
-        future: imageUrls, 
+        future: imageUrls,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -22,38 +32,53 @@ class DrivingLogImagesView extends StatelessWidget {
             return const Center(child: Text('No images available'));
           } else {
             final urls = snapshot.data!;
-            return GridView.builder(
-              padding: const EdgeInsets.all(10),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // num of images per row
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: urls.length,
-              itemBuilder: (context, index) {
-                return InkWell(
-                  onTap: () {
-                    _showImageDialog(context, urls[index]);
-                  },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      urls[index],
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return const Center(child: CircularProgressIndicator());
+            return Column(
+              children: [
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.all(10),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // number of images per row
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemCount: urls.length,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          _showImageDialog(context, urls[index]);
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            urls[index],
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(child: CircularProgressIndicator());
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Center(
+                                child: Icon(Icons.error, color: Colors.red),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                if (!log.isApprovedByManager)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await _approveLog(log.id, context);
                       },
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Center(
-                          child: Icon(Icons.error, color: Colors.red),
-                        );
-                      },
+                      child: const Text('Approve Log'),
                     ),
                   ),
-                  
-                );
-              },
+              ],
             );
           }
         },
@@ -61,7 +86,7 @@ class DrivingLogImagesView extends StatelessWidget {
     );
   }
 
-  //full screen images 
+  
   void _showImageDialog(BuildContext context, String imageUrl) {
     showDialog(
       context: context,
@@ -88,5 +113,27 @@ class DrivingLogImagesView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  
+  Future<void> _approveLog(int logId, BuildContext context) async {
+    try {
+      ManagerApiService managerApiService = ManagerApiService();
+      final response = await managerApiService.approveDrivingLogById(logId, token);
+      if (response !=null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Log approved successfully!')),
+        );
+        Navigator.of(context).pop(); 
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to approve log')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 }
