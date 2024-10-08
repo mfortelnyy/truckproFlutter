@@ -49,15 +49,15 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     try {
       print(widget.token);
       final drivers = managerService.getAllDriversByCompany(widget.token);
-      /*final pendingUsers = managerService.getNotRegisteredFromPending(widget.token);
-      final registeredUsers = managerService.getRegisteredFromPending(widget.token);
+      final pendingUsers = managerService.getNotRegisteredFromPending(widget.token);
+      /*final registeredUsers = managerService.getRegisteredFromPending(widget.token);
       final activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
 */
       setState(() {
         _drivers = drivers;
         _isLoading = false;
-        /*_pendingUsers = pendingUsers;
-        _registeredUsers = registeredUsers;
+        _pendingUsers = pendingUsers;
+        /*_registeredUsers = registeredUsers;
         _activeDrivingLogs = activeDrivingLogs;
         
       */});
@@ -231,14 +231,14 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
            ListTile(
             leading: const Icon(Icons.pending_rounded, color: Colors.black),
             title: const Text('Get All Pending Users', style: TextStyle(color: Colors.black)),
-            onTap: () {/*
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PendingUsersView(pendingUsers: _pendingUsers),
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _pendingUsers, token: widget.token, adminService: AdminApiService() ,),
                 ),
               );
-            */},
+            },
           ),
           
         ],
