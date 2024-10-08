@@ -7,7 +7,7 @@ import 'package:truckpro/utils/manager_api_service.dart';
 
 
 
-import 'drving_log_view.dart';
+import 'drvinglog_images_view.dart';
 
 class LogsView extends StatelessWidget {
   final Future<List<LogEntry>> logsFuture;  
@@ -54,7 +54,9 @@ class LogsView extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => DrivingLogImagesView(
-                                  imageUrls: Future.value(log.imageUrls)
+                                  imageUrls: Future.value(log.imageUrls),
+                                  log: log,
+                                  token: token, 
                                 ),
                               ),
                             );
@@ -65,6 +67,7 @@ class LogsView extends StatelessWidget {
                           }
                         },
                       ),
+                      
                     ],
                   ),
                 );
