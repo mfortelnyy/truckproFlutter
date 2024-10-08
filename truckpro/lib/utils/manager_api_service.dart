@@ -132,7 +132,7 @@ class ManagerApiService {
 
   //get logs by driver ID
   Future<List<LogEntry>> getLogsByDriverId(int driverId, String token) async {
-    final url = Uri.parse('$baseUrl/geLogsByDriverId?driverId=$driverId');
+    final url = Uri.parse('$baseUrl/allLogsByDriver?driverId=$driverId');
 
     try {
       final response = await http.get(
@@ -155,7 +155,7 @@ class ManagerApiService {
     }
   }
   // get images of driving log
-  Future<List<dynamic>> getImagesOfDrivingLog(int drivingLogId, String token) async {
+  Future<List<String>> getImagesOfDrivingLog(int drivingLogId, String token) async {
     final url = Uri.parse('$baseUrl/getImagesOfDrivingLog?drivingLogId=$drivingLogId');
 
     try {
@@ -230,4 +230,68 @@ class ManagerApiService {
       throw Exception('Error: $e');
     }
   }
+/*
+  Future<String> approveDrivingLogById(int logEntryId, String token) async{
+    final url = Uri.parse('$baseUrl/approveDrivingLogById?logEntryId=${logEntryId}');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+
+        'Content-Type': 'application/json', 
+      
+          'Authorization': 'Bearer $token',
+        },
+
+        
+      );
+      print("APPROVING DRIVING LOG RESPONSE CODE: ${response.statusCode}");
+      if (response.statusCode == 200) {
+        return "Log with id: ${logEntryId} succesfully approved";
+      }
+      else{
+        throw Exception("Log can not be approved at this moment");
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+  */
+
+  Future<List<String>> getSignedUrls(List<String> urls, String token) async {
+    final url = Uri.parse('$baseUrl/getSignedUrls');
+
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(urls),
+        headers: {
+
+        'Content-Type': 'application/json', 
+      
+          'Authorization': 'Bearer $token',
+        },
+
+        
+      );
+      print("getting signed images reponse code: ${response.statusCode}");
+      if (response.statusCode == 200) {
+        var jsonList = json.decode(response.body);
+        if(jsonList.isNotEmpty())
+        {
+          return jsonList.map((json) => PendingUser.fromJson(json)).toList();
+        }
+        else
+        {
+          throw Exception('Failed to signed urls: ${response.body}');
+        }
+      } else {
+        throw Exception('Failed to signed urls:: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+
+  }
+
 }
