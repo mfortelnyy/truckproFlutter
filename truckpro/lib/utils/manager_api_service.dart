@@ -117,7 +117,7 @@ class ManagerApiService {
           'Authorization': 'Bearer $token',
         },
       );
-      print("getting all comanies repnse code: ${response.statusCode}");
+      print("getting all comanies response code: ${response.statusCode}");
       if (response.statusCode == 200) {
            List<dynamic> jsonList = json.decode(response.body);
            var result = jsonList.map((json) => User.fromJson(json)).toList(); 
@@ -192,7 +192,7 @@ class ManagerApiService {
 
       if (response.statusCode == 200) {
         var jsonList = json.decode(response.body);
-        return jsonList.map((json) => User.fromJson(json)).toList(); 
+        return jsonList.map<User>((json) => User.fromJson(json)).toList();
       } else {
         throw Exception('Failed to fetch registered users: ${response.body}');
       }
@@ -214,15 +214,11 @@ class ManagerApiService {
       );
 
       if (response.statusCode == 200) {
+        
         var jsonList = json.decode(response.body);
-        if(jsonList.isNotEmpty())
-        {
-          return jsonList.map((json) => PendingUser.fromJson(json)).toList();
-        }
-        else
-        {
-          throw Exception('Failed to fetch not registered users: ${response.body}');
-        }
+  
+        return jsonList.map((json) => PendingUser.fromJson(json)).toList();
+ 
       } else {
         throw Exception('Failed to fetch not registered users: ${response.body}');
       }
@@ -258,7 +254,7 @@ class ManagerApiService {
   }
   */
 
-  Future<List<String>> getSignedUrls(List<String> urls, String token) async {
+  Future<List> getSignedUrls(List<String> urls, String token) async {
     final url = Uri.parse('$baseUrl/getSignedUrls');
 
     try {
@@ -276,10 +272,11 @@ class ManagerApiService {
       );
       print("getting signed images reponse code: ${response.statusCode}");
       if (response.statusCode == 200) {
-        var jsonList = json.decode(response.body);
-        if(jsonList.isNotEmpty())
+        List<dynamic>  jsonList = json.decode(response.body);
+        if(jsonList.isNotEmpty)
         {
-          return jsonList.map((json) => PendingUser.fromJson(json)).toList();
+          return jsonList;
+          //return jsonList.map((json) => PendingUser.fromJson(json)).toList();
         }
         else
         {
@@ -292,6 +289,36 @@ class ManagerApiService {
       throw Exception('Error: $e');
     }
 
+  }
+
+
+    Future<List<PendingUser>> getAllPendingUsers(String token) async {
+    final url = Uri.parse('$baseUrl/getAllPendingUsers');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var jsonList = json.decode(response.body);
+        if(jsonList.isNotEmpty)
+        {
+          return jsonList.map<PendingUser>((json) => PendingUser.fromJson(json)).toList();
+        }
+        else
+        {
+          throw Exception('Failed to fetch not registered users: ${response.body}');
+        }
+      } else {
+        throw Exception('Failed to fetch not registered users: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
   }
 
 }
