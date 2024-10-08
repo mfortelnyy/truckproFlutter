@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:truckpro/models/pending_user.dart';
 import '../utils/admin_api_service.dart';
 import 'logs_view.dart';
@@ -17,7 +18,7 @@ class PendingUsersView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Drivers'), backgroundColor: Color.fromARGB(255, 241, 158, 89),),
+      appBar: AppBar(title: const Text('Pending Drivers'), backgroundColor: Color.fromARGB(255, 241, 158, 89),),
       body: FutureBuilder<List<PendingUser>>(
         future: pendingUsersFuture,
         builder: (context, snapshot) {
@@ -42,9 +43,9 @@ class PendingUsersView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Email: ${pUser.email}'),
-                        Text('Date Created: ${pUser.createdDate}'),
+                        Text('Date Created: ${formatDateTime(pUser.createdDate)}'),
                         Text('Company Id: ${pUser.companyId}'),
-                        Text('Invitation Sent: ${pUser.invitationSent ? "Yes" : "No"}'),
+                        Text('Invitation Sent: ${boolToString(pUser.invitationSent)}'),
                       ],
                     ),
                   ),
@@ -58,15 +59,11 @@ class PendingUsersView extends StatelessWidget {
   }
 }
 
-roleToString(int role) {
-  switch (role) {
-    case 0:
-      return "Admin";
-    case 1:
-      return "Manager";
-    case 2:
-      return "Driver";
-    default:
-      return "default";
+  String formatDateTime(DateTime dateTime) {
+    DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
+    return formatter.format(dateTime);
   }
-}
+
+  String boolToString(bool val) {
+    return val ? "Yes" : "No";
+  }
