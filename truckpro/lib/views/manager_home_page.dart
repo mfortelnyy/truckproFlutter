@@ -235,7 +235,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PendingUsersView(pendingUsersFuture: _pendingUsers, token: widget.token, adminService: AdminApiService() ,),
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _pendingUsers, token: widget.token,),
                 ),
               );
             },
