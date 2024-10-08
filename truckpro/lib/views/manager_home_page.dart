@@ -27,7 +27,8 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   late Future<List<User>> _drivers;
   late Future<List<PendingUser>> _allPendingUsers;
   late Future<List<User>> _allRegisteredUsers;
-  late Future<List<LogEntry>> _activeDrivingLogs;
+  late Future<List<PendingUser>> _notRegistered;
+  //late Future<List<LogEntry>> _activeDrivingLogs;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -51,6 +52,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
       final drivers = managerService.getAllDriversByCompany(widget.token);
       final pendingUsers = managerService.getAllPendingUsers(widget.token);
       final registeredUsers = managerService.getRegisteredFromPending(widget.token);
+      final notRegisteredPendingUsers = managerService.getNotRegisteredFromPending(widget.token);
       //final activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
 
       setState(() {
@@ -58,6 +60,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
         _isLoading = false;
         _allPendingUsers = pendingUsers;
         _allRegisteredUsers = registeredUsers;
+        _notRegistered = notRegisteredPendingUsers;
         //_activeDrivingLogs = activeDrivingLogs;
         
       });
@@ -241,13 +244,25 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
             },
           ),
            ListTile(
-            leading: const Icon(Icons.pending_rounded, color: Colors.black),
+            leading: const Icon(Icons.verified_user_rounded, color: Colors.black),
             title: const Text('Get All Registered Users from Pending', style: TextStyle(color: Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => DriversView(driversFuture: _allRegisteredUsers, token: widget.token, adminService: AdminApiService(), companyName: null,),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.pending_rounded, color: Colors.black),
+            title: const Text('Get Not Registered Pending Users', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _notRegistered, token: widget.token)
                 ),
               );
             },
