@@ -84,6 +84,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                                           driversFuture: drivers, 
                                           adminService: widget.adminService,
                                           companyName: company.name,
+                                          token: widget.token,
                                         ),
                                       ),
                                     );
@@ -148,7 +149,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => LogsView(logsFuture: logs),
+                                        builder: (context) => LogsView(logsFuture: logs, token: widget.token,),
                                       ),
                                     );
                                   },
@@ -162,7 +163,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DriversView(adminService: widget.adminService, driversFuture: _drivers, companyName: null,),
+                                builder: (context) => DriversView(adminService: widget.adminService, driversFuture: _drivers, companyName: null,token: widget.token,),
                               ),
                             );
                           },

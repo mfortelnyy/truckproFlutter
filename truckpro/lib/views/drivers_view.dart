@@ -7,12 +7,14 @@ class DriversView extends StatelessWidget {
   final AdminApiService adminService;
   final Future<List<User>> driversFuture;  
   final String? companyName;
+  final String token;
 
   const DriversView({
     super.key,
     required this.adminService,
     required this.driversFuture,
     required this.companyName,
+    required this.token,
   });
 
   @override
@@ -53,7 +55,7 @@ class DriversView extends StatelessWidget {
                       var logs = adminService.getLogsByDriverId(driver.id);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LogsView(logsFuture: logs)),
+                        MaterialPageRoute(builder: (context) => LogsView(logsFuture: logs, token: token,)),
                       );
                     },
                   ),

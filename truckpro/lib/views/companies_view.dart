@@ -76,7 +76,7 @@ class CompaniesView extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (context) => DriversView(
                               driversFuture: AdminApiService().getDriversByCompanyId(company.id, token),
-                              companyName: company.name, adminService: AdminApiService(),
+                              companyName: company.name, adminService: AdminApiService(), token:token,
                             ),
                           ),
                         );

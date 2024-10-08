@@ -158,7 +158,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LogsView(logsFuture: logs),
+                              builder: (context) => LogsView(logsFuture: logs, token: widget.token,),
                             ),
                           );
                         },
@@ -172,7 +172,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DriversView(adminService: AdminApiService(), driversFuture: Future.value(snapshot.data!), companyName: null,),
+                      builder: (context) => DriversView(adminService: AdminApiService(), driversFuture: Future.value(snapshot.data!), companyName: null, token: widget.token,),
                     ),
                   );
                 },
