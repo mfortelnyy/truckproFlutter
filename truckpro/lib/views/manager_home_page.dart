@@ -25,8 +25,8 @@ class ManagerHomeScreen extends StatefulWidget {
 class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   final ManagerApiService managerService = ManagerApiService();
   late Future<List<User>> _drivers;
-  late Future<List<PendingUser>> _pendingUsers;
-  late Future<List<User>> _registeredUsers;
+  late Future<List<PendingUser>> _allPendingUsers;
+  late Future<List<User>> _allRegisteredUsers;
   late Future<List<LogEntry>> _activeDrivingLogs;
   bool _isLoading = true;
   String? _errorMessage;
@@ -49,18 +49,18 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     try {
       print(widget.token);
       final drivers = managerService.getAllDriversByCompany(widget.token);
-      final pendingUsers = managerService.getNotRegisteredFromPending(widget.token);
-      /*final registeredUsers = managerService.getRegisteredFromPending(widget.token);
-      final activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
-*/
+      final pendingUsers = managerService.getAllPendingUsers(widget.token);
+      final registeredUsers = managerService.getRegisteredFromPending(widget.token);
+      //final activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
+
       setState(() {
         _drivers = drivers;
         _isLoading = false;
-        _pendingUsers = pendingUsers;
-        /*_registeredUsers = registeredUsers;
-        _activeDrivingLogs = activeDrivingLogs;
+        _allPendingUsers = pendingUsers;
+        _allRegisteredUsers = registeredUsers;
+        //_activeDrivingLogs = activeDrivingLogs;
         
-      */});
+      });
     } catch (e) {
       setState(() {
         _errorMessage = "Failed to load data: $e";
@@ -235,7 +235,19 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PendingUsersView(pendingUsersFuture: _pendingUsers, token: widget.token,),
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _allPendingUsers, token: widget.token,),
+                ),
+              );
+            },
+          ),
+           ListTile(
+            leading: const Icon(Icons.pending_rounded, color: Colors.black),
+            title: const Text('Get All Registered Users from Pending', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DriversView(driversFuture: _allRegisteredUsers, token: widget.token, adminService: AdminApiService(), companyName: null,),
                 ),
               );
             },
