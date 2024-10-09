@@ -180,7 +180,7 @@ class ManagerApiService {
   Future<List<User>> getRegisteredFromPending(String token) async {
     final url = Uri.parse('$baseUrl/getRegisteredFromPending');
 
-    print("manager with token ${token}");
+    print("manager with token $token");
 
     try {
       final response = await http.get(
@@ -321,7 +321,7 @@ class ManagerApiService {
     }
   }
 
-   Future<String> deletePendingUser(String token, int userId) async{
+   Future<String> deletePendingUser(String token, int userId) async {
       final url = Uri.parse('$baseUrl/deletePendingUser?userId=$userId');
 
       try {
