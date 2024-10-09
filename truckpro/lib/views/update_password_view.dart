@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/change_password_request.dart';
 import '../utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
@@ -42,20 +43,30 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
       try {
          //decode JWT token to get the userid
         Map<String, dynamic> decodedToken = JwtDecoder.decode(widget.token);
-        String userId = decodedToken['userId'];
+        var userId = decodedToken['userId'];
 
-        await _loginService.updatePassword(
-          int.parse(userId), 
-          _oldPasswordController.text, 
-          _newPasswordController.text,
+        ChangePasswordRequest cpr = ChangePasswordRequest(
+        userId: int.parse(userId),
+        oldPassword: _oldPasswordController.text,
+        newPassword: _newPasswordController.text,
+        confirmPassword: _confirmPasswordController.text,
         );
+        String? res = await _loginService.updatePassword(cpr);
+        if(res!.isNotEmpty)
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Password updated successfully!')),
+          );
+          
+        }
+        else
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update password.')),
+          );
 
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Password updated successfully!')),
-        );
-
-        Navigator.pop(context);
+          Navigator.pop(context);
+        }
       } catch (e) {
         setState(() {
           _errorMessage = 'Failed to update password: $e';
