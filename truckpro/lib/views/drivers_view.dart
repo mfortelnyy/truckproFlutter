@@ -20,7 +20,7 @@ class DriversView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Drivers'), backgroundColor: Color.fromARGB(255, 241, 158, 89),),
+      appBar: AppBar(title: const Text('Drivers'), backgroundColor: const Color.fromARGB(255, 241, 158, 89),),
       body: FutureBuilder<List<User>>(
         future: driversFuture,
         builder: (context, snapshot) {
