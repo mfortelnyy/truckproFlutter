@@ -1,5 +1,6 @@
 import 'dart:convert'; //for JSON encoding/decoding
 import 'package:http/http.dart' as http;
+import 'package:truckpro/models/change_password_request.dart';
 import 'package:truckpro/models/signup_request.dart'; 
 
 class LoginService {
@@ -72,17 +73,15 @@ class LoginService {
 
 
   // handle user change of password
-  Future<String?> updatePassword(int userId, String oldPassword, String newPassword ) async {
+  Future<String?> updatePassword(ChangePasswordRequest cpr) async {
     try {
       final url = Uri.parse('$_baseUrl/updatePassword');
-      final response = await http.post(
+      final response = await http.patch(
         url,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(
-          "{'driverId': ${userId}, 'oldPassword': $oldPassword, 'newPassword': $newPassword}"
-        ),
+        body: jsonEncode(cpr.toJson()),
       );
       print(response.statusCode);
       print(jsonDecode(response.body));
