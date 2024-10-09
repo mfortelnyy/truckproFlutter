@@ -121,17 +121,11 @@ class DrivingLogImagesView extends StatelessWidget {
       ManagerApiService managerApiService = ManagerApiService();
       final response = await managerApiService.approveDrivingLogById(logId, token);
       print("response from approving log $response");
-      if (response !=null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Log approved successfully!')),
-        );
-        Navigator.of(context).pop(); 
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to approve log')),
-        );
-      }
-    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Log approved successfully!')),
+      );
+      Navigator.of(context).pop(); 
+        } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
