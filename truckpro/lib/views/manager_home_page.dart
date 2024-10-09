@@ -238,7 +238,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PendingUsersView(pendingUsersFuture: _allPendingUsers, token: widget.token,),
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _allPendingUsers, token: widget.token, sendEmail: false,),
                 ),
               );
             },
@@ -262,7 +262,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PendingUsersView(pendingUsersFuture: _notRegistered, token: widget.token)
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _notRegistered, token: widget.token, sendEmail: true,)
                 ),
               );
             },
