@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
-import 'package:truckpro/utils/admin_api_service.dart';
 import 'package:truckpro/utils/manager_api_service.dart';
 
 
@@ -62,7 +61,7 @@ class LogsView extends StatelessWidget {
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('This is not a driving log!')),
+                              const SnackBar(content: Text('This is not a driving log!')),
                             );
                           }
                         },
@@ -82,7 +81,7 @@ class LogsView extends StatelessWidget {
   
   Future<void> _approveLog(int logId, BuildContext context) async {
     try {
-      ManagerApiService mservice = new ManagerApiService();
+      ManagerApiService mservice = ManagerApiService();
   
       await mservice.approveDrivingLogById(logId, token); 
 
@@ -102,7 +101,7 @@ class LogsView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Driving Log'),
+        const Text('Driving Log'),
         Text('Log Start Date: ${formatDateTime(log.startTime)}'),
         log.endTime != null
             ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
@@ -118,7 +117,7 @@ class LogsView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Non-Driving Log'),
+        const Text('Non-Driving Log'),
         Text('Log Start Date: ${formatDateTime(log.startTime)}'),
         log.endTime != null
             ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
