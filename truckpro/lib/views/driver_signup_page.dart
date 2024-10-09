@@ -84,11 +84,11 @@ class DriverSignupPageState extends State<DriverSignupPage> {
     
     if (res!=null && res.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration successful ${res}')),
+        SnackBar(content: Text('Registration successful $res')),
         
       );
     } else {
-      _showErrorDialog('Failed to register user. ${res}');
+      _showErrorDialog('Failed to register user. $res');
     }
   }
 
@@ -97,14 +97,14 @@ class DriverSignupPageState extends State<DriverSignupPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Error'),
+          title: const Text('Error'),
           content: Text(errorMessage),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
