@@ -72,9 +72,9 @@ class ManagerApiService {
 
       if (response.statusCode == 200) {
         
-        var jsonList = json.decode(response.body);
+        List<dynamic> jsonList = json.decode(response.body);
         
-        return jsonList.map((json) => LogEntry.fromJson(json)).toList();
+        return jsonList.map<LogEntry>((json) => LogEntry.fromJson(json)).toList();
 
       } else {
         throw Exception('Failed to fetch active driving logs: ${response.body}');

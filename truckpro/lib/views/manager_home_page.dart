@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:truckpro/models/pending_user.dart';
 import 'package:truckpro/utils/admin_api_service.dart';
 import 'package:truckpro/views/pending_users_view.dart';
+import '../models/log_entry.dart';
 import '../models/user.dart';
 import '../utils/manager_api_service.dart';
 import 'drivers_view.dart';
@@ -26,7 +27,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   late Future<List<PendingUser>> _allPendingUsers;
   late Future<List<User>> _allRegisteredUsers;
   late Future<List<PendingUser>> _notRegistered;
-  //late Future<List<LogEntry>> _activeDrivingLogs;
+  late Future<List<LogEntry>> _activeDrivingLogs;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -51,7 +52,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
       final pendingUsers = managerService.getAllPendingUsers(widget.token);
       final registeredUsers = managerService.getRegisteredFromPending(widget.token);
       final notRegisteredPendingUsers = managerService.getNotRegisteredFromPending(widget.token);
-      //final activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
+      final activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
 
       setState(() {
         _drivers = drivers;
@@ -59,7 +60,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
         _allPendingUsers = pendingUsers;
         _allRegisteredUsers = registeredUsers;
         _notRegistered = notRegisteredPendingUsers;
-        //_activeDrivingLogs = activeDrivingLogs;
+        _activeDrivingLogs = activeDrivingLogs;
         
       });
     } catch (e) {
@@ -244,7 +245,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
           ),
            ListTile(
             leading: const Icon(Icons.verified_user_rounded, color: Colors.black),
-            title: const Text('Get All Registered Users from Pending', style: TextStyle(color: Colors.black)),
+            title: const Text('All Registered Users from Pending', style: TextStyle(color: Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
@@ -256,12 +257,24 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.pending_rounded, color: Colors.black),
-            title: const Text('Get Not Registered Pending Users', style: TextStyle(color: Colors.black)),
+            title: const Text('Not Registered Pending Users', style: TextStyle(color: Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PendingUsersView(pendingUsersFuture: _notRegistered, token: widget.token, sendEmail: true,)
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.local_activity_rounded, color: Colors.black),
+            title: const Text('All Active Logs', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LogsView(logsFuture: _activeDrivingLogs, token: widget.token, )
                 ),
               );
             },
