@@ -254,7 +254,7 @@ class ManagerApiService {
   }
   */
 
-  Future<List> getSignedUrls(List<String> urls, String token) async {
+  Future<List<String>> getSignedUrls(List<String> urls, String token) async {
     final url = Uri.parse('$baseUrl/getSignedUrls');
 
     try {
@@ -272,7 +272,7 @@ class ManagerApiService {
       );
       print("getting signed images reponse code: ${response.statusCode}");
       if (response.statusCode == 200) {
-        List<dynamic>  jsonList = json.decode(response.body);
+        var  jsonList = json.decode(response.body);
         if(jsonList.isNotEmpty)
         {
           return jsonList;
@@ -292,7 +292,7 @@ class ManagerApiService {
   }
 
 
-    Future<List<PendingUser>> getAllPendingUsers(String token) async {
+  Future<List<PendingUser>> getAllPendingUsers(String token) async {
     final url = Uri.parse('$baseUrl/getAllPendingUsers');
 
     try {
@@ -320,5 +320,39 @@ class ManagerApiService {
       throw Exception('Error: $e');
     }
   }
+
+   Future<String> deletePendingUser(String token, int userId) async{
+      final url = Uri.parse('$baseUrl/deletePendingUser?userId=$userId');
+
+      try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var res = json.decode(response.body);
+        if(res > 0)
+        {
+          return "Succesfully Deleted Pending User";
+        }
+        else
+        {
+          throw Exception('Failed to delete pending user: ${response.body}');
+        }
+      } else {
+        throw Exception('Failed to delete pending user: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+
+
+}
+    
+
+
 
 }
