@@ -75,7 +75,7 @@ class SignInPageState extends State<SignInPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Log In'),
-        backgroundColor: Color.fromARGB(255, 241, 158, 89), 
+        backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
         elevation: 10,
       ),
       body: Stack(
@@ -100,7 +100,7 @@ class SignInPageState extends State<SignInPage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                        labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.8),
                         border: OutlineInputBorder(
@@ -117,7 +117,7 @@ class SignInPageState extends State<SignInPage> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        labelStyle: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                        labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.8),
                         border: OutlineInputBorder(
@@ -146,7 +146,7 @@ class SignInPageState extends State<SignInPage> {
                     // Sign up button
                     ElevatedButton(
                       onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => DriverSignupPage()),
+                        MaterialPageRoute(builder: (context) => const DriverSignupPage()),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green[700], 
