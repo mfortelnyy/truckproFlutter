@@ -98,31 +98,62 @@ class _PendingUsersViewState extends State<PendingUsersView> {
     );
   }
 
-  Future<void> _deletePendingUser(int userId, int index) async {
-    try {
-      ManagerApiService managerService = ManagerApiService();
-      
-      String res = await managerService.deletePendingUser(widget.token, userId);
-      
-      if (res.isNotEmpty) {
-        setState(() {
-          pendingUsers.removeAt(index); 
-        });
+  Future<void> _confirmAndDeletePendingUser(int userId, int index) async {
+  bool? shouldDelete = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirm Deletion'),
+        content: Text('Are you sure you want to delete the pending user with ID $userId?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // cancel deletion
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); // confirm deletion
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Pending User with ID $userId deleted successfully!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to delete user.')),
-        );
-      }
-    } catch (e) {
+  //deletion confirmation
+  if (shouldDelete == true) {
+    _deletePendingUser(userId, index);
+  }
+}
+
+Future<void> _deletePendingUser(int userId, int index) async {
+  try {
+    ManagerApiService managerService = ManagerApiService();
+    
+    String res = await managerService.deletePendingUser(widget.token, userId);
+    
+    if (res.isNotEmpty) {
+      setState(() {
+        pendingUsers.removeAt(index); 
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting user: $e')),
+        SnackBar(content: Text('Pending User with ID $userId deleted successfully!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to delete user.')),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error deleting user: $e')),
+    );
   }
+}
 
   Future<void> _sendEmailToPendingUsers(String token, BuildContext context) async {
     try {
