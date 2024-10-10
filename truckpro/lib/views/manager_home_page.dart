@@ -107,6 +107,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 241, 158, 89),
         title: const Text('Manager Home'),
         actions: [
           IconButton(
