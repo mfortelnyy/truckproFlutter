@@ -82,7 +82,7 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
     );
 
     // make the signup request
-    String? res = await _adminService.signUpManager(managerSignupDTO);
+    String? res = await _adminService.signUpManager(managerSignupDTO, widget.token);
     
     if (res!=null && res.isNotEmpty) {
       if(mounted)
