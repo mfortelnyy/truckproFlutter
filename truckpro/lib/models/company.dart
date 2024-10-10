@@ -27,7 +27,6 @@ class Company {
   //company object => JSON
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'name': name,
       //'email': email,
       //'address': address,
