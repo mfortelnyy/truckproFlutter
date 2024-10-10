@@ -74,7 +74,7 @@ import 'package:truckpro/models/user.dart';
             }
         }
 
-        Future<List<LogEntry>> getLogsByDriverId(int driverId) async {
+        Future<List<LogEntry>> getLogsByDriverId(int driverId, String token) async {
             final response = await http.get(Uri.parse('$baseUrl/adm/getLogsByDriverId?driverId=$driverId'));
 
             if (response.statusCode == 200) {
