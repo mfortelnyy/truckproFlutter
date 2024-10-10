@@ -45,13 +45,19 @@ import 'package:truckpro/models/user.dart';
             }
         }
 
-        Future<User> getDriverById(int userId) async {
-            final response = await http.get(Uri.parse('$baseUrl/adm/getDriverById?userId=$userId'));
-
+        Future<User> getDriverById(int userId, String token) async {
+            final response = await http.get(Uri.parse('$baseUrl/adm/getDriverById?userId=$userId'),
+                                            headers: 
+                                              {
+                                                "Content-Type": "application/json",
+                                                "Authorization": "Bearer $token"
+                                                
+                                              });
+                                    
             if (response.statusCode == 200) {
-            return json.decode(response.body);
+              return User.fromJson(jsonDecode(response.body));
             } else {
-            throw Exception('Failed to load driver');
+              throw Exception('Failed to load driver');
             }
         }
 
@@ -75,7 +81,13 @@ import 'package:truckpro/models/user.dart';
         }
 
         Future<List<LogEntry>> getLogsByDriverId(int driverId, String token) async {
-            final response = await http.get(Uri.parse('$baseUrl/adm/getLogsByDriverId?driverId=$driverId'));
+            final response = await http.get(Uri.parse('$baseUrl/adm/getLogsByDriverId?driverId=$driverId'),
+                                            headers: 
+                                              {
+                                                "Content-Type": "application/json",
+                                                "Authorization": "Bearer $token"
+                                                
+                                              });
 
             if (response.statusCode == 200) {
             List<dynamic> jsonList = json.decode(response.body);
@@ -102,14 +114,38 @@ import 'package:truckpro/models/user.dart';
             }
         }
 
-        Future<String?> signUpManager(ManagerSignUpDto manager) async {
+        Future<String?> signUpManager(ManagerSignUpDto manager, String token) async {
             final response = await http.post(
             Uri.parse('$baseUrl/signUpManager'),
-            headers: {'Content-Type': 'application/json'},
+            headers: 
+              {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer $token"
+                
+              },
             body: jsonEncode(manager.toJson()),
             );
 
             return json.decode(response.body);
+        }
+
+        Future<List<User>> getAllManagers(String token) async {
+            final response = await http.get(
+              Uri.parse('$baseUrl/adm/getAllManagers'),
+              headers:{
+                        'Authorization': 'Bearer $token',
+                        'Content-Type': 'application/json'
+                      }
+            );
+
+          if (response.statusCode == 200) {
+            List<dynamic> jsonList = json.decode(response.body);
+            return jsonList.map((json) => User.fromJson(json)).toList();
+            } else {
+            throw Exception('Failed to get all managers');
+          }
+
+            
         }
 
     }
