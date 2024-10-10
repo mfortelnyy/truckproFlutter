@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/company.dart';
+import 'package:truckpro/views/drivers_view_admin.dart';
 import '../models/user.dart';
 import '../utils/admin_api_service.dart';
 import 'companies_view.dart'; 
 import 'create_company_screen.dart';
-import 'drivers_view.dart';
+import 'drivers_view_manager.dart';
 import 'logs_view.dart';
-import 'manager_signuo_view.dart';
+import 'manager_signup_view.dart';
 import 'user_signin_page.dart'; 
 
 class AdminHomePage extends StatefulWidget {
@@ -81,7 +82,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => DriversView(
+                                        builder: (context) => DriversViewAdmin(
                                           driversFuture: drivers, 
                                           adminService: widget.adminService,
                                           companyName: company.name,
@@ -146,7 +147,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                                   title: Text(driver.firstName, style: const TextStyle(color: Colors.black)),
                                   subtitle: Text('Driver ID: ${driver.id}', style: TextStyle(color: Colors.grey[600])),
                                   onTap: () {
-                                    var logs = widget.adminService.getLogsByDriverId(driver.id);
+                                    var logs = widget.adminService.getLogsByDriverId(driver.id, widget.token);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -164,7 +165,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DriversView(adminService: widget.adminService, driversFuture: _drivers, companyName: null, token: widget.token,),
+                                builder: (context) => DriversViewAdmin(adminService: widget.adminService, driversFuture: _drivers, companyName: null, token: widget.token,),
                               ),
                             );
                           },
