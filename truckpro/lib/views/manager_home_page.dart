@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:truckpro/models/pending_user.dart';
 import 'package:truckpro/utils/admin_api_service.dart';
 import 'package:truckpro/views/pending_users_view.dart';
+import 'package:truckpro/views/user_signin_page.dart';
 import '../models/log_entry.dart';
 import '../models/user.dart';
 import '../utils/manager_api_service.dart';
@@ -275,6 +276,20 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => LogsView(logsFuture: _activeDrivingLogs, token: widget.token, )
+                ),
+              );
+            },
+          ),
+          const Divider(), 
+          ListTile(
+            leading: const Icon(Icons.exit_to_app, color: Colors.black),
+            title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SignInPage()
                 ),
               );
             },
