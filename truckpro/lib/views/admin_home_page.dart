@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/company.dart';
 import 'package:truckpro/views/drivers_view_admin.dart';
+import 'package:truckpro/views/managers_view.dart';
 import '../models/user.dart';
 import '../utils/admin_api_service.dart';
 import 'companies_view.dart'; 
@@ -252,7 +253,7 @@ class AdminHomePageState extends State<AdminHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DriversViewManager(token: widget.token, driversFuture: _managers,companyName: null,),
+                  builder: (context) => ManagersView(token: widget.token, managersFuture: _managers),
                 ),
               );
             },
