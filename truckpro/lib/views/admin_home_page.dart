@@ -6,7 +6,6 @@ import '../models/user.dart';
 import '../utils/admin_api_service.dart';
 import 'companies_view.dart'; 
 import 'create_company_screen.dart';
-import 'drivers_view_manager.dart';
 import 'logs_view.dart';
 import 'manager_signup_view.dart';
 import 'update_password_view.dart';
@@ -31,9 +30,17 @@ class AdminHomePageState extends State<AdminHomePage> {
   @override
   void initState() {
     super.initState();
-    _companies = widget.adminService.getAllCompanies(widget.token);
+    fetchData();
+  }
+
+  void fetchData() {
+    setState(() {
+      _companies = widget.adminService.getAllCompanies(widget.token);
     _drivers = widget.adminService.getAllDrivers(widget.token);
     _managers = widget.adminService.getAllManagers(widget.token);
+      
+    });
+    
   }
 
   @override
@@ -43,7 +50,7 @@ class AdminHomePageState extends State<AdminHomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: initState,
+            onPressed: fetchData,
           ),
         ],
         title: const Text(
