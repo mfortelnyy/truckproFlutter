@@ -8,6 +8,7 @@ import 'create_company_screen.dart';
 import 'drivers_view_manager.dart';
 import 'logs_view.dart';
 import 'manager_signup_view.dart';
+import 'update_password_view.dart';
 import 'user_signin_page.dart'; 
 
 class AdminHomePage extends StatefulWidget {
@@ -24,18 +25,26 @@ class AdminHomePageState extends State<AdminHomePage> {
   
   late Future<List<Company>> _companies;
   late Future<List<User>> _drivers;
+  late Future<List<User>> _managers;
 
   @override
   void initState() {
     super.initState();
     _companies = widget.adminService.getAllCompanies(widget.token);
     _drivers = widget.adminService.getAllDrivers(widget.token);
+    _managers = widget.adminService.getAllManagers(widget.token);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: initState,
+          ),
+        ],
         title: const Text(
           'Admin Dashboard',
           style: TextStyle(
@@ -44,7 +53,7 @@ class AdminHomePageState extends State<AdminHomePage> {
         ),
         backgroundColor: Colors.white, 
         iconTheme: const IconThemeData(color: Colors.black), 
-        elevation: 0, // Flat design
+        elevation: 0, 
       ),
       drawer: _buildDrawer(context),
       body: Padding(
@@ -220,6 +229,30 @@ class AdminHomePageState extends State<AdminHomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ManagerSignupView(token: widget.token),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.password_rounded, color: Colors.black),
+            title: const Text('Change Password', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UpdatePasswordView(token: widget.token),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.man_2_rounded, color: Colors.black),
+            title: const Text('Get All Managers', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DriversViewManager(token: widget.token, driversFuture: _managers,companyName: null,),
                 ),
               );
             },
