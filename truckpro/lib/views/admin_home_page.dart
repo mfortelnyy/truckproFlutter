@@ -6,7 +6,8 @@ import 'companies_view.dart';
 import 'create_company_screen.dart';
 import 'drivers_view.dart';
 import 'logs_view.dart';
-import 'manager_signuo_view.dart'; 
+import 'manager_signuo_view.dart';
+import 'user_signin_page.dart'; 
 
 class AdminHomePage extends StatefulWidget {
   final AdminApiService adminService;
@@ -218,6 +219,20 @@ class AdminHomePageState extends State<AdminHomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ManagerSignupView(token: widget.token),
+                ),
+              );
+            },
+          ),
+          const Divider(), 
+          ListTile(
+            leading: const Icon(Icons.exit_to_app, color: Colors.black),
+            title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SignInPage()
                 ),
               );
             },
