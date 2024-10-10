@@ -108,7 +108,7 @@ class ManagerApiService {
 
   //get all drivers by company of the manager
   Future<List<User>> getAllDriversByCompany(String token) async {
-    final url = Uri.parse('$baseUrl/getAllDriversByCompany');
+    final url = Uri.parse('$baseUrl/allDriversByCompany');
 
     try {
       final response = await http.get(
@@ -132,7 +132,7 @@ class ManagerApiService {
 
   //get logs by driver ID
   Future<List<LogEntry>> getLogsByDriverId(int driverId, String token) async {
-    final url = Uri.parse('$baseUrl/allLogsByDriver?driverId=$driverId');
+    final url = Uri.parse('$baseUrl/getLogsByDriverId?driverId=$driverId');
 
     try {
       final response = await http.get(
@@ -141,7 +141,7 @@ class ManagerApiService {
           'Authorization': 'Bearer $token',
         },
       );
-
+      print("response from getting logs: ${response.statusCode}");
       if (response.statusCode == 200) {
         var jsonList = json.decode(response.body) as List<dynamic>;
         var res = jsonList.map((json) => LogEntry.fromJson(json)).toList();
