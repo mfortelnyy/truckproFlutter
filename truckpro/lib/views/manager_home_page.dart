@@ -7,7 +7,7 @@ import 'package:truckpro/views/user_signin_page.dart';
 import '../models/log_entry.dart';
 import '../models/user.dart';
 import '../utils/manager_api_service.dart';
-import 'drivers_view.dart';
+import 'drivers_view_manager.dart';
 import 'logs_view.dart';
 import 'update_password_view.dart';
 import 'upload_drivers_file.dart';
@@ -175,7 +175,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DriversView(adminService: AdminApiService(), driversFuture: Future.value(snapshot.data!), companyName: null, token: widget.token,),
+                      builder: (context) => DriversViewManager(driversFuture: Future.value(snapshot.data!), companyName: null, token: widget.token,),
                     ),
                   );
                 },
@@ -251,7 +251,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DriversView(driversFuture: _allRegisteredUsers, token: widget.token, adminService: AdminApiService(), companyName: null,),
+                  builder: (context) => DriversViewManager(driversFuture: _allRegisteredUsers, token: widget.token, companyName: null,),
                 ),
               );
             },
