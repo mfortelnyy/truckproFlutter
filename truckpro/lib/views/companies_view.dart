@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/company.dart';
 import 'package:truckpro/utils/admin_api_service.dart';
+import 'package:truckpro/views/drivers_view_admin.dart';
 
-import 'drivers_view.dart';
+import 'drivers_view_manager.dart';
 
 class CompaniesView extends StatelessWidget {
   final Future<List<Company>> companiesFuture;
@@ -74,9 +75,10 @@ class CompaniesView extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DriversView(
+                            builder: (context) => DriversViewAdmin(
                               driversFuture: AdminApiService().getDriversByCompanyId(company.id, token),
-                              companyName: company.name, adminService: AdminApiService(), token:token,
+                              companyName: company.name, 
+                              adminService: AdminApiService(), token:token,
                             ),
                           ),
                         );
