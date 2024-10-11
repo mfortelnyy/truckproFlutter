@@ -36,8 +36,8 @@ class AdminHomePageState extends State<AdminHomePage> {
   void fetchData() {
     setState(() {
       _companies = widget.adminService.getAllCompanies(widget.token);
-    _drivers = widget.adminService.getAllDrivers(widget.token);
-    _managers = widget.adminService.getAllManagers(widget.token);
+      _drivers = widget.adminService.getAllDrivers(widget.token);
+      _managers = widget.adminService.getAllManagers(widget.token);
       
     });
     
@@ -236,7 +236,7 @@ class AdminHomePageState extends State<AdminHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ManagerSignupView(token: widget.token),
+                  builder: (context) => ManagerSignupView(token: widget.token, onManagerCreated: fetchData ),
                 ),
               );
             },
