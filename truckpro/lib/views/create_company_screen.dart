@@ -32,17 +32,21 @@ class CreateCompanyScreenState extends State<CreateCompanyScreen> {
       try {
         String companyName = _companyNameController.text.trim();
         Company newCompany =  Company(name: companyName);
-        await widget.adminService.createCompany(newCompany, widget.token);
+        var res = await widget.adminService.createCompany(newCompany, widget.token);
+        if (res.contains('Company created successfully!')) {
+          setState(() {
+          });
 
-        // success message 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Company "$companyName" created successfully!')),
-        );
-
-        // navigate back after creation
-        Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Company "$companyName" created successfully!')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(res)),
+          );
+        }
       } catch (e) {
-        // Handle error
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error creating company: $e')),
         );
