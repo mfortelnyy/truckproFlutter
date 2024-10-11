@@ -4,7 +4,8 @@ import 'package:truckpro/utils/admin_api_service.dart';
 
 class ManagerSignupView extends StatefulWidget {
   final String token;
-  const ManagerSignupView({super.key, required this.token});
+  final VoidCallback onManagerCreated;  //callback function
+  const ManagerSignupView({super.key, required this.token, required this.onManagerCreated});
 
   @override
   ManagerSignupViewState createState() => ManagerSignupViewState();
@@ -29,6 +30,26 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
   void initState() {
     super.initState();
     _fetchCompanies();
+  }
+
+  void _showErrorDialog(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(errorMessage),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _fetchCompanies() async {
@@ -81,46 +102,32 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
       companyId: _selectedCompanyId!, 
     );
 
-    // make the signup request
-    String? res = await _adminService.signUpManager(managerSignupDTO, widget.token);
+    try
+    {
+      String? res = await _adminService.signUpManager(managerSignupDTO, widget.token);
     
-    if (res!=null && res.isNotEmpty) {
-      if(mounted)
-      {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration successful $res')),   
-        );
-      }
-    } else {
-      _showErrorDialog('Failed to register user. $res');
+      if (res!=null && res.isNotEmpty) {
+        if(mounted)
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration successful $res')),   
+          );
+        }
+      } else {
+        _showErrorDialog('Failed to register user. $res');
+      } 
+    }catch(e)
+    {
+       _showErrorDialog('Failed to register user. ${e.toString().split(":").last}');
     }
   }
 
-  void _showErrorDialog(String errorMessage) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text(errorMessage),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manager Registration - by admin'),
+        title: const Text('Manager Registration'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0.5,
