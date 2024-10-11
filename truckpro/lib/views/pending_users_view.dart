@@ -33,7 +33,7 @@ class _PendingUsersViewState extends State<PendingUsersView> {
   }
 
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pending Drivers'),
@@ -58,7 +58,7 @@ class _PendingUsersViewState extends State<PendingUsersView> {
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
                         onDismissed: (direction) {
-                          _deletePendingUser(pUser.id, index);
+                          _confirmAndDeletePendingUser(pUser.id, index);
                         },
                         child: Card(
                           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -98,7 +98,7 @@ class _PendingUsersViewState extends State<PendingUsersView> {
     );
   }
 
-  Future<void> _confirmAndDeletePendingUser(int userId, int index) async {
+Future<void> _confirmAndDeletePendingUser(int userId, int index) async {
   bool? shouldDelete = await showDialog(
     context: context,
     builder: (BuildContext context) {
