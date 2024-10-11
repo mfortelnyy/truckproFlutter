@@ -36,7 +36,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
   Future<void> _updatePassword() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
-        _isLoading = true;
+         _isLoading = false;
         _errorMessage = null;
       });
 
@@ -46,18 +46,19 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
         var userId = decodedToken['userId'];
 
         ChangePasswordRequest cpr = ChangePasswordRequest(
-        userId: int.parse(userId),
-        oldPassword: _oldPasswordController.text,
-        newPassword: _newPasswordController.text,
-        confirmPassword: _confirmPasswordController.text,
+          userId: int.parse(userId),
+          oldPassword: _oldPasswordController.text,
+          newPassword: _newPasswordController.text,
         );
-        String? res = await _loginService.updatePassword(cpr);
+        String? res = await _loginService.updatePassword(cpr, widget.token);
+
+        
         if(res!.isNotEmpty)
         {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Password updated successfully!')),
           );
-          
+           Navigator.pop(context);
         }
         else
         {
@@ -65,7 +66,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
           const SnackBar(content: Text('Failed to update password.')),
           );
 
-          Navigator.pop(context);
+         
         }
       } catch (e) {
         setState(() {
