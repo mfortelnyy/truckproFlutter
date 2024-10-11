@@ -97,7 +97,7 @@ import 'package:truckpro/models/user.dart';
             }
         }
 
-        Future<dynamic> createCompany(Company company, String token) async {
+        Future<String> createCompany(Company company, String token) async {
             final response = await http.post(
                 Uri.parse('$baseUrl/adm/createCompany'),
                 headers: {
@@ -108,7 +108,8 @@ import 'package:truckpro/models/user.dart';
             );
 
             if (response.statusCode == 200) {
-            return json.decode(response.body);
+            var res = json.decode(response.body);
+            return res['message'];
             } else {
             throw Exception('Failed to create company');
             }
@@ -143,6 +144,25 @@ import 'package:truckpro/models/user.dart';
             return jsonList.map((json) => User.fromJson(json)).toList();
             } else {
             throw Exception('Failed to get all managers');
+          }
+
+            
+        }
+
+        Future<String> deleteCompany(int companyId, String token) async {
+          final response = await http.delete(
+              Uri.parse('$baseUrl/adm/deleteCompany?companyId=$companyId'),
+              headers:{
+                        'Authorization': 'Bearer $token',
+                        'Content-Type': 'application/json'
+                      }
+          );
+
+          if (response.statusCode == 200) {
+            var res = json.decode(response.body);
+            return res['message'];
+            } else {
+            throw Exception('Failed to delete company!');
           }
 
             
