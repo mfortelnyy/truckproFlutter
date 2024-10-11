@@ -126,8 +126,8 @@ import 'package:truckpro/models/user.dart';
               },
             body: jsonEncode(manager.toJson()),
             );
-
-            return json.decode(response.body);
+            if(json.decode(response.body) > 0) return "Manager successfully added!";
+            return "Failed to register manager!";
         }
 
         Future<List<User>> getAllManagers(String token) async {
