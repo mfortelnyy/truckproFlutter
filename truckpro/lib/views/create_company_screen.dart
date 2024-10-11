@@ -5,8 +5,9 @@ import '../utils/admin_api_service.dart';
 class CreateCompanyScreen extends StatefulWidget {
   final AdminApiService adminService;
   final String token;
+  final VoidCallback onCompanyCreated;  //callback function
 
-  const CreateCompanyScreen({super.key, required this.adminService, required this.token});
+  const CreateCompanyScreen({super.key, required this.adminService, required this.token, required this.onCompanyCreated});
 
   @override
   CreateCompanyScreenState createState() => CreateCompanyScreenState();
@@ -36,6 +37,7 @@ class CreateCompanyScreenState extends State<CreateCompanyScreen> {
         if (res.contains('Company created successfully!')) {
           setState(() {
           });
+          widget.onCompanyCreated(); 
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Company "$companyName" created successfully!')),
