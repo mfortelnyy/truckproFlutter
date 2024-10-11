@@ -168,4 +168,23 @@ import 'package:truckpro/models/user.dart';
             
         }
 
+        Future<String> deleteManager(int managerId, String token) async {
+          final response = await http.delete(
+              Uri.parse('$baseUrl/adm/deleteManager?userId=$managerId'),
+              headers:{
+                        'Authorization': 'Bearer $token',
+                        'Content-Type': 'application/json'
+                      }
+          );
+
+          if (response.statusCode == 200) {
+            var res = json.decode(response.body);
+            return res['message'];
+            } else {
+            throw Exception('Failed to delete company!');
+          }
+
+            
+        }
+
     }
