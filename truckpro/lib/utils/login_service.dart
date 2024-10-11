@@ -73,29 +73,30 @@ class LoginService {
 
 
   // handle user change of password
-  Future<String?> updatePassword(ChangePasswordRequest cpr) async {
+  Future<String?> updatePassword(ChangePasswordRequest cpr, String token) async {
     try {
       final url = Uri.parse('$_baseUrl/updatePassword');
       final response = await http.patch(
         url,
         headers: {
           'Content-Type': 'application/json',
-        },
+          'Authorization': 'Bearer $token'
+        }, 
         body: jsonEncode(cpr.toJson()),
-      );
-      print(response.statusCode);
-      print(jsonDecode(response.body));
+      ); //{"userId":3,"oldPassword":"SecurePassword123!","newPassword":"12345678"}
+      print("upd PASSWRD ${response.statusCode}");
+      print("RESPOSE BODY: ${jsonDecode(response.body)}");
 
       if (response.statusCode == 200) {
-
-        return jsonDecode(response.body);
-      } else {
-        
-        return jsonDecode(response.body);
+        var res = json.decode(response.body);
+        return res['message'];
+      } 
+      else {
+        throw Exception('Failed to update password!');
       }
     } catch (e) {
       //print(e);
-      return "";
+      throw Exception('${e.toString()}');
     }
   }
 }
