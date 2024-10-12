@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import '../utils/driver_api_service.dart';
 import 'upload_photos_view.dart';
 
 class DriverHomePage extends StatefulWidget {
-  final DriverApiService driverApiService;
+  final String token;
+  
+  DriverHomePage({required this.token});
+  late DriverApiService driverApiService = DriverApiService(token: token);
+    // //decode JWT token to get the role
+    // late Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    // late String driverIdStr = decodedToken['userId'];
+    // late int driverId = int.parse(driverIdStr);
 
-  DriverHomePage({required this.driverApiService});
 
   @override
   _DriverHomePageState createState() => _DriverHomePageState();
@@ -15,6 +22,7 @@ class DriverHomePage extends StatefulWidget {
 
 class _DriverHomePageState extends State<DriverHomePage> {
   bool _isLoading = false;
+  
 
   void _createOnDutyLog() async {
     setState(() {
@@ -22,7 +30,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
     });
 
     try {
-      String logId = await widget.driverApiService.createOnDutyLog();
+      String? logId = await widget.driverApiService.createOnDutyLog();
       _showMessage('On-Duty log created: $logId');
     } catch (e) {
       _showMessage('Failed to create on-duty log: $e');
@@ -39,7 +47,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
     });
 
     try {
-      String result = await widget.driverApiService.stopOnDutyLog();
+      String? result = await widget.driverApiService.stopOnDutyLog();
       _showMessage('On-Duty log stopped: $result');
     } catch (e) {
       _showMessage('Failed to stop on-duty log: $e');
@@ -50,22 +58,6 @@ class _DriverHomePageState extends State<DriverHomePage> {
     }
   }
 
-  void _uploadPhotosCallback(List<File> images) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      List<String> imageUrls = await widget.driverApiService.uploadPhotos(images);
-      _showMessage('Photos uploaded successfully: ${imageUrls.length} photos');
-    } catch (e) {
-      _showMessage('Failed to upload photos: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -120,7 +112,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => UploadPhotosScreen(
-                      callback: _uploadPhotosCallback,
+                      token: widget.token,
                     ),
                   ),
                 );
@@ -142,7 +134,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
                   SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () {
-                      // Call start driving log function here
+                      UploadPhotosScreen(token: widget.token,);
                     },
                     child: Text('Start Driving Log'),
                   ),
