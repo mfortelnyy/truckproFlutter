@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:truckpro/views/driver_home_page.dart';
 import 'package:truckpro/views/driver_signup_page.dart';
 import 'package:truckpro/views/manager_home_page.dart';
 
@@ -49,7 +50,7 @@ class SignInPageState extends State<SignInPage> {
       //decode JWT token to get the role
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-
+      //print(role);
       //navigate to the appropriate homepage based on the role
       switch (role) {
         case "Admin":
@@ -60,7 +61,10 @@ class SignInPageState extends State<SignInPage> {
           Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => ManagerHomeScreen(token: token)),
           );
-          
+        case "Driver":
+          Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => DriverHomePage(token: token)),
+          );
           break;
         default:
       }
