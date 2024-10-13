@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
+import 'package:truckpro/models/log_entry.dart';
+
 class DriverApiService {
   final String _baseUrl = 'https://localhost:443';
 
@@ -109,4 +111,25 @@ class DriverApiService {
       throw Exception('Failed to stop Off Duty log: ${response.body}');
     }
   }
+
+  Future<List<LogEntry>> fetchActiveLogs() async { 
+    final response = await http.get(
+      Uri.parse('$_baseUrl/getActiveLogs'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var jsonList = jsonDecode(response.body);
+      return jsonList.map<LogEntry>((json) => LogEntry.fromJson(json)).toList();
+      
+    } else {
+      throw Exception('Failed to load active logs: ${response.body}');
+    }
+
+
+  }
+
 }
