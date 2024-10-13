@@ -1,152 +1,170 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-import '../utils/driver_api_service.dart';
-import 'upload_photos_view.dart';
+import 'package:truckpro/models/log_entry_type.dart';
+import 'package:truckpro/utils/driver_api_service.dart';
+import 'package:truckpro/views/upload_photos_view.dart';
+import '../models/log_entry.dart';
 
-class DriverHomePage extends StatefulWidget {
+class DriverHomeView extends StatefulWidget {
   final String token;
-  
-  DriverHomePage({required this.token});
-  late DriverApiService driverApiService = DriverApiService(token: token);
-    // //decode JWT token to get the role
-    // late Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-    // late String driverIdStr = decodedToken['userId'];
-    // late int driverId = int.parse(driverIdStr);
 
+  DriverHomeView({required this.token});
+
+  late DriverApiService driverApiService = DriverApiService(token: token);
 
   @override
-  _DriverHomePageState createState() => _DriverHomePageState();
+  _DriverHomeViewState createState() => _DriverHomeViewState();
 }
 
-class _DriverHomePageState extends State<DriverHomePage> {
-  bool _isLoading = false;
+class _DriverHomeViewState extends State<DriverHomeView> {
+  LogEntry? onDutyLog;
+  LogEntry? drivingLog;
+  LogEntry? offDutyLog;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeLogEntries();
+  }
+
+  Future<void> _initializeLogEntries() async {
+    List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
   
-
-  void _createOnDutyLog() async {
     setState(() {
-      _isLoading = true;
+      for (var log in activeLogs) {
+         if (log.logEntryType == 1) {
+          onDutyLog = log;
+        } else if (log.logEntryType == 0) {
+          drivingLog = log;
+        } else if (log.logEntryType == 3) {
+          offDutyLog = log;
+        }
+      }
     });
-
-    try {
-      String? logId = await widget.driverApiService.createOnDutyLog();
-      _showMessage('On-Duty log created: $logId');
-    } catch (e) {
-      _showMessage('Failed to create on-duty log: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
-  void _stopOnDutyLog() async {
+  void toggleOnDutyLog() {
     setState(() {
-      _isLoading = true;
+      if (onDutyLog == null) {
+        widget.driverApiService.createOnDutyLog();
+        _initializeLogEntries();
+      } else {
+        widget.driverApiService.stopOnDutyLog();
+        _initializeLogEntries();
+      }
     });
-
-    try {
-      String? result = await widget.driverApiService.stopOnDutyLog();
-      _showMessage('On-Duty log stopped: $result');
-    } catch (e) {
-      _showMessage('Failed to stop on-duty log: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
+  void toggleDrivingLog() {
+    setState(() {
+      if (drivingLog == null) {
+        // Navigate to upload photos screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UploadPhotosScreen(token: widget.token),
+          ),
+        );
+        _initializeLogEntries();
+      } else {
+        widget.driverApiService.stopDrivingLog();
+        _initializeLogEntries();
+      }
+    });
+  }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+  void toggleOffDutyLog() {
+    setState(() {
+      if (offDutyLog == null) {
+        widget.driverApiService.createOffDutyLog();
+        _initializeLogEntries();
+      } else {
+        widget.driverApiService.stopOffDutyLog();
+        _initializeLogEntries();
+      }
+    });
+  }
+
+  Duration _calculateElapsedTime(LogEntry? logEntry) {
+    if (logEntry?.startTime != null) {
+      return DateTime.now().difference(logEntry!.startTime!);
+    }
+    return Duration.zero;
+  }
+
+  double _getProgressOnDuty(LogEntry? logEntry) {
+    Duration elapsedTime = _calculateElapsedTime(logEntry);
+    return elapsedTime.inSeconds / 50400; // Normalize to 14 hours of on duty
+  }
+
+  double _getProgressDriving(LogEntry? logEntry) {
+    Duration elapsedTime = _calculateElapsedTime(logEntry);
+    return elapsedTime.inSeconds / 39600; // Normalize to 11 hours of driving
+  }
+
+  double _getProgressOffDuty(LogEntry? logEntry) {
+    Duration elapsedTime = _calculateElapsedTime(logEntry);
+    return elapsedTime.inSeconds / 36000; // Normalize to 10 hours of rest
+  }
+
+  Widget _buildLogButton(String logType, LogEntry? logEntry, Function toggleLog) {
+    double progress = logType == 'On Duty'
+        ? _getProgressOnDuty(logEntry)
+        : logType == 'Driving'
+            ? _getProgressDriving(logEntry)
+            : _getProgressOffDuty(logEntry);
+
+    String buttonText = logEntry == null ? 'Start $logType' : 'Stop $logType';
+
+    return GestureDetector(
+      onTap: () => toggleLog(),
+      child: Container(
+        width: 100,
+        height: 100,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            CircularProgressIndicator(
+              value: progress > 1 ? 1 : progress,
+              strokeWidth: 8.0,
+              backgroundColor: Colors.grey,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            ),
+            Center(
+              child: Text(buttonText),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Driver Home'),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Driver Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
+      appBar: AppBar(title: Text('Driver Home')),
+      body: Center(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Create a triangle layout for buttons
+            Positioned(
+              top: 100,
+              left: 100,
+              child: _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog),
             ),
-            ListTile(
-              title: Text('Stop Driving Log'),
-              onTap: () {
-                _stopOnDutyLog(); 
-              },
+            Positioned(
+              top: 0,
+              right: 50,
+              child: _buildLogButton('Driving', drivingLog, toggleDrivingLog),
             ),
-            ListTile(
-              title: Text('Stop Off-Duty Log'),
-              onTap: () {
-                
-              },
-            ),
-            ListTile(
-              title: Text('Stop On-Duty Log'),
-              onTap: () {
-                _stopOnDutyLog();
-              },
-            ),
-            ListTile(
-              title: Text('Upload Photos'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UploadPhotosScreen(
-                      token: widget.token,
-                    ),
-                  ),
-                );
-              },
+            Positioned(
+              bottom: 100,
+              left: 100,
+              child: _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog),
             ),
           ],
         ),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  ElevatedButton(
-                    onPressed: _createOnDutyLog,
-                    child: Text('Start On-Duty Log'),
-                  ),
-                  SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      UploadPhotosScreen(token: widget.token,);
-                    },
-                    child: Text('Start Driving Log'),
-                  ),
-                  SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                    },
-                    child: Text('Start Off-Duty Log'),
-                  ),
-                ],
-              ),
-            ),
     );
   }
 }
