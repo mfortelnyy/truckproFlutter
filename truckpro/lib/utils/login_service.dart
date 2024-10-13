@@ -84,8 +84,8 @@ class LoginService {
         }, 
         body: jsonEncode(cpr.toJson()),
       ); //{"userId":3,"oldPassword":"SecurePassword123!","newPassword":"12345678"}
-      print("upd PASSWRD ${response.statusCode}");
-      print("RESPOSE BODY: ${jsonDecode(response.body)}");
+      //print("upd PASSWRD ${response.statusCode}");
+      //print("RESPOSE BODY: ${jsonDecode(response.body)}");
 
       if (response.statusCode == 200) {
         var res = json.decode(response.body);
