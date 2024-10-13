@@ -63,7 +63,7 @@ class SignInPageState extends State<SignInPage> {
           );
         case "Driver":
           Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => DriverHomePage(token: token)),
+          MaterialPageRoute(builder: (context) => DriverHomeView(token: token)),
           );
           break;
         default:
