@@ -19,37 +19,63 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   LogEntry? onDutyLog;
   LogEntry? drivingLog;
   LogEntry? offDutyLog;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeLogEntries();
+    _fetchLogEntries();
   }
 
-  Future<void> _initializeLogEntries() async {
-    List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
-  
+  Future<List<LogEntry>?> _fetchLogEntries() async {
     setState(() {
-      for (var log in activeLogs) {
-         if (log.logEntryType == 1) {
-          onDutyLog = log;
-        } else if (log.logEntryType == 0) {
-          drivingLog = log;
-        } else if (log.logEntryType == 3) {
-          offDutyLog = log;
-        }
-      }
+      isLoading = true; 
     });
+    try
+    {
+      List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
+    
+  
+      setState(() {
+        for (var log in activeLogs) {
+          if (log.logEntryType == 1) {
+            onDutyLog = log;
+          } else if (log.logEntryType == 0) {
+            drivingLog = log;
+          } else if (log.logEntryType == 3) {
+            offDutyLog = log;
+          }
+        }
+        isLoading = false; 
+      });
+      return activeLogs;
+    } on Exception{
+      setState(() {
+        onDutyLog = null;
+        drivingLog = null;
+        offDutyLog = null;
+        isLoading = false;
+        
+      });
+
+    }
   }
 
   void toggleOnDutyLog() {
     setState(() {
       if (onDutyLog == null) {
-        widget.driverApiService.createOnDutyLog();
-        _initializeLogEntries();
+        if(offDutyLog !=null && DateTime.now().difference(offDutyLog!.startTime)>Duration(hours: 10))
+        {
+          widget.driverApiService.createOnDutyLog();
+        _fetchLogEntries();
+        }
+        
       } else {
-        widget.driverApiService.stopOnDutyLog();
-        _initializeLogEntries();
+        if(drivingLog == null)
+        {
+          widget.driverApiService.stopOnDutyLog();
+          _fetchLogEntries();
+        }
       }
     });
   }
@@ -57,17 +83,23 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   void toggleDrivingLog() {
     setState(() {
       if (drivingLog == null) {
-        // Navigate to upload photos screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => UploadPhotosScreen(token: widget.token),
-          ),
-        );
-        _initializeLogEntries();
+        if(onDutyLog != null)
+        {
+          // Navigate to upload photos screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => UploadPhotosScreen(token: widget.token,) //callback: _fetchLogEntries(); ),
+            ),
+          );
+          
+        }
       } else {
-        widget.driverApiService.stopDrivingLog();
-        _initializeLogEntries();
+        if(onDutyLog !=null)
+        {
+          widget.driverApiService.stopDrivingLog();
+          _fetchLogEntries();
+        }
       }
     });
   }
@@ -76,10 +108,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     setState(() {
       if (offDutyLog == null) {
         widget.driverApiService.createOffDutyLog();
-        _initializeLogEntries();
+        _fetchLogEntries();
       } else {
         widget.driverApiService.stopOffDutyLog();
-        _initializeLogEntries();
+        _fetchLogEntries();
       }
     });
   }
@@ -105,8 +137,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     Duration elapsedTime = _calculateElapsedTime(logEntry);
     return elapsedTime.inSeconds / 36000; // Normalize to 10 hours of rest
   }
-
-  Widget _buildLogButton(String logType, LogEntry? logEntry, Function toggleLog) {
+ Widget _buildLogButton(String logType, LogEntry? logEntry, Function toggleLog) {
     double progress = logType == 'On Duty'
         ? _getProgressOnDuty(logEntry)
         : logType == 'Driving'
@@ -118,19 +149,23 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     return GestureDetector(
       onTap: () => toggleLog(),
       child: Container(
-        width: 100,
-        height: 100,
+        width: 120,
+        height: 120,
         child: Stack(
           alignment: Alignment.center,
           children: [
             CircularProgressIndicator(
               value: progress > 1 ? 1 : progress,
-              strokeWidth: 8.0,
-              backgroundColor: Colors.grey,
+              strokeWidth: 20.0,
+              backgroundColor: Color.fromARGB(255, 214, 226, 98),
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
             ),
             Center(
-              child: Text(buttonText),
+              child: Text(
+                buttonText,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
             ),
           ],
         ),
@@ -138,33 +173,33 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+    Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Driver Home')),
-      body: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Create a triangle layout for buttons
-            Positioned(
-              top: 100,
-              left: 100,
-              child: _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog),
-            ),
-            Positioned(
-              top: 0,
-              right: 50,
-              child: _buildLogButton('Driving', drivingLog, toggleDrivingLog),
-            ),
-            Positioned(
-              bottom: 100,
-              left: 100,
-              child: _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog),
-            ),
-          ],
-        ),
+      appBar: AppBar(
+        title: Text('Driver Home'),
+        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+      ),
+      
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: isLoading
+            ? Center(child: CircularProgressIndicator()) 
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog),
+                        _buildLogButton('Driving', drivingLog, toggleDrivingLog),
+                        _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
-}
+} 
