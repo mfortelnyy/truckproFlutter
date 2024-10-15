@@ -219,6 +219,27 @@ Future<String> createDrivingLog(List<String> filePaths) async {
 
   }
 
+
+   Future<String> getTotalOnDutyHoursLastWeek() async { 
+    final response = await http.get(
+      Uri.parse('$_baseUrl/getTotalOnDutyHoursLastWeek'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    //22:53:11.8922429
+    if (response.statusCode == 200) {
+      
+      return jsonDecode(response.body);
+      
+    } else {
+      throw Exception('Failed to load total on duty hours for driver: ${response.body}');
+    }
+
+
+  }
+
 }
 
 basename(String filePath) {
