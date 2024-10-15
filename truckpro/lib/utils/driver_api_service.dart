@@ -201,7 +201,7 @@ Future<String> createDrivingLog(List<String> filePaths) async {
 
   Future<List<LogEntry>> fetchAllLogs() async { 
     final response = await http.get(
-      Uri.parse('$_baseUrl/getActiveLogs'),
+      Uri.parse('$_baseUrl/getAllLogs'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
