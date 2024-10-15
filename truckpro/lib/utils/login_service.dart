@@ -96,7 +96,7 @@ class LoginService {
       }
     } catch (e) {
       //print(e);
-      throw Exception('${e.toString()}');
+      throw Exception(e.toString());
     }
   }
 }
