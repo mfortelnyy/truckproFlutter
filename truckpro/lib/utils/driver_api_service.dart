@@ -86,7 +86,7 @@ class DriverApiService {
     }
   }
 
-Future<List<String>> createDrivingLog(List<String> filePaths) async {
+Future<String> createDrivingLog(List<String> filePaths) async {
   final url = Uri.parse('$_baseUrl/createDrivingLog');
 
 
@@ -104,7 +104,7 @@ Future<List<String>> createDrivingLog(List<String> filePaths) async {
       final response = await request.send();
       final responseBody = await http.Response.fromStream(response);
       if (response.statusCode == 200) {
-        return json.decode(responseBody.body)['message'];
+        return responseBody.body;
       } else {
         throw Exception('Failed to add image: ${responseBody.body}');
       }
