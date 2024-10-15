@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/user.dart';
 import 'package:truckpro/utils/manager_api_service.dart';
-import '../utils/admin_api_service.dart';
 import 'logs_view.dart';
 
 class DriversViewManager extends StatelessWidget {
   final Future<List<User>> driversFuture;  
-  final String? companyName;
   final String token;
 
   const DriversViewManager({
     super.key,
     required this.driversFuture,
-    required this.companyName,
     required this.token,
   });
 
@@ -28,7 +25,7 @@ class DriversViewManager extends StatelessWidget {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No drivers found for company: $companyName'));
+            return const Center(child: Text('No drivers registered from pending!'));
           } else {
             final drivers = snapshot.data!;
             return ListView.builder(
