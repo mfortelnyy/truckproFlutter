@@ -4,6 +4,7 @@ import 'package:truckpro/views/logs_view.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
 import 'test_view.dart';
+import 'update_password_view.dart';
 import 'user_signin_page.dart';
 
 class DriverHomeView extends StatefulWidget {
@@ -227,6 +228,18 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => LogsView(token: widget.token,logsFuture: logs, approve: false,),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.password_rounded, color: Colors.black),
+            title: const Text('Change Password', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UpdatePasswordView(token: widget.token),
                 ),
               );
             },
