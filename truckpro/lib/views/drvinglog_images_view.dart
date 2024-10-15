@@ -6,14 +6,16 @@ class DrivingLogImagesView extends StatelessWidget {
   final Future<List<String>> imageUrls;
   final LogEntry log;
   final String token;
-  
+  final bool approve;
 
   const DrivingLogImagesView({
     super.key,
     required this.imageUrls,
     required this.log,
     required this.token,
+    required this.approve
   });
+  
 
   @override
   Widget build(BuildContext context) {
@@ -68,23 +70,24 @@ class DrivingLogImagesView extends StatelessWidget {
                     },
                   ),
                 ),
-                if (!log.isApprovedByManager)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await _approveLog(log.id, context);
-                      },
-                      child: const Text('Approve Log'),
+                if(approve)
+                  if (!log.isApprovedByManager)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await _approveLog(log.id, context);
+                        },
+                        child: const Text('Approve Log'),
+                      ),
                     ),
-                  ),
-              ],
-            );
-          }
-        },
-      ),
-    );
-  }
+                ],
+              );
+            }
+          },
+        ),
+      );
+    }
 
   
   void _showImageDialog(BuildContext context, String imageUrl) {
@@ -131,4 +134,6 @@ class DrivingLogImagesView extends StatelessWidget {
       );
     }
   }
+  
+  
 }
