@@ -77,10 +77,12 @@ class ManagerApiService {
         return jsonList.map<LogEntry>((json) => LogEntry.fromJson(json)).toList();
 
       } else {
-        throw Exception('Failed to fetch active driving logs: ${response.body}');
+        return [];
+        //throw Exception('Failed to fetch active driving logs: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Error: $e');
+      return [];
+      //throw Exception('Error: $e');
     }
   }
 
