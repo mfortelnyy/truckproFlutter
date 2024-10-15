@@ -25,7 +25,7 @@ class LogsView extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return const Center(child: Text('No logs found'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No logs found'));
           } else {
@@ -41,7 +41,7 @@ class LogsView extends StatelessWidget {
                     children: [
                       ListTile(
                         title: Text(
-                          '${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${log.user?.email ?? "Unknown User"}',
+                          '${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by user with id ${log.userId ?? "Unknown User"}',
                         ),
                         subtitle: log.logEntryType == 0
                             ? _buildDrivingLogInfo(log)
@@ -121,8 +121,8 @@ class LogsView extends StatelessWidget {
         Text('Log Start Date: ${formatDateTime(log.startTime)}'),
         log.endTime != null
             ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
-            : const Text('Log In Progress'),
-        Text('Approved By Manager: ${boolToString(log.isApprovedByManager)}'),
+            : const Text('In Progress', style: TextStyle(fontSize: 14)),
+        //Text('Approved By Manager: ${boolToString(log.isApprovedByManager)}'),
       ],
     );
   }
