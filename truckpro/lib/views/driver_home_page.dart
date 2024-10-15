@@ -226,7 +226,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LogsView(token: widget.token,logsFuture: logs,),
+                  builder: (context) => LogsView(token: widget.token,logsFuture: logs, approve: false,),
                 ),
               );
             },

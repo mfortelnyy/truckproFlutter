@@ -11,9 +11,10 @@ import 'drvinglog_images_view.dart';
 class LogsView extends StatelessWidget {
   final Future<List<LogEntry>> logsFuture;  
   final String token;
+  final bool approve;
   
 
-  const LogsView({super.key, required this.logsFuture, required this.token});
+  const LogsView({super.key, required this.logsFuture, required this.token, required this.approve});
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +57,7 @@ class LogsView extends StatelessWidget {
                                   imageUrls: Future.value(log.imageUrls),
                                   log: log,
                                   token: token, 
+                                  approve: approve,
                                 ),
                               ),
                             );

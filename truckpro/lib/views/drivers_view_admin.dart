@@ -55,7 +55,7 @@ class DriversViewAdmin extends StatelessWidget {
                       var logs = adminService.getLogsByDriverId(driver.id, token);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LogsView(logsFuture: logs, token: token,)),
+                        MaterialPageRoute(builder: (context) => LogsView(logsFuture: logs, token: token, approve: false,)),
                       );
                     },
                   ),

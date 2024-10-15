@@ -168,7 +168,7 @@ class AdminHomePageState extends State<AdminHomePage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => LogsView(logsFuture: logs, token: widget.token,),
+                                        builder: (context) => LogsView(logsFuture: logs, token: widget.token, approve: false,),
                                       ),
                                     );
                                   },

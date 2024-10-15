@@ -52,7 +52,7 @@ class DriversViewManager extends StatelessWidget {
                       var l = await ManagerApiService().getLogsByDriverId(driver.id, token);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LogsView(logsFuture: Future.value(l), token: token,)),
+                        MaterialPageRoute(builder: (context) => LogsView(logsFuture: Future.value(l), token: token, approve: true,)),
                       );
                     },
                   ),
