@@ -49,7 +49,7 @@ class ManagerApiService {
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body)['message'];
+        return response.body;
       } else {
         throw Exception('Failed to send emails: ${response.body}');
       }
