@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
-
 import 'package:truckpro/models/log_entry.dart';
 
 class DriverApiService {
@@ -11,6 +11,65 @@ class DriverApiService {
 
   DriverApiService({required this.token});
 
+  Future<String>  uploadPhoto(String filePath) async {
+    final url = Uri.parse('$_baseUrl/uploadPhoto');
+
+    var request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $token';
+    
+    
+    
+    // read the file from the file path and add it as MultipartFile
+    var fileBytes = await http.MultipartFile.fromPath('image', filePath);
+
+    request.files.add(fileBytes);
+
+    try {
+      final response = await request.send();
+      final responseBody = await http.Response.fromStream(response);
+      if (response.statusCode == 200) {
+        return json.decode(responseBody.body)['message'];
+      } else {
+        throw Exception('Failed to add image: ${responseBody.body}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+
+  Future<String>  uploadPhotos(List<String> filePaths) async {
+    final url = Uri.parse('$_baseUrl/uploadPhotos');
+
+    var request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $token';
+    for (String filePath in filePaths) {
+      var file = await http.MultipartFile.fromPath(
+        'images', 
+        filePath,
+        filename: basename(filePath),
+      );
+      request.files.add(file);
+    }
+    
+    // read the file from the file path and add it as MultipartFile
+    //var fileBytes = await http.MultipartFile.fromPath('images', filePath);
+
+   //request.files.add(fileBytes);
+
+    try {
+      final response = await request.send();
+      final responseBody = await http.Response.fromStream(response);
+      if (response.statusCode == 200) {
+        return json.decode(responseBody.body)['message'];
+      } else {
+        throw Exception('Failed to add image: ${responseBody.body}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
   Future<String> createOnDutyLog() async {
     final response = await http.post(
       Uri.parse('$_baseUrl/createOnDutyLog'),
@@ -19,7 +78,7 @@ class DriverApiService {
         'Content-Type': 'application/json',
       },
     );
-
+    print(response.statusCode);
     if (response.statusCode == 200) {
       return 'On Duty log created: ${response.body}';
     } else {
@@ -27,26 +86,34 @@ class DriverApiService {
     }
   }
 
-  Future<String> createDrivingLog(List<File> images) async {
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$_baseUrl/createDrivingLog'),
-    );
+Future<List<String>> createDrivingLog(List<String> filePaths) async {
+  final url = Uri.parse('$_baseUrl/createDrivingLog');
 
-    request.headers['Authorization'] = 'Bearer $token';
 
-    for (var image in images) {
-      request.files.add(await http.MultipartFile.fromPath('images', image.path));
+  var request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $token';
+    for (String filePath in filePaths) {
+      var file = await http.MultipartFile.fromPath(
+        'images', 
+        filePath,
+        filename: basename(filePath),
+      );
+      request.files.add(file);
     }
-
-    var response = await request.send();
-    if (response.statusCode == 200) {
-      final responseData = await http.Response.fromStream(response);
-      return 'Driving log created: ${responseData.body}';
-    } else {
-      throw Exception('Failed to create Driving log: ${response.reasonPhrase}');
+    try {
+      final response = await request.send();
+      final responseBody = await http.Response.fromStream(response);
+      if (response.statusCode == 200) {
+        return json.decode(responseBody.body)['message'];
+      } else {
+        throw Exception('Failed to add image: ${responseBody.body}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
     }
+    
   }
+
 
   Future<String> createOffDutyLog() async {
     final response = await http.post(
@@ -132,4 +199,28 @@ class DriverApiService {
 
   }
 
+  Future<List<LogEntry>> fetchAllLogs() async { 
+    final response = await http.get(
+      Uri.parse('$_baseUrl/getActiveLogs'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var jsonList = jsonDecode(response.body);
+      return jsonList.map<LogEntry>((json) => LogEntry.fromJson(json)).toList();
+      
+    } else {
+      throw Exception('Failed to load logs for driver: ${response.body}');
+    }
+
+
+  }
+
+}
+
+basename(String filePath) {
+  return filePath.substring(filePath.lastIndexOf('/'));
 }
