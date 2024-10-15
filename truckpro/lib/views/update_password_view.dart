@@ -15,7 +15,7 @@ class UpdatePasswordView extends StatefulWidget {
 
 class _UpdatePasswordViewState extends State<UpdatePasswordView> {
   final _formKey = GlobalKey<FormState>();
-  final LoginService _loginService = new LoginService();
+  final LoginService _loginService = LoginService();
 
   bool _isLoading = false;
   String? _errorMessage;
