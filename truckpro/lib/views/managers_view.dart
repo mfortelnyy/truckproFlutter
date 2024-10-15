@@ -70,6 +70,7 @@ class _ManagersViewState extends State<ManagersView> {
                           Text('Email: ${manager.email}'),
                           Text('Phone: ${manager.phone}'),
                           Text('Role: ${roleToString(manager.role)}'),
+                          Text('Company id: ${manager.companyId}'),
                           Text('Email Verified: ${manager.emailVerified ? "Yes" : "No"}'),
                         ],
                       ),
