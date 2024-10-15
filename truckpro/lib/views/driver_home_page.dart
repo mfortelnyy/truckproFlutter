@@ -278,8 +278,21 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             child: Text('Driver Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           ListTile(
-            leading: const Icon(Icons.business, color: Colors.black),
-            title: const Text('Get All Logs', style: TextStyle(color: Colors.black)),
+            leading: const Icon(Icons.local_activity_rounded, color: Colors.black),
+            title: const Text('Active Logs', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              var logs = widget.driverApiService.fetchActiveLogs();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.history_rounded, color: Colors.black),
+            title: const Text('History of Logs', style: TextStyle(color: Colors.black)),
             onTap: () {
               var logs = widget.driverApiService.fetchAllLogs();
               Navigator.push(
