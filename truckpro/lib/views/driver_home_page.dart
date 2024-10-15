@@ -24,8 +24,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   LogEntry? onDutyLog;
   LogEntry? drivingLog;
   LogEntry? offDutyLog;
-  bool isLoading = true;
-  Timer? _timer; 
+  bool isLoading = false;
+  Timer? _timer;
+  
+  
 
   @override
   void initState() {
@@ -42,7 +44,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 
   Future<List<LogEntry>?> _fetchLogEntries() async {
     setState(() {
-      isLoading = true;
+      //isLoading = true;
     });
     try {
       List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
@@ -56,7 +58,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             offDutyLog = log;
           }
         }
-        isLoading = false;
+        //isLoading = false;
       });
       return activeLogs;
     } catch (e) {
@@ -64,11 +66,13 @@ class _DriverHomeViewState extends State<DriverHomeView> {
         onDutyLog = null;
         drivingLog = null;
         offDutyLog = null;
-        isLoading = false;
+        //isLoading = false;
       });
       return null;
     }
   }
+
+
 
   @override
   void dispose() {
@@ -158,7 +162,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     return '${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds';
   }
 
-   Widget _buildLogButton(String logType, LogEntry? logEntry, Function toggleLog) {
+ Widget _buildLogButton(String logType, LogEntry? logEntry, Function toggleLog) {
   double progress = logType == 'On Duty'
       ? _getProgressOnDuty(logEntry)
       : logType == 'Driving'
@@ -251,18 +255,27 @@ class _DriverHomeViewState extends State<DriverHomeView> {
         padding: const EdgeInsets.all(16.0),
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog),
-                  const SizedBox(height: 20),
-                  _buildLogButton('Driving', drivingLog, toggleDrivingLog),
-                  const SizedBox(height: 20),
-                  _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog),
-                ],
-              ),
-      ),
+            : Column( // stack the report and buttons
+              children: [
+                _buildWeeklyHoursSection(), // weekly report section
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: _buildLogButton('\nOn Duty', onDutyLog, toggleOnDutyLog),
+                    ),
+                    Expanded(
+                      child: _buildLogButton('\nDriving', drivingLog, toggleDrivingLog),
+                    ),
+                    Expanded(
+                      child: _buildLogButton('\nOff Duty', offDutyLog, toggleOffDutyLog),
+                    ),
+                  ],
+                ),
+              ]
+        )
+      )
     );
   }
 
@@ -342,5 +355,63 @@ class _DriverHomeViewState extends State<DriverHomeView> {
         ],
       ),
     );
+  }
+
+ Widget _buildWeeklyHoursSection() {
+  return FutureBuilder<String>(
+    future: _getTotalOnDutyHoursLastWeek(),
+    builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      } else if (!snapshot.hasData || snapshot.data == null) {
+        return const Text('No data available');
+      } else {
+        String totalOnDutyHours = snapshot.data!;
+        var timeSpanList = totalOnDutyHours.split(":");
+
+        double hoursSum = 0;
+        if (timeSpanList.length == 3) {
+          hoursSum = double.parse(timeSpanList[0]) +
+              double.parse(timeSpanList[1]) / 60 +
+              double.parse(timeSpanList[2]) / 3600;
+        }
+
+        double progress = hoursSum / 60;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Total On-Duty Last Week: ${hoursSum.round()} / 60 hrs',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 50),
+            // wrap in Transform to scale up the progress indicator
+            Transform.scale(
+              scale: 2.2, 
+              child: CircularProgressIndicator(
+                value: progress > 1 ? 1 : progress,
+                strokeWidth: 12.0, 
+                backgroundColor: Color.fromARGB(255, 30, 198, 81),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 225, 28, 25)),
+              ),
+            ),
+            Center(
+              child: Text(
+                '${(progress * 100).toStringAsFixed(0)}%',
+                style: const TextStyle(fontSize: 24, color: Colors.black),
+              ),
+            ),
+          ],
+        );
+      }
+    },
+  );
+}
+
+  Future<String> _getTotalOnDutyHoursLastWeek() async {
+    return await widget.driverApiService.getTotalOnDutyHoursLastWeek();
   }
 }
