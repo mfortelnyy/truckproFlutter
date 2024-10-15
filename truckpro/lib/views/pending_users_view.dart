@@ -7,12 +7,14 @@ class PendingUsersView extends StatefulWidget {
   final Future<List<PendingUser>> pendingUsersFuture;
   final String token;
   final bool sendEmail;
+  final VoidCallback? onEmailsSent;
 
   const PendingUsersView({
     super.key,
     required this.pendingUsersFuture,
     required this.token,
     required this.sendEmail,
+    this.onEmailsSent
   });
 
   @override
@@ -43,7 +45,7 @@ Widget build(BuildContext context) {
         children: [
           Expanded(
             child: pendingUsers.isEmpty
-                ? const Center(child: Text('No drivers found for company!'))
+                ? const Center(child: Text('No pending drivers found!'))
                 : ListView.builder(
                     itemCount: pendingUsers.length,
                     itemBuilder: (context, index) {
@@ -88,6 +90,7 @@ Widget build(BuildContext context) {
                 child: ElevatedButton(
                   onPressed: () {
                     _sendEmailToPendingUsers(widget.token, context);
+                    
                   },
                   child: const Text('Send Email to All Pending Users'),
                 ),
