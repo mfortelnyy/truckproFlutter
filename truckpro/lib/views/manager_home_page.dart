@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/pending_user.dart';
-import 'package:truckpro/utils/admin_api_service.dart';
 import 'package:truckpro/views/pending_users_view.dart';
 import 'package:truckpro/views/user_signin_page.dart';
 import '../models/log_entry.dart';
@@ -107,7 +106,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 241, 158, 89),
+        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
         title: const Text('Manager Home'),
         actions: [
           IconButton(
@@ -176,7 +175,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DriversViewManager(driversFuture: Future.value(snapshot.data!), companyName: null, token: widget.token,),
+                      builder: (context) => DriversViewManager(driversFuture: Future.value(snapshot.data!), token: widget.token,),
                     ),
                   );
                 },
@@ -240,7 +239,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PendingUsersView(pendingUsersFuture: _allPendingUsers, token: widget.token, sendEmail: false,),
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _allPendingUsers, token: widget.token, sendEmail: true, onEmailsSent: _fetchManagerData,),
                 ),
               );
             },
@@ -252,7 +251,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DriversViewManager(driversFuture: _allRegisteredUsers, token: widget.token, companyName: null,),
+                  builder: (context) => DriversViewManager(driversFuture: _allRegisteredUsers, token: widget.token),
                 ),
               );
             },
