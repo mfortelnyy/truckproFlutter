@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:truckpro/utils/driver_api_service.dart';
 
 class UploadPhotosScreen extends StatefulWidget {
   final String token;
 
-  UploadPhotosScreen({required this.token});
+  UploadPhotosScreen({super.key, required this.token});
   late DriverApiService driverApiService = DriverApiService(token: token);
 
   @override
@@ -15,11 +16,10 @@ class UploadPhotosScreen extends StatefulWidget {
 }
 
 class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
-  final ImagePicker _picker = ImagePicker();
   final String token;
 
-  // Each prompt has a set number of images that need to be uploaded
-  Map<String, List<File>> promptImages = {
+  // Change to a list of strings to store file paths
+  Map<String, List<String>> promptImages = {
     'Front truck side with Head lights + Emergency flashers and marker lights ON': [],
     'With open hood left side of engine': [],
     'Truck Left steer axle tire condition and PSI measurements, brakes condition (3 pictures)': [],
@@ -46,12 +46,19 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
 
   _UploadPhotosScreenState({required this.token});
 
-  // Pick image for a specific prompt
+  // Pick images for a specific prompt using FilePicker
   Future<void> _pickImages(String prompt, int maxImages) async {
-    final List<XFile>? selectedImages = await _picker.pickMultiImage();
-    if (selectedImages != null && selectedImages.length <= maxImages) {
+  try {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['png', 'jpg', 'jpeg', 'heic', 'heics'], // only images
+      allowMultiple: true, // Allow multiple image selection
+    );
+
+    if (result != null && result.files.length + promptImages[prompt]!.length <= maxImages) {
       setState(() {
-        promptImages[prompt] = selectedImages.map((image) => File(image.path)).toList();
+        // Append new file paths to the existing list
+        promptImages[prompt]!.addAll(result.files.map((file) => file.path!).toList());
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,30 +67,33 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
         ),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error while picking the file: $e'),
+      ),
+    );
   }
+}
 
-  
+
   Future<void> _submitLog() async {
     bool allImagesUploaded = true;
-    List<File> images = [];
+    List<String> images = []; // change to list of strings
     promptImages.forEach((key, value) {
       if (value.isEmpty) {
-        allImagesUploaded = false;
+        allImagesUploaded = true;
       }
-      for (var file in value) {
-        images.add(file);
-      }
-      
-       
+      images.addAll(value); // add file paths to the list
     });
 
     if (allImagesUploaded) {
-      widget.driverApiService.createDrivingLog(images);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      await widget.driverApiService.createDrivingLog(images); 
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Photos uploaded successfully!'),
       ));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Please upload all required photos!'),
       ));
     }
@@ -93,12 +103,12 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Upload Photos'),
+        title: const Text('Upload Photos'),
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: ListView(
         children: promptImages.keys.map((prompt) {
-          // Decide how many images are required for each prompt
+          //get how many images are required for each prompt
           int maxImages = _getMaxImagesForPrompt(prompt);
           return Padding(
             padding: const EdgeInsets.all(8.0),
@@ -113,24 +123,24 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () => _pickImages(prompt, maxImages),
-                    child: Text('Select Photos'),
+                    child: const Text('Select Photos'),
                   ),
-                  SizedBox(height: 10),
-                  // Display the selected images
+                  const SizedBox(height: 10),
+                  // disp the selected images using the file path
                   promptImages[prompt]!.isNotEmpty
                       ? Wrap(
                           spacing: 10,
-                          children: promptImages[prompt]!.map((image) {
+                          children: promptImages[prompt]!.map((path) {
                             return Image.file(
-                              image,
+                              File(path), // Convert path back to File for display
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
                             );
                           }).toList(),
                         )
-                      : Padding(
-                          padding: const EdgeInsets.all(8.0),
+                      : const Padding(
+                          padding: EdgeInsets.all(8.0),
                           child: Text('No images selected'),
                         ),
                 ],
@@ -141,20 +151,19 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _submitLog,
-        child: Icon(Icons.upload),
+        child: const Icon(Icons.upload),
       ),
     );
   }
 
-  // A helper function to determine how many images are needed per prompt
+  // function to determine how many images are needed per prompt
   int _getMaxImagesForPrompt(String prompt) {
     if (prompt.contains('(3 pictures)')) {
       return 3;
-    } else if (prompt.contains('(1picture)')) {
+    } else if (prompt.contains('(1 picture)')) {
       return 1;
-    } else if (prompt.contains('(door condition')) {
-      return 3; // Assuming multiple images are needed
+    } else {
+      return 1; 
     }
-    return 1;
   }
 }
