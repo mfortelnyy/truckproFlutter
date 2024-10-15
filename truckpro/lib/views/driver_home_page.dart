@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/utils/driver_api_service.dart';
+import 'package:truckpro/views/logs_view.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
+import 'test_view.dart';
+import 'user_signin_page.dart';
 
 class DriverHomeView extends StatefulWidget {
   final String token;
 
-  DriverHomeView({required this.token});
+  DriverHomeView({super.key, required this.token});
 
   late DriverApiService driverApiService = DriverApiService(token: token);
 
@@ -59,12 +61,13 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       });
 
     }
+    return null;
   }
 
   void toggleOnDutyLog() {
     setState(() {
       if (onDutyLog == null) {
-        if(offDutyLog !=null && DateTime.now().difference(offDutyLog!.startTime)>Duration(hours: 10))
+        if(offDutyLog !=null && DateTime.now().difference(offDutyLog!.startTime)>const Duration(hours: 10))
         {
           widget.driverApiService.createOnDutyLog();
         _fetchLogEntries();
@@ -89,7 +92,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => UploadPhotosScreen(token: widget.token,) //callback: _fetchLogEntries(); ),
+              builder: (context) => UploadPhotosScreen(token: widget.token) 
             ),
           );
           
@@ -118,7 +121,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 
   Duration _calculateElapsedTime(LogEntry? logEntry) {
     if (logEntry?.startTime != null) {
-      return DateTime.now().difference(logEntry!.startTime!);
+      return DateTime.now().difference(logEntry!.startTime);
     }
     return Duration.zero;
   }
@@ -148,7 +151,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 
     return GestureDetector(
       onTap: () => toggleLog(),
-      child: Container(
+      child: SizedBox(
         width: 120,
         height: 120,
         child: Stack(
@@ -157,14 +160,14 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             CircularProgressIndicator(
               value: progress > 1 ? 1 : progress,
               strokeWidth: 20.0,
-              backgroundColor: Color.fromARGB(255, 214, 226, 98),
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              backgroundColor: const Color.fromARGB(255, 214, 226, 98),
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
             ),
             Center(
               child: Text(
                 buttonText,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
           ],
@@ -173,17 +176,18 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     );
   }
 
-    Widget build(BuildContext context) {
+    @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Driver Home'),
+        title: const Text('Driver Home'),
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
-      
+      drawer: _buildDrawer(context),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: isLoading
-            ? Center(child: CircularProgressIndicator()) 
+            ? const Center(child: CircularProgressIndicator()) 
             : Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -202,4 +206,48 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       ),
     );
   }
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 241, 158, 89), 
+            ),
+            child: Text('Driver Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.business, color: Colors.black), // Black icons
+            title: const Text('Get All Logs', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              var logs = widget.driverApiService.fetchAllLogs();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LogsView(token: widget.token,logsFuture: logs,),
+                ),
+              );
+            },
+          ),
+          const Divider(), 
+          ListTile(
+            leading: const Icon(Icons.exit_to_app, color: Colors.black),
+            title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SignInPage()
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
 } 
