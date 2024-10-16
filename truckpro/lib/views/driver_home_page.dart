@@ -146,63 +146,57 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       }
 
   }
-  
-
   void toggleOnDutyLog() async {
-      if (onDutyLog == null) {
-        if (offDutyLog == null ){//&& DateTime.now().difference(offDutyLog!.startTime) > const Duration(hours: 10)) {
-          try{
-              var res = await widget.driverApiService.createOnDutyLog();
-              _fetchLogEntries();
-              _showSnackBar(context, res.toString());
-              
-
-          }
-          catch(e)
-          {
-            _showSnackBar(context, e.toString());
-
-          }
-        }
-      } else {
-        if (drivingLog == null) {
-          widget.driverApiService.stopOnDutyLog();
-          _fetchLogEntries();
-        }
-      }
-  }
-
-  void toggleDrivingLog() {
-    setState(() {
-      if (drivingLog == null) {
-        if (onDutyLog != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => UploadPhotosScreen(token: widget.token),
-            ),
-          );
-        }
-      } else {
-        if (onDutyLog != null) {
-          widget.driverApiService.stopDrivingLog();
-          _fetchLogEntries();
-        }
-      }
-    });
-  }
-
-  void toggleOffDutyLog() {
-    setState(() {
-      if (offDutyLog == null) {
-        widget.driverApiService.createOffDutyLog();
+  if (onDutyLog == null) {
+    if (offDutyLog == null) {//&& DateTime.now().difference(offDutyLog!.startTime) > const Duration(hours: 10)) {
+      try {
+        var res = await widget.driverApiService.createOnDutyLog();
         _fetchLogEntries();
-      } else {
-        widget.driverApiService.stopOffDutyLog();
-        _fetchLogEntries();
+        _showSnackBar(context, 'On Duty log started successfully');
+      } catch (e) {
+        _showSnackBar(context, e.toString());
       }
-    });
+    }
+  } else {
+    if (drivingLog == null) {
+      await widget.driverApiService.stopOnDutyLog();
+      _fetchLogEntries();
+      _showSnackBar(context, 'On Duty log stopped successfully');
+    }
   }
+}
+
+  void toggleDrivingLog() async {
+  if (drivingLog == null) {
+    if (onDutyLog != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UploadPhotosScreen(token: widget.token),
+        ),
+      );
+      _showSnackBar(context, 'Driving log started successfully');
+    }
+  } else {
+    if (onDutyLog != null) {
+      await widget.driverApiService.stopDrivingLog();
+      _fetchLogEntries();
+      _showSnackBar(context, 'Driving log stopped successfully');
+    }
+  }
+}
+
+ void toggleOffDutyLog() async {
+  if (offDutyLog == null) {
+    await widget.driverApiService.createOffDutyLog();
+    _fetchLogEntries();
+    _showSnackBar(context, 'Off Duty log started successfully');
+  } else {
+    await widget.driverApiService.stopOffDutyLog();
+    _fetchLogEntries();
+    _showSnackBar(context, 'Off Duty log stopped successfully');
+  }
+}
 
   Duration _calculateElapsedTime(LogEntry? logEntry) {
     if (logEntry?.startTime != null) {
