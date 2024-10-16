@@ -164,6 +164,9 @@ Future<void> _deletePendingUser(int userId, int index) async {
       String res = await managerService.sendEmailToPendingUsers(token);
 
       if (res.isNotEmpty) {
+        if (widget.onEmailsSent != null) {
+        widget.onEmailsSent!();
+      }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Emails sent successfully: $res')),
         );
