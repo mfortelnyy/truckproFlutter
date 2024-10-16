@@ -54,15 +54,15 @@ class SignInPageState extends State<SignInPage> {
       //navigate to the appropriate homepage based on the role
       switch (role) {
         case "Admin":
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token)),
           );
         case "Manager":
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => ManagerHomeScreen(token: token)),
           );
         case "Driver":
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => DriverHomeView(token: token)),
           );
           break;
