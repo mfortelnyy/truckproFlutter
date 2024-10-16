@@ -240,6 +240,27 @@ Future<String> createDrivingLog(List<String> filePaths) async {
 
   }
 
+   Future<String> getTotalDrivingHoursLastWeek() async { 
+    final response = await http.get(
+      Uri.parse('$_baseUrl/getTotalDrivingHoursLastWeek'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      
+      return jsonDecode(response.body);
+      
+    } else {
+      throw Exception('Failed to load total driving hours for driver: ${response.body}');
+    }
+
+
+  }
+   
+  
 }
 
 basename(String filePath) {
