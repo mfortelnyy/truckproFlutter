@@ -7,8 +7,10 @@ import 'package:truckpro/utils/driver_api_service.dart';
 
 class UploadPhotosScreen extends StatefulWidget {
   final String token;
+  Future<void> onPhotoUpload;
+ 
 
-  UploadPhotosScreen({super.key, required this.token});
+  UploadPhotosScreen({super.key, required this.token, required this.onPhotoUpload});
   late DriverApiService driverApiService = DriverApiService(token: token);
 
   @override
@@ -88,9 +90,11 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
     });
 
     if (allImagesUploaded) {
-      await widget.driverApiService.createDrivingLog(images); 
+      await widget.driverApiService.createDrivingLog(images);
+      Navigator.pop(context); 
+      widget.onPhotoUpload;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Photos uploaded successfully!'),
+        content: Text('Photos uploaded successfully! \nDriving Log started!'),
       ));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
