@@ -41,7 +41,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     _fetchLogEntries();
 
     // init  timer to update every second
-    _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
       setState(() { 
         _fetchLogEntries();
         _buildWeeklyHoursSection(); 
@@ -56,46 +56,47 @@ class _DriverHomeViewState extends State<DriverHomeView> {
        
     });
     try {
-       
       List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
       
+       setState(() {
         for (var log in activeLogs) {
           var elapsed = _calculateElapsedTime(log);
-          print("ms: ${elapsed.inMilliseconds}");
+          
           if (log.logEntryType == 1) {
-            setState(() {
+           
               onDutyLog = log;
               if (!_onDutyTimer.isRunning) {
                 _onDutyTimer.setPresetTime(mSec: elapsed.inMilliseconds);
                 _onDutyTimer.onStartTimer(); // start if not already running
               }
-              });
+              
           } else if (log.logEntryType == 0) {
-            setState(() {
+            
               drivingLog = log;
               
               if (!_drivingTimer.isRunning) {
                 _drivingTimer.setPresetTime(mSec: elapsed.inMilliseconds);
                 _drivingTimer.onStartTimer(); 
-              }});
-          } else if (log.logEntryType == 3) {
-            setState(() {
-              offDutyLog = log;
-              
-              if (!_offDutyTimer.isRunning) {
-                _offDutyTimer.setPresetTime(mSec: elapsed.inMilliseconds);
-                _offDutyTimer.onStartTimer(); 
-              }});
-        }
-        isLoading = false;
-      }
-      return activeLogs;
+            
+              } else if (log.logEntryType == 3) {
+                
+                  offDutyLog = log;
+                  
+                  if (!_offDutyTimer.isRunning || true) {
+                    _offDutyTimer.setPresetTime(mSec: elapsed.inMilliseconds);
+                    _offDutyTimer.onStartTimer(); 
+                  }
+              }
+            }
+        isLoading = false; 
+      } 
+    });
     } catch (e) {
       setState(() {
-        onDutyLog = null;
-        drivingLog = null;
-        offDutyLog = null;
-        isLoading = false;
+        // onDutyLog = null;
+        // drivingLog = null;
+        // offDutyLog = null;
+         isLoading = false;
       });
       return null;
     }
@@ -150,9 +151,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   if (onDutyLog == null) {
     if (offDutyLog == null) {//&& DateTime.now().difference(offDutyLog!.startTime) > const Duration(hours: 10)) {
       try {
-        var res = await widget.driverApiService.createOnDutyLog();
+        var message = await widget.driverApiService.createOnDutyLog();
+        _offDutyTimer.onResetTimer;
         _fetchLogEntries();
-        _showSnackBar(context, 'On Duty log started successfully');
+        _showSnackBar(context, message);
       } catch (e) {
         _showSnackBar(context, e.toString());
       }
@@ -160,6 +162,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   } else {
     if (drivingLog == null) {
       await widget.driverApiService.stopOnDutyLog();
+      _onDutyTimer.onResetTimer;
+
       _fetchLogEntries();
       _showSnackBar(context, 'On Duty log stopped successfully');
     }
@@ -175,24 +179,26 @@ class _DriverHomeViewState extends State<DriverHomeView> {
           builder: (context) => UploadPhotosScreen(token: widget.token),
         ),
       );
-      _showSnackBar(context, 'Driving log started successfully');
+      //_showSnackBar(context, 'Driving log started successfully');
     }
   } else {
     if (onDutyLog != null) {
-      await widget.driverApiService.stopDrivingLog();
+      var message = await widget.driverApiService.stopDrivingLog();
+      _drivingTimer.onResetTimer;
       _fetchLogEntries();
-      _showSnackBar(context, 'Driving log stopped successfully');
+      _showSnackBar(context, message);
     }
   }
 }
-
  void toggleOffDutyLog() async {
   if (offDutyLog == null) {
-    await widget.driverApiService.createOffDutyLog();
+    var message = await widget.driverApiService.createOffDutyLog();
     _fetchLogEntries();
-    _showSnackBar(context, 'Off Duty log started successfully');
+    _showSnackBar(context, message);
   } else {
     await widget.driverApiService.stopOffDutyLog();
+    _offDutyTimer.onResetTimer;
+
     _fetchLogEntries();
     _showSnackBar(context, 'Off Duty log stopped successfully');
   }
