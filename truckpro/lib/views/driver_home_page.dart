@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:truckpro/utils/driver_api_service.dart';
 import 'package:truckpro/views/logs_view.dart';
-import 'package:truckpro/views/testView.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
-import 'stop_watch.dart';
 import 'update_password_view.dart';
 import 'user_signin_page.dart';
 
@@ -129,7 +127,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       return Text(
         displayTime,
         style: TextStyle(
-          fontSize: 28,
+          fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
       );
@@ -242,19 +240,23 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  CircularProgressIndicator(
-                    value: progress > 1 ? 1 : progress,
-                    strokeWidth: 10.0,
-                    backgroundColor: const Color.fromARGB(255, 214, 226, 98),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-                  ),
-                  Center(
-                    child: Text(
-                      formatDuration(elapsedTime),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 18, color: Colors.black),
-                    ),
-                  ),
+                  Transform.scale(
+                    scale: 2, 
+                    child: 
+                      CircularProgressIndicator(
+                        value: progress > 1 ? 1 : progress,
+                        strokeWidth: 10.0,
+                        backgroundColor: const Color.fromARGB(255, 214, 226, 98),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                        ),
+                  )
+                  // Center(
+                  //   child: Text(
+                  //     formatDuration(elapsedTime),
+                  //     textAlign: TextAlign.center,
+                  //     style: const TextStyle(fontSize: 18, color: Colors.black),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -319,7 +321,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
              Column( // stack the report and buttons
               children: [
                 _buildWeeklyHoursSection(), // weekly report section
-                const SizedBox(height: 10),
+                const SizedBox(height: 100),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -389,18 +391,6 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.password_rounded, color: Colors.black),
-            title: const Text('TEST TIMER', style: TextStyle(color: Colors.black)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TestView(),
-                ),
-              );
-            },
-          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
@@ -410,18 +400,6 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SignInPage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.password_rounded, color: Colors.black),
-            title: const Text('TEST TIMER', style: TextStyle(color: Colors.black)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StopwatchView(),
-                ),
               );
             },
           ),
@@ -442,11 +420,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
         return const Text('No data available');
       } else {
         String totalOnDutyHours = snapshot.data!;
-        //var timeSpanList = totalOnDutyHours.split(":");
+        var timeSpanList = totalOnDutyHours.split(":");
 
         double hoursSum = 0;
-        var test ="1.07:26:30.7424450";
-        var timeSpanList = test.split(":");
+
 
         if (timeSpanList.length == 3) {
           if(!timeSpanList[0].contains('.'))
@@ -471,24 +448,24 @@ class _DriverHomeViewState extends State<DriverHomeView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Total On-Duty Last Week: ${hoursSum.round()} / 60 hrs',
+              'Total On-Duty (from last Monday): ${hoursSum.round()} / 60 hrs',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 50),
             // wrap in Transform to scale up the progress indicator
             Transform.scale(
-              scale: 2.2, 
+              scale: 2.85, 
               child: CircularProgressIndicator(
                 value: progress > 1 ? 1 : progress,
-                strokeWidth: 12.0, 
-                backgroundColor: Color.fromARGB(255, 30, 198, 81),
-                valueColor: const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 225, 28, 25)),
+                strokeWidth: 6.5, 
+                backgroundColor: Color.fromARGB(255, 233, 18, 18),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 21, 226, 38)),
               ),
             ),
             Center(
               child: Text(
                 '${(progress * 100).toStringAsFixed(0)}%',
-                style: const TextStyle(fontSize: 24, color: Colors.black),
+                style: const TextStyle(fontSize: 18, color: Colors.black),
               ),
             ),
           ],
