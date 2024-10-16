@@ -142,7 +142,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     if(mounted)
       {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $message')),
+          SnackBar(content: Text(message)),
         );
       }
 
