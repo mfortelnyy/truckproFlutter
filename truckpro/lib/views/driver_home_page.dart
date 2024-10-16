@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:truckpro/utils/driver_api_service.dart';
+import 'package:truckpro/views/driver_stats_view.dart';
 import 'package:truckpro/views/logs_view.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
@@ -321,7 +322,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
              Column( // stack the report and buttons
               children: [
                 _buildWeeklyHoursSection(), // weekly report section
-                const SizedBox(height: 100),
+                const SizedBox(height: 60),
+                const Divider(thickness: 5, color: Color.fromARGB(237, 207, 209, 209),),
+                const SizedBox(height: 30,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -387,6 +390,18 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => UpdatePasswordView(token: widget.token),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.analytics_rounded, color: Colors.black),
+            title: const Text('See Statistics', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DriverStatsView(driverApiService: widget.driverApiService),
                 ),
               );
             },
