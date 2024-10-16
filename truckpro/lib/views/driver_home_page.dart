@@ -1,11 +1,12 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:truckpro/utils/driver_api_service.dart';
 import 'package:truckpro/views/logs_view.dart';
 import 'package:truckpro/views/testView.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
+import 'stop_watch.dart';
 import 'update_password_view.dart';
 import 'user_signin_page.dart';
 
@@ -27,6 +28,12 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   bool isLoading = false;
   Timer? _timer;
   
+
+  StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+
+  
   
 
   @override
@@ -35,50 +42,100 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     _fetchLogEntries();
 
     // init  timer to update every second
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _fetchLogEntries();        
+    _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
+      setState(() { 
+        _fetchLogEntries();
+        _buildWeeklyHoursSection(); 
+             
       });
     });
   }
 
   Future<List<LogEntry>?> _fetchLogEntries() async {
     setState(() {
-      //isLoading = true;
+      isLoading = true;
+       
     });
     try {
+       
       List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
-      setState(() {
+      
         for (var log in activeLogs) {
+          var elapsed = _calculateElapsedTime(log);
+          print("ms: ${elapsed.inMilliseconds}");
           if (log.logEntryType == 1) {
-            onDutyLog = log;
+            setState(() {
+              onDutyLog = log;
+              if (!_onDutyTimer.isRunning) {
+                _onDutyTimer.setPresetTime(mSec: elapsed.inMilliseconds);
+                _onDutyTimer.onStartTimer(); // start if not already running
+              }
+              });
           } else if (log.logEntryType == 0) {
-            drivingLog = log;
+            setState(() {
+              drivingLog = log;
+              
+              if (!_drivingTimer.isRunning) {
+                _drivingTimer.setPresetTime(mSec: elapsed.inMilliseconds);
+                _drivingTimer.onStartTimer(); 
+              }});
           } else if (log.logEntryType == 3) {
-            offDutyLog = log;
-          }
+            setState(() {
+              offDutyLog = log;
+              
+              if (!_offDutyTimer.isRunning) {
+                _offDutyTimer.setPresetTime(mSec: elapsed.inMilliseconds);
+                _offDutyTimer.onStartTimer(); 
+              }});
         }
-        //isLoading = false;
-      });
+        isLoading = false;
+      }
       return activeLogs;
     } catch (e) {
       setState(() {
         onDutyLog = null;
         drivingLog = null;
         offDutyLog = null;
-        //isLoading = false;
+        isLoading = false;
       });
       return null;
     }
   }
 
-
-
   @override
   void dispose() {
-    _timer?.cancel(); 
+     _timer?.cancel();
+    _onDutyTimer.dispose();
+    _drivingTimer.dispose();
+    _offDutyTimer.dispose();
     super.dispose();
   }
+
+ Widget _buildTimerDisplay(StopWatchTimer timer) {
+  return StreamBuilder<int>(
+    stream: timer.rawTime,
+    initialData: 0,
+    builder: (context, snapshot) {
+      final value = snapshot.data ?? 0;
+
+      // calc hours,mins,seconds
+      final hours = (value ~/ 3600000).toString().padLeft(2, '0'); // divide by 3600000 to get hours
+      final minutes = ((value ~/ 60000) % 60).toString().padLeft(2, '0'); // divide by 60000 to get minutes, then mod 60
+      final seconds = ((value ~/ 1000) % 60).toString().padLeft(2, '0'); // divide by 1000 to get seconds, then mod 60
+
+      //format the display time as HH:MM:SS
+      final displayTime = '$hours:$minutes:$seconds';
+
+      return Text(
+        displayTime,
+        style: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    },
+  );
+}
 
   void _showSnackBar(BuildContext context, String message)
   {
@@ -162,7 +219,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     return '${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds';
   }
 
- Widget _buildLogButton(String logType, LogEntry? logEntry, Function toggleLog) {
+ Widget _buildLogButton(String logType, LogEntry? logEntry, Function toggleLog, StopWatchTimer timer) {
   double progress = logType == 'On Duty'
       ? _getProgressOnDuty(logEntry)
       : logType == 'Driving'
@@ -201,6 +258,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                 ],
               ),
             ),
+            const SizedBox(height: 10),
+            _buildTimerDisplay(timer),
             const SizedBox(height: 10),
             TextButton(
               onPressed: () => toggleLog(),
@@ -253,9 +312,11 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       drawer: _buildDrawer(context),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: isLoading
+        child: 
+         isLoading
             ? const Center(child: CircularProgressIndicator())
-            : Column( // stack the report and buttons
+            : 
+             Column( // stack the report and buttons
               children: [
                 _buildWeeklyHoursSection(), // weekly report section
                 const SizedBox(height: 10),
@@ -263,14 +324,14 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(
-                      child: _buildLogButton('\nOn Duty', onDutyLog, toggleOnDutyLog),
+                      child: _buildLogButton('\nOn Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer),
                     ),
                     Expanded(
-                      child: _buildLogButton('\nDriving', drivingLog, toggleDrivingLog),
+                      child: _buildLogButton('\nDriving', drivingLog, toggleDrivingLog, _drivingTimer),
                     ),
                     Expanded(
-                      child: _buildLogButton('\nOff Duty', offDutyLog, toggleOffDutyLog),
-                    ),
+                      child: _buildLogButton('\nOff Duty', offDutyLog, toggleOffDutyLog, _offDutyTimer),
+                    ),        
                   ],
                 ),
               ]
@@ -352,6 +413,18 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               );
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.password_rounded, color: Colors.black),
+            title: const Text('TEST TIMER', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StopwatchView(),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -369,13 +442,27 @@ class _DriverHomeViewState extends State<DriverHomeView> {
         return const Text('No data available');
       } else {
         String totalOnDutyHours = snapshot.data!;
-        var timeSpanList = totalOnDutyHours.split(":");
+        //var timeSpanList = totalOnDutyHours.split(":");
 
         double hoursSum = 0;
+        var test ="1.07:26:30.7424450";
+        var timeSpanList = test.split(":");
+
         if (timeSpanList.length == 3) {
-          hoursSum = double.parse(timeSpanList[0]) +
-              double.parse(timeSpanList[1]) / 60 +
-              double.parse(timeSpanList[2]) / 3600;
+          if(!timeSpanList[0].contains('.'))
+          { 
+            hoursSum = double.parse(timeSpanList[0]) +
+            double.parse(timeSpanList[1]) / 60 +
+            double.parse(timeSpanList[2]) / 3600;
+                   
+          }
+          else{
+            var listdaysHours = timeSpanList[0].split('.');
+            hoursSum = double.parse(listdaysHours[0]) * 24 +
+            double.parse(listdaysHours[1]) +
+            double.parse(timeSpanList[1]) / 60 +
+            double.parse(timeSpanList[2]).round() / 3600;
+          }
         }
 
         double progress = hoursSum / 60;
