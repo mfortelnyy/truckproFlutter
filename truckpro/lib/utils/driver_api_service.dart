@@ -187,9 +187,9 @@ Future<String> createDrivingLog(List<String> filePaths) async {
         'Content-Type': 'application/json',
       },
     );
-
+    
     if (response.statusCode == 200) {
-      var jsonList = jsonDecode(response.body);
+      var jsonList =  jsonDecode(response.body);
       return jsonList.map<LogEntry>((json) => LogEntry.fromJson(json)).toList();
       
     } else {
