@@ -151,13 +151,20 @@ class SignInPageState extends State<SignInPage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   Align(
-                    alignment: Alignment.centerRight,
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.5), // Set border color with low opacity
+                        width: 2, // Border width
+                      ),
+                      borderRadius: BorderRadius.circular(20), // Circular border
+                    ),
                     child: TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => ForgotPasswordView()),
+                          MaterialPageRoute(builder: (context) => ForgotPasswordView()),
                         );
                       },
                       child: const Text(
@@ -169,25 +176,8 @@ class SignInPageState extends State<SignInPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-
-                  ElevatedButton(
-                     onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const DriverSignupPage()),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 241, 158, 89),
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      textStyle: const TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                    child: const Text('Log in', style: TextStyle(color:Colors.white ),),
-                  ),
-
-                  const SizedBox(height: 25),
-
+                ),
+                 const SizedBox(height: 25),
                   ElevatedButton(
                     onPressed: () => _handleSignIn(context), 
                     style: ElevatedButton.styleFrom(
@@ -198,9 +188,25 @@ class SignInPageState extends State<SignInPage> {
                       ),
                       textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                     ),
-                    child: const Text('Sign up', style: TextStyle(color:Colors.white ),),
+                    child: const Text('Log In', style: TextStyle(color:Colors.white ),),
                   ),
-                ],
+                const SizedBox(height: 20),
+                ElevatedButton(
+                     onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const DriverSignupPage()),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+                      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: const TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    child: const Text('Sign Up', style: TextStyle(color:Colors.white ),),
+                  ),
+
+                 ],
               ),
             ),
           ),
