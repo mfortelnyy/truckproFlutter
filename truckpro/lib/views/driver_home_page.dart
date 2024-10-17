@@ -18,7 +18,7 @@ class DriverHomeView extends StatefulWidget {
   DriverHomeView({super.key, required this.token});
 
   late DriverApiService driverApiService = DriverApiService(token: token);
-  late UserDto? user = null;
+   UserDto? user =  null;
   @override
   _DriverHomeViewState createState() => _DriverHomeViewState();
 }
@@ -31,9 +31,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   Timer? _timer;
   
 
-  StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
-  StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
-  StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  final StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  final StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  final StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
   
   List<LogEntry>? _allActiveLogs;
 
@@ -382,61 +382,68 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          appBar: AppBar(
-        title: Text(
-          widget.user?.firstName ?? 'Driver Home Page',
-          style: const TextStyle(fontSize: 18),
-        ),
-        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
-      ),
-      drawer: _buildDrawer(context),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Weekly Report section
-                    SizedBox(
-                      height: 350, 
-                      child: _buildSection(
-                        title: 'Weekly Report',
-                        child: _buildWeeklyHoursSection(),
+          appBar:
+            AppBar(
+              title: widget.user != null
+                  ? Text('Welcome, ${widget.user!.firstName} ${widget.user!.lastName}',        
+                    //spaceSize: 72,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 24,
+                    ),
+                  )
+                  : const Text('Driver Home Page'),
+              backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+            ),
+            drawer: _buildDrawer(context),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Weekly Report section
+                          SizedBox(
+                            height: 350, 
+                            child: _buildSection(
+                              title: 'Weekly Report',
+                              child: _buildWeeklyHoursSection(),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+
+                          // Buttons for On Duty and Driving in the same row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer),
+                              ),
+                              const SizedBox(width: 10), 
+                              Expanded(
+                                child: _buildLogButton('Driving', drivingLog, toggleDrivingLog, _drivingTimer),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Off Duty button in its own section
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog, _offDutyTimer),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 5),
-
-                    // Buttons for On Duty and Driving in the same row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer),
-                        ),
-                        const SizedBox(width: 10), 
-                        Expanded(
-                          child: _buildLogButton('Driving', drivingLog, toggleDrivingLog, _drivingTimer),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Off Duty button in its own section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog, _offDutyTimer),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-        ),
-      ),
-    );
+              ),
+            ),
+          );
   }
 
   
@@ -604,7 +611,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               child: CircularProgressIndicator(
                 value: progress > 1 ? 1 : progress,
                 strokeWidth: 5.5, 
-                backgroundColor: Color.fromARGB(255, 233, 18, 18),
+                backgroundColor: const Color.fromARGB(255, 233, 18, 18),
                 valueColor: const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 21, 226, 38)),
               ),
             ),
