@@ -391,7 +391,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                   ? Text('Welcome, ${user!.firstName} ${user!.lastName}',        
                     //spaceSize: 72,
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 255, 255, 255),
                       fontWeight: FontWeight.w600,
                       fontSize: 24,
                     ),
@@ -474,7 +474,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.teal,
+              color: Color.fromARGB(255, 46, 47, 47),
             ),
           ),
           const SizedBox(height: 10),
@@ -523,7 +523,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false),
+                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false, userDto: user),
                 ),
               );
             },
@@ -536,7 +536,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false),
+                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false, userDto: user,),
                 ),
               );
             },
@@ -625,7 +625,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
           children: [
             Text(
               'Total On-Duty (from last Monday) for ${user?.firstName}: ${hoursSum.round()} / 60 hrs',
-              style: const TextStyle(fontSize: 13, color:Color.fromARGB(255, 0, 150, 136), fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 13, color:Color.fromARGB(255, 74, 82, 81), fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 100),
             // wrap in Transform to scale up the progress indicator
