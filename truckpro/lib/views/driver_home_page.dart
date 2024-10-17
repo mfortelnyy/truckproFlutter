@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/utils/driver_api_service.dart';
 import 'package:truckpro/views/driver_stats_view.dart';
 import 'package:truckpro/views/logs_view.dart';
@@ -31,6 +32,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
   StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
   StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  
+  List<LogEntry>? _allAcriveLogs;
 
   
   
@@ -41,75 +44,80 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     _fetchLogEntries();
 
     // init  timer to update every second
-    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      setState(() { 
-        _fetchLogEntries();
-        _buildWeeklyHoursSection(); 
-             
-      });
+    _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
+      _fetchLogEntries();
+      _buildWeeklyHoursSection(); 
     });
   }
 
-  Future<List<LogEntry>?> _fetchLogEntries() async {
+  Future<void> _fetchLogEntries() async {
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
+
     setState(() {
-      isLoading = true;
-       
-    });
-    try {
-      List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
-      
-       setState(() {
+      // Clear logs at the beginning
+      onDutyLog = null;
+      drivingLog = null;
+      offDutyLog = null;
+
+      // Stop and reset timers if no active logs
+      if (activeLogs.isEmpty) {
+        _resetAllTimers();  // Call reset method here
+      } else {
+        // Start timers based on active logs
         for (var log in activeLogs) {
           var elapsed = _calculateElapsedTime(log);
-          
-          if (log.logEntryType == 1) {
-           
-              onDutyLog = log;
-              if (!_onDutyTimer.isRunning) {
-                _onDutyTimer.setPresetTime(mSec: elapsed.inMilliseconds);
-                _onDutyTimer.onStartTimer(); // start if not already running
-              }
-              
-          } else if (log.logEntryType == 0) {
-            
-              drivingLog = log;
-              
-              if (!_drivingTimer.isRunning) {
-                _drivingTimer.setPresetTime(mSec: elapsed.inMilliseconds);
-                _drivingTimer.onStartTimer(); 
-            
-              } else if (log.logEntryType == 3) {
-                
-                  offDutyLog = log;
-                  
-                  if (!_offDutyTimer.isRunning || true) {
-                    _offDutyTimer.setPresetTime(mSec: elapsed.inMilliseconds);
-                    _offDutyTimer.onStartTimer(); 
-                  }
-              }
-            }
-        isLoading = false; 
-      } 
-    });
-    } catch (e) {
-      setState(() {
-        // onDutyLog = null;
-        // drivingLog = null;
-        // offDutyLog = null;
-         isLoading = false;
-      });
-      return null;
-    }
-  }
 
-  @override
-  void dispose() {
-     _timer?.cancel();
-    _onDutyTimer.dispose();
-    _drivingTimer.dispose();
-    _offDutyTimer.dispose();
-    super.dispose();
+          if (log.logEntryType == LogEntryType.OnDuty.index && onDutyLog == null) {
+            onDutyLog = log;
+            _setTimer(_onDutyTimer, elapsed);
+          } else if (log.logEntryType == LogEntryType.Driving.index && drivingLog == null) {
+            drivingLog = log;
+            _setTimer(_drivingTimer, elapsed);
+          } else if (log.logEntryType == LogEntryType.OffDuty.index && offDutyLog == null) {
+            offDutyLog = log;
+            _setTimer(_offDutyTimer, elapsed);
+          }
+        }
+      }
+
+      _allAcriveLogs = activeLogs;
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      onDutyLog = null;
+      drivingLog = null;
+      offDutyLog = null;
+      _resetAllTimers();  // Reset timers in case of error
+      isLoading = false;
+    });
   }
+}
+
+void _resetAllTimers() {
+  _drivingTimer.setPresetTime(mSec: 0);
+  _onDutyTimer.setPresetTime(mSec: 0);
+  _offDutyTimer.setPresetTime(mSec: 0);
+
+  if (_drivingTimer.isRunning) _drivingTimer.onStopTimer();
+  if (_onDutyTimer.isRunning) _onDutyTimer.onStopTimer();
+  if (_offDutyTimer.isRunning) _offDutyTimer.onStopTimer();
+}
+
+void _setTimer(StopWatchTimer timer, Duration elapsed) {
+  timer.onResetTimer();
+  timer.clearPresetTime();
+  timer.setPresetTime(mSec: elapsed.inMilliseconds);
+  if (!timer.isRunning) {
+    timer.onStartTimer();
+  }
+}
+
 
  Widget _buildTimerDisplay(StopWatchTimer timer) {
   return StreamBuilder<int>(
@@ -152,7 +160,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     if (offDutyLog == null) {//&& DateTime.now().difference(offDutyLog!.startTime) > const Duration(hours: 10)) {
       try {
         var message = await widget.driverApiService.createOnDutyLog();
-        _offDutyTimer.onResetTimer;
+        
         _fetchLogEntries();
         _showSnackBar(context, message);
       } catch (e) {
@@ -161,11 +169,22 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     }
   } else {
     if (drivingLog == null) {
-      await widget.driverApiService.stopOnDutyLog();
-      _onDutyTimer.onResetTimer;
-
-      _fetchLogEntries();
-      _showSnackBar(context, 'On Duty log stopped successfully');
+      var message = await widget.driverApiService.stopOnDutyLog();
+      if(message.isNotEmpty)
+      {
+        setState(() {
+        _onDutyTimer.onResetTimer();
+        onDutyLog = null;
+        });
+        _showSnackBar(context, 'On Duty log stopped successfully');
+        //_fetchLogEntries();
+      }
+      else 
+      {
+        _showSnackBar(context, 'On Duty log did not stop!');
+        
+      }
+      
     }
   }
 }
@@ -176,17 +195,24 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => UploadPhotosScreen(token: widget.token),
+          builder: (context) => UploadPhotosScreen(token: widget.token, onPhotoUpload: _fetchLogEntries),
         ),
       );
       //_showSnackBar(context, 'Driving log started successfully');
     }
   } else {
     if (onDutyLog != null) {
-      var message = await widget.driverApiService.stopDrivingLog();
-      _drivingTimer.onResetTimer;
-      _fetchLogEntries();
-      _showSnackBar(context, message);
+      try
+      {
+        var message = await widget.driverApiService.stopDrivingLog();
+        setState(() {_drivingTimer.onResetTimer(); drivingLog = null;});
+        _fetchLogEntries();
+        _showSnackBar(context, message);
+      }
+      catch(e){
+
+        _showSnackBar(context, "Failed to stop driving log!");
+      }
     }
   }
 }
@@ -196,13 +222,22 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     _fetchLogEntries();
     _showSnackBar(context, message);
   } else {
-    await widget.driverApiService.stopOffDutyLog();
-    _offDutyTimer.onResetTimer;
-
-    _fetchLogEntries();
-    _showSnackBar(context, 'Off Duty log stopped successfully');
+      try
+      {
+        await widget.driverApiService.stopOffDutyLog();
+        setState(() {
+          offDutyLog = null;
+          _offDutyTimer.onResetTimer();
+        });
+        _fetchLogEntries();
+        _showSnackBar(context, 'Off Duty log stopped successfully');
+      }
+      catch(e)
+      {
+        _showSnackBar(context, 'Off Duty log did not stop!');
+      }
+    }
   }
-}
 
   Duration _calculateElapsedTime(LogEntry? logEntry) {
     if (logEntry?.startTime != null) {
@@ -310,8 +345,15 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Driver Home'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _fetchLogEntries,
+          ),
+        ],
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
+      
       drawer: _buildDrawer(context),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -412,10 +454,12 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SignInPage()),
-              );
+              Navigator.pop(context);
+
+              // Navigator.pushReplacement(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const SignInPage()),
+              // );
             },
           ),
         ],
