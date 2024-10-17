@@ -3,6 +3,7 @@ import 'package:truckpro/utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:truckpro/views/driver_home_page.dart';
 import 'package:truckpro/views/driver_signup_page.dart';
+import 'package:truckpro/views/forgot_password_view.dart';
 import 'package:truckpro/views/manager_home_page.dart';
 
 import '../utils/admin_api_service.dart';
@@ -155,7 +156,9 @@ class SignInPageState extends State<SignInPage> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // forgot password navigation
+                        Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => ForgotPasswordView()),
+                        );
                       },
                       child: const Text(
                         'Forgot Password?',
