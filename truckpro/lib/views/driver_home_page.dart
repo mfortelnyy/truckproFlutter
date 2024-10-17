@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/utils/driver_api_service.dart';
+import 'package:truckpro/utils/login_service.dart';
 import 'package:truckpro/views/driver_stats_view.dart';
 import 'package:truckpro/views/logs_view.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
+import '../models/userDto.dart';
 import 'update_password_view.dart';
 import 'user_signin_page.dart';
 
@@ -16,7 +18,7 @@ class DriverHomeView extends StatefulWidget {
   DriverHomeView({super.key, required this.token});
 
   late DriverApiService driverApiService = DriverApiService(token: token);
-
+  late UserDto? user = null;
   @override
   _DriverHomeViewState createState() => _DriverHomeViewState();
 }
@@ -40,13 +42,14 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   void initState() {
     super.initState();
     _fetchLogEntries();
-    _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       _fetchLogEntries();
       _buildWeeklyHoursSection();
     });
   }
 
   Future<void> _fetchLogEntries() async {
+    widget.user ??= await LoginService().getUserById(widget.token);
     if (!mounted) return;
     setState(() {
       isLoading = true;
@@ -380,7 +383,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Driver Home'),
+        title: const Text('Driver Home Page'),
+        
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       drawer: _buildDrawer(context),
@@ -394,7 +398,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                   children: [
                     // Weekly Report section
                     SizedBox(
-                      height: 350, // Increase the height for Weekly Report
+                      height: 350, 
                       child: _buildSection(
                         title: 'Weekly Report',
                         child: _buildWeeklyHoursSection(),
@@ -409,7 +413,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                         Expanded(
                           child: _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer),
                         ),
-                        const SizedBox(width: 10), // Space between the buttons
+                        const SizedBox(width: 10), 
                         Expanded(
                           child: _buildLogButton('Driving', drivingLog, toggleDrivingLog, _drivingTimer),
                         ),
@@ -462,7 +466,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             ),
           ),
           const SizedBox(height: 10),
-          child, // This will contain the actual content for each section
+          child, //actual content for each section
         ],
       ),
     );
@@ -588,7 +592,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Total On-Duty (from last Monday): ${hoursSum.round()} / 60 hrs',
+              'Total On-Duty (from last Monday) for ${widget.user?.firstName}: ${hoursSum.round()} / 60 hrs',
               style: const TextStyle(fontSize: 13, color:Color.fromARGB(255, 0, 150, 136), fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 100),
@@ -620,7 +624,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     return await widget.driverApiService.getTotalOnDutyHoursLastWeek();
     }catch(e)
     {
-      return e.toString();
+      return "";
     }
   }
 
