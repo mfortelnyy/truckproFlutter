@@ -382,9 +382,11 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Driver Home Page'),
-        
+          appBar: AppBar(
+        title: Text(
+          widget.user?.firstName ?? 'Driver Home Page',
+          style: const TextStyle(fontSize: 18),
+        ),
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       drawer: _buildDrawer(context),
@@ -481,7 +483,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             decoration: BoxDecoration(
               color: Color.fromARGB(255, 241, 158, 89),
             ),
-            child: Text('Driver Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+            child: Text('Driver Menu\n', style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           ListTile(
             leading: const Icon(Icons.local_activity_rounded, color: Colors.black),
