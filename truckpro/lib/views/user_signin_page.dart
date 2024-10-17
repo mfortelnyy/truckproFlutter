@@ -73,102 +73,138 @@ class SignInPageState extends State<SignInPage> {
       _showErrorDialog('Invalid email or password');
     }
   }
+   @override
+   Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('User Log In'),
+      backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+      elevation: 10,
+    ),
+    body: Stack(
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/registration_bg.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  TextField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      labelStyle: const TextStyle(color: Colors.black), 
+                      filled: true,
+                      fillColor: Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 109, 219, 236), 
+                          width: 2,
+                        ),
+                      ),
+                      floatingLabelStyle: const TextStyle(
+                        fontSize: 16,
+                        color: Color.fromARGB(255, 249, 249, 249), // label color when focused (floating above)
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 35),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      labelStyle: const TextStyle(color: Colors.black),
+                      filled: true,
+                      fillColor: Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: const BorderSide(color: Color.fromARGB(255, 109, 219, 236), width: 2.0),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.white, width: 2.0),
+                      ),
+                      floatingLabelStyle: const TextStyle(
+                        fontSize: 16,
+                        color: Color.fromARGB(255, 249, 249, 249), 
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('User Log In'),
-        backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
-        elevation: 10,
-      ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/registration_bg.png'), 
-                fit: BoxFit.cover,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        // Implement forgot password navigation
+                      },
+                      child: const Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 241, 158, 89),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    onPressed: () => _handleSignIn(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: const TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    child: const Text('Log In'),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const DriverSignupPage()),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[700],
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: const TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    child: const Text('Sign Up'),
+                  ),
+                ],
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-
-                    TextField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.8),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 35),
-
-                    
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.8),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    ElevatedButton(
-                      onPressed: () => _handleSignIn(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        textStyle: const TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                      child: const Text('Log In'),
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    // Sign up button
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => const DriverSignupPage()),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[700], 
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        textStyle: const TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                      child: const Text('Sign Up'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }
+
+ }
