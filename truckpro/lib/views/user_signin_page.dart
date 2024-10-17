@@ -178,7 +178,7 @@ class SignInPageState extends State<SignInPage> {
                       ),
                       textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                     ),
-                    child: const Text('Log In'),
+                    child: const Text('Log In', style: TextStyle(color:Colors.white ),),
                   ),
 
                   const SizedBox(height: 25),
@@ -195,7 +195,7 @@ class SignInPageState extends State<SignInPage> {
                       ),
                       textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                     ),
-                    child: const Text('Sign Up'),
+                    child: const Text('Sign Up', style: TextStyle(color:Colors.white ),),
                   ),
                 ],
               ),
