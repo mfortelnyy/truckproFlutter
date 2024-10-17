@@ -44,29 +44,36 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
          //decode JWT token to get the userid
         Map<String, dynamic> decodedToken = JwtDecoder.decode(widget.token);
         var userId = decodedToken['userId'];
-
-        ChangePasswordRequest cpr = ChangePasswordRequest(
-          userId: int.parse(userId),
-          oldPassword: _oldPasswordController.text,
-          newPassword: _newPasswordController.text,
-        );
-        String? res = await _loginService.updatePassword(cpr, widget.token);
-
-        
-        if(res!.isNotEmpty)
+        if(_oldPasswordController.text == _newPasswordController.text)
         {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Password updated successfully!')),
+           ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('New password can not be the same as your old!')),
           );
-           Navigator.pop(context);
         }
-        else
-        {
-          ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update password.')),
+        else{
+          ChangePasswordRequest cpr = ChangePasswordRequest(
+            userId: int.parse(userId),
+            oldPassword: _oldPasswordController.text,
+            newPassword: _newPasswordController.text,
           );
+          String? res = await _loginService.updatePassword(cpr, widget.token);
 
-         
+          
+          if(res!.isNotEmpty)
+          {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Password updated successfully!')),
+            );
+            Navigator.pop(context);
+          }
+          else
+          {
+            ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to update password.')),
+            );
+
+          
+          }
         }
       } catch (e) {
         setState(() {
