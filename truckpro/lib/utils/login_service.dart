@@ -99,4 +99,28 @@ class LoginService {
       throw Exception(e.toString());
     }
   }
+
+  // handle user forget password
+  Future<String?> forgePassword(String token, String email) async {
+    try {
+      final url = Uri.parse('$_baseUrl/updatePassword');
+      final response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        }, 
+        body: jsonEncode("'email': '$email'"),
+      ); 
+      if (response.statusCode == 200) {
+        var res = json.decode(response.body);
+        return res['message'];
+      } 
+      else {
+        throw Exception('Failed to update password!');
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 }
