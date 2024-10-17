@@ -8,9 +8,10 @@ import 'package:truckpro/utils/driver_api_service.dart';
 class UploadPhotosScreen extends StatefulWidget {
   final String token;
   Future<void> Function() onPhotoUpload;
+  Future<void> Function() resetOffDuty;
  
 
-  UploadPhotosScreen({super.key, required this.token, required this.onPhotoUpload});
+  UploadPhotosScreen({super.key, required this.token, required this.onPhotoUpload, required this.resetOffDuty});
   late DriverApiService driverApiService = DriverApiService(token: token);
 
   @override
@@ -20,7 +21,6 @@ class UploadPhotosScreen extends StatefulWidget {
 class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   final String token;
 
-  // Change to a list of strings to store file paths
   Map<String, List<String>> promptImages = {
     'Front truck side with Head lights + Emergency flashers and marker lights ON': [],
     'With open hood left side of engine': [],
@@ -48,18 +48,18 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
 
   _UploadPhotosScreenState({required this.token});
 
-  // Pick images for a specific prompt using FilePicker
+  // pick images for a specific prompt using FilePicker
   Future<void> _pickImages(String prompt, int maxImages) async {
   try {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['png', 'jpg', 'jpeg', 'heic', 'heics'], // only images
-      allowMultiple: true, // Allow multiple image selection
+      allowMultiple: true, 
     );
 
     if (result != null && result.files.length + promptImages[prompt]!.length <= maxImages) {
       setState(() {
-        // Append new file paths to the existing list
+        // append new file paths to the existing list
         promptImages[prompt]!.addAll(result.files.map((file) => file.path!).toList());
       });
     } else {
@@ -92,6 +92,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
     if (allImagesUploaded) {
       await widget.driverApiService.createDrivingLog(images);
       widget.onPhotoUpload();
+      widget.resetOffDuty();
       Navigator.pop(context); 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Photos uploaded successfully! \nDriving Log started!'),
@@ -136,7 +137,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                           spacing: 10,
                           children: promptImages[prompt]!.map((path) {
                             return Image.file(
-                              File(path), // Convert path back to File for display
+                              File(path), // convert path back to File for display
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
