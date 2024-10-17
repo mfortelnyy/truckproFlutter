@@ -46,30 +46,24 @@ class _DriverStatsViewState extends State<DriverStatsView> {
     }
   }
 
-  double convertToHours(String timeSpan)
-  {
-     var timeSpanList = timeSpan.split(":");
+  double convertToHours(String timeSpan) {
+    var timeSpanList = timeSpan.split(":");
+    double hoursSum = 0;
 
-        double hoursSum = 0;
-
-
-        if (timeSpanList.length == 3) {
-          if(!timeSpanList[0].contains('.'))
-          { 
-            hoursSum = double.parse(timeSpanList[0]) +
+    if (timeSpanList.length == 3) {
+      if (!timeSpanList[0].contains('.')) {
+        hoursSum = double.parse(timeSpanList[0]) +
             double.parse(timeSpanList[1]) / 60 +
             double.parse(timeSpanList[2]) / 3600;
-                   
-          }
-          else{
-            var listdaysHours = timeSpanList[0].split('.');
-            hoursSum = double.parse(listdaysHours[0]) * 24 +
+      } else {
+        var listdaysHours = timeSpanList[0].split('.');
+        hoursSum = double.parse(listdaysHours[0]) * 24 +
             double.parse(listdaysHours[1]) +
             double.parse(timeSpanList[1]) / 60 +
             double.parse(timeSpanList[2]).round() / 3600;
-          }
-        }
-        return hoursSum;
+      }
+    }
+    return hoursSum;
   }
 
   @override
@@ -87,6 +81,7 @@ class _DriverStatsViewState extends State<DriverStatsView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      const SizedBox(height: 20),
                       _buildPieChart(),
                       const SizedBox(height: 20),
                       _buildBarChart(),
@@ -97,102 +92,120 @@ class _DriverStatsViewState extends State<DriverStatsView> {
   }
 
   Widget _buildPieChart() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Work Distribution', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        SizedBox(
-          height: 200,
-          child: PieChart(
-            PieChartData(
-              sections: [
-                PieChartSectionData(
-                  value: _totalDrivingHours ?? 0,
-                  title: 'Driving',
-                  color: Colors.blue,
+    return Card(
+      elevation: 4, // Adds shadow for depth
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Work Distribution', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(
+              height: 200,
+              child: PieChart(
+                PieChartData(
+                  sections: [
+                    PieChartSectionData(
+                      value: _totalDrivingHours ?? 0,
+                      title: 'Driving',
+                      color: Colors.blue,
+                    ),
+                    PieChartSectionData(
+                      value: _totalOnDutyHours ?? 0,
+                      title: 'On Duty',
+                      color: Colors.orange,
+                    ),
+                    PieChartSectionData(
+                      value: _totalOffDutyHours ?? 0,
+                      title: 'Off Duty',
+                      color: Colors.green,
+                    ),
+                  ],
                 ),
-                PieChartSectionData(
-                  value: _totalOnDutyHours ?? 0,
-                  title: 'On Duty',
-                  color: Colors.orange,
-                ),
-                PieChartSectionData(
-                  value: _totalOffDutyHours ?? 0,
-                  title: 'Off Duty',
-                  color: Colors.green,
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-Widget _buildBarChart() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text('Hours Breakdown', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      SizedBox(
-        height: 200,
-        child: BarChart(
-          BarChartData(
-            barGroups: [
-              BarChartGroupData(
-                x: 0,
-                barRods: [BarChartRodData(toY: _totalDrivingHours ?? 0, color: Colors.red)],
-              ),
-              BarChartGroupData(
-                x: 1,
-                barRods: [BarChartRodData(toY: _totalOnDutyHours ?? 0, color: Colors.yellow)],
-              ),
-              BarChartGroupData(
-                x: 2,
-                barRods: [BarChartRodData(toY: _totalOffDutyHours ?? 0, color: Colors.green)],
-              ),
-            ],
-            titlesData: FlTitlesData(
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (double value, TitleMeta meta) {
-                    switch (value.toInt()) {
-                      case 0:
-                        return const Text('Driving');
-                      case 1:
-                        return const Text('On Duty');
-                      case 2:
-                        return const Text('Off Duty');
-                      default:
-                        return const Text('');
-                    }
-                  },
+  Widget _buildBarChart() {
+    return Card(
+      elevation: 4, // Adds shadow for depth
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Hours Breakdown', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(
+              height: 200,
+              child: BarChart(
+                BarChartData(
+                  barGroups: [
+                    BarChartGroupData(
+                      x: 0,
+                      barRods: [BarChartRodData(toY: _totalDrivingHours ?? 0, color: Colors.red)],
+                    ),
+                    BarChartGroupData(
+                      x: 1,
+                      barRods: [BarChartRodData(toY: _totalOnDutyHours ?? 0, color: Colors.yellow)],
+                    ),
+                    BarChartGroupData(
+                      x: 2,
+                      barRods: [BarChartRodData(toY: _totalOffDutyHours ?? 0, color: Colors.green)],
+                    ),
+                  ],
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (double value, TitleMeta meta) {
+                          switch (value.toInt()) {
+                            case 0:
+                              return const Text('Driving');
+                            case 1:
+                              return const Text('On Duty');
+                            case 2:
+                              return const Text('Off Duty');
+                            default:
+                              return const Text('');
+                          }
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (double value, TitleMeta meta) {
+                          return Text(
+                            value.toStringAsFixed(1),
+                            style: const TextStyle(fontSize: 7),
+                          );
+                        },
+                        interval: 5, // Set an interval to avoid overcrowding
+                      ),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
                 ),
-              ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (double value, TitleMeta meta) {
-                    return Text(
-                      value.toStringAsFixed(1), 
-                      style: const TextStyle(fontSize: 7),
-                    );
-                  },
-                  interval: 5, // Set an interval to avoid overcrowding
-                ),
-              ),
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
               ),
             ),
-          ),
+          ],
         ),
       ),
-    ],
-  );
-}
+    );
+  }
 }
