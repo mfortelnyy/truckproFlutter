@@ -1,7 +1,8 @@
 import 'dart:convert'; //for JSON encoding/decoding
 import 'package:http/http.dart' as http;
 import 'package:truckpro/models/change_password_request.dart';
-import 'package:truckpro/models/signup_request.dart'; 
+import 'package:truckpro/models/signup_request.dart';
+import 'package:truckpro/models/userDto.dart'; 
 
 class LoginService {
 
@@ -76,7 +77,7 @@ class LoginService {
   Future<String?> updatePassword(ChangePasswordRequest cpr, String token) async {
     try {
       final url = Uri.parse('$_baseUrl/updatePassword');
-      final response = await http.patch(
+      final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
@@ -121,6 +122,35 @@ class LoginService {
         throw Exception('Failed to send temporary password!');
       }
     } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+
+  Future<UserDto> getUserById(String token) async
+  {
+    try {
+      final url = Uri.parse('$_baseUrl/getUserbyToken');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        }, 
+        
+      ); 
+
+      if (response.statusCode == 200) {
+        var jsonUserDto = json.decode(response.body);
+        var userDto = UserDto.fromJson(jsonUserDto);
+
+        return userDto;
+      } 
+      else {
+        throw Exception('Failed to update password!');
+      }
+    } catch (e) {
+      //print(e);
       throw Exception(e.toString());
     }
   }
