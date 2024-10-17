@@ -18,7 +18,9 @@ class DriverHomeView extends StatefulWidget {
   DriverHomeView({super.key, required this.token});
 
   late DriverApiService driverApiService = DriverApiService(token: token);
-   UserDto? user =  null;
+  
+  
+   
   @override
   _DriverHomeViewState createState() => _DriverHomeViewState();
 }
@@ -29,6 +31,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   LogEntry? offDutyLog;
   bool isLoading = false;
   Timer? _timer;
+  UserDto? user;
   
 
   final StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
@@ -42,14 +45,14 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   void initState() {
     super.initState();
     _fetchLogEntries();
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
       _fetchLogEntries();
       _buildWeeklyHoursSection();
     });
   }
 
   Future<void> _fetchLogEntries() async {
-    widget.user ??= await LoginService().getUserById(widget.token);
+    user ??= await LoginService().getUserById(widget.token);
     if (!mounted) return;
     setState(() {
       isLoading = true;
@@ -384,8 +387,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     return Scaffold(
           appBar:
             AppBar(
-              title: widget.user != null
-                  ? Text('Welcome, ${widget.user!.firstName} ${widget.user!.lastName}',        
+              title: user != null
+                  ? Text('Welcome, ${user!.firstName} ${user!.lastName}',        
                     //spaceSize: 72,
                     style: const TextStyle(
                       color: Colors.black,
@@ -486,11 +489,31 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 241, 158, 89),
+         DrawerHeader(
+            decoration:  const BoxDecoration(
+              color:Color.fromARGB(255, 241, 158, 89),
             ),
-            child: Text('Driver Menu\n', style: TextStyle(color: Colors.white, fontSize: 24)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                 "Driver Menu",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  user != null ? user!.email : 'Loading...',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ]
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.local_activity_rounded, color: Colors.black),
@@ -556,9 +579,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               // );
             },
           ),
-        ],
-      ),
-    );
+        ],  
+    )
+  );
   }
 
  Widget _buildWeeklyHoursSection() {
@@ -601,7 +624,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Total On-Duty (from last Monday) for ${widget.user?.firstName}: ${hoursSum.round()} / 60 hrs',
+              'Total On-Duty (from last Monday) for ${user?.firstName}: ${hoursSum.round()} / 60 hrs',
               style: const TextStyle(fontSize: 13, color:Color.fromARGB(255, 0, 150, 136), fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 100),
