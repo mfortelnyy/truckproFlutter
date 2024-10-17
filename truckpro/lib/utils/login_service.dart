@@ -107,11 +107,13 @@ class LoginService {
       final response = await http.post(
         url,
         headers: {
-          'Content-Type': 'application/json'
-        }, 
-        body: jsonEncode("'email': '$email'"),
-      ); 
-      if (response.statusCode == 200) {
+          'Content-Type': 'application/x-www-form-urlencoded', // form-urlencoded
+        },
+        body: {
+          'email': email,  // Form data
+        },
+      );
+      if (response.statusCode == 200) { 
         var res = json.decode(response.body);
         return res['message'];
       } 
