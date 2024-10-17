@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
+import 'package:truckpro/models/userDto.dart';
 import 'package:truckpro/utils/manager_api_service.dart';
 
 
@@ -12,9 +13,10 @@ class LogsView extends StatelessWidget {
   final Future<List<LogEntry>> logsFuture;  
   final String token;
   final bool approve;
+  final UserDto? userDto;
   
 
-  const LogsView({super.key, required this.logsFuture, required this.token, required this.approve});
+  const LogsView({super.key, required this.logsFuture, required this.token, required this.approve, this.userDto});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,8 @@ class LogsView extends StatelessWidget {
                     children: [
                       ListTile(
                         title: Text(
-                          '${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by user with id ${log.userId ?? "Unknown User"}',
+                          '${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${userDto?.firstName}',
+                          style: const TextStyle(fontWeight: FontWeight.w600)
                         ),
                         subtitle: log.logEntryType == 0
                             ? _buildDrivingLogInfo(log)
@@ -103,7 +106,7 @@ class LogsView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Driving Log'),
+        //const Text('Driving Log'),
         Text('Log Start Date: ${formatDateTime(log.startTime)}'),
         log.endTime != null
             ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
@@ -119,13 +122,12 @@ class LogsView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Non-Driving Log'),
+        //const Text('Non-Driving Log'),
         Text('Log Start Date: ${formatDateTime(log.startTime)}'),
         log.endTime != null
             ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
             : const Text('In Progress', style: TextStyle(fontSize: 14)),
-        //Text('Approved By Manager: ${boolToString(log.isApprovedByManager)}'),
-      ],
+        ],
     );
   }
 
