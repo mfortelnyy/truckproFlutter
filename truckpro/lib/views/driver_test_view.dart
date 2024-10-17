@@ -29,9 +29,9 @@ class _DriverTestViewState extends State<DriverTestView> {
   bool isLoading = false;
   Timer? _timer;
 
-  StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
-  StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
-  StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  final StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  final StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  final StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
 
   List<LogEntry>? _allActiveLogs;
 
@@ -597,7 +597,7 @@ class _DriverTestViewState extends State<DriverTestView> {
               child: CircularProgressIndicator(
                 value: progress > 1 ? 1 : progress,
                 strokeWidth: 5.5, 
-                backgroundColor: Color.fromARGB(255, 233, 18, 18),
+                backgroundColor: const Color.fromARGB(255, 233, 18, 18),
                 valueColor: const AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 21, 226, 38)),
               ),
             ),

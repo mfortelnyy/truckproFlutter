@@ -105,14 +105,14 @@ class SignInPageState extends State<SignInPage> {
                       labelText: 'Email',
                       labelStyle: const TextStyle(color: Colors.black), 
                       filled: true,
-                      fillColor: Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
+                      fillColor: const Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Color.fromARGB(255, 109, 219, 236), 
                           width: 2,
                         ),
@@ -131,7 +131,7 @@ class SignInPageState extends State<SignInPage> {
                       labelText: 'Password',
                       labelStyle: const TextStyle(color: Colors.black),
                       filled: true,
-                      fillColor: Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
+                      fillColor: const Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
@@ -181,7 +181,7 @@ class SignInPageState extends State<SignInPage> {
                   ElevatedButton(
                     onPressed: () => _handleSignIn(context), 
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 66, 164, 70),
+                      backgroundColor: const Color.fromARGB(255, 66, 164, 70),
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),

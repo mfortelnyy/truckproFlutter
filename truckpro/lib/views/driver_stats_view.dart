@@ -7,7 +7,7 @@ import 'package:truckpro/utils/driver_api_service.dart';
 class DriverStatsView extends StatefulWidget {
   final DriverApiService driverApiService;
 
-  const DriverStatsView({required this.driverApiService});
+  const DriverStatsView({super.key, required this.driverApiService});
 
   @override
   _DriverStatsViewState createState() => _DriverStatsViewState();
@@ -182,10 +182,10 @@ Widget _buildBarChart() {
                   interval: 5, // Set an interval to avoid overcrowding
                 ),
               ),
-              topTitles: AxisTitles(
+              topTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
-              rightTitles: AxisTitles(
+              rightTitles: const AxisTitles(
                 sideTitles: SideTitles(showTitles: false),
               ),
             ),

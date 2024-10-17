@@ -44,7 +44,7 @@ class ForgotPasswordViewState extends State<ForgotPasswordView> {
                         labelText: 'Email',
                         labelStyle: const TextStyle(color: Colors.black),
                         filled: true,
-                        fillColor: Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
+                        fillColor: const Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
                           borderSide: BorderSide.none,

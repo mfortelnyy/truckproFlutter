@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 class StopwatchView extends StatefulWidget {
+  const StopwatchView({super.key});
+
   @override
   _StopwatchViewState createState() => _StopwatchViewState();
 }
@@ -35,7 +37,7 @@ class _StopwatchViewState extends State<StopwatchView> {
         final displayTime = StopWatchTimer.getDisplayTime(value);
         return Text(
           displayTime,
-          style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
         );
       },
     );
