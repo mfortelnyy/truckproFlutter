@@ -101,14 +101,13 @@ class LoginService {
   }
 
   // handle user forget password
-  Future<String?> forgePassword(String token, String email) async {
+  Future<String?> forgetPassword(String email) async {
     try {
-      final url = Uri.parse('$_baseUrl/updatePassword');
-      final response = await http.patch(
+      final url = Uri.parse('$_baseUrl/forgetPassword');
+      final response = await http.post(
         url,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
+          'Content-Type': 'application/json'
         }, 
         body: jsonEncode("'email': '$email'"),
       ); 
@@ -117,7 +116,7 @@ class LoginService {
         return res['message'];
       } 
       else {
-        throw Exception('Failed to update password!');
+        throw Exception('Failed to send temporary password!');
       }
     } catch (e) {
       throw Exception(e.toString());
