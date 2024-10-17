@@ -155,12 +155,12 @@ class SignInPageState extends State<SignInPage> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // Implement forgot password navigation
+                        // forgot password navigation
                       },
                       child: const Text(
                         'Forgot Password?',
                         style: TextStyle(
-                          color: Color.fromARGB(255, 241, 158, 89),
+                          color: Color.fromARGB(198, 246, 241, 241),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -169,7 +169,9 @@ class SignInPageState extends State<SignInPage> {
                   const SizedBox(height: 20),
 
                   ElevatedButton(
-                    onPressed: () => _handleSignIn(context),
+                     onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const DriverSignupPage()),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 241, 158, 89),
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
@@ -178,24 +180,22 @@ class SignInPageState extends State<SignInPage> {
                       ),
                       textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                     ),
-                    child: const Text('Log In', style: TextStyle(color:Colors.white ),),
+                    child: const Text('Log in', style: TextStyle(color:Colors.white ),),
                   ),
 
                   const SizedBox(height: 25),
 
                   ElevatedButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const DriverSignupPage()),
-                    ),
+                    onPressed: () => _handleSignIn(context), 
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[700],
+                      backgroundColor: Color.fromARGB(255, 66, 164, 70),
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                     ),
-                    child: const Text('Sign Up', style: TextStyle(color:Colors.white ),),
+                    child: const Text('Sign up', style: TextStyle(color:Colors.white ),),
                   ),
                 ],
               ),
