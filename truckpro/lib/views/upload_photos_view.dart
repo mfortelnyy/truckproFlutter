@@ -5,6 +5,8 @@ import 'package:file_picker/file_picker.dart';
 
 import 'package:truckpro/utils/driver_api_service.dart';
 
+import 'prompt_image.dart';
+
 class UploadPhotosScreen extends StatefulWidget {
   final String token;
   Future<void> Function() onPhotoUpload;
@@ -21,7 +23,7 @@ class UploadPhotosScreen extends StatefulWidget {
 class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   final String token;
 
-  Map<String, List<String>> promptImages = {
+  Map<String, List<PromptImage>>  promptImages = {
     'Front truck side with Head lights + Emergency flashers and marker lights ON': [],
     'With open hood left side of engine': [],
     'Truck Left steer axle tire condition and PSI measurements, brakes condition (3 pictures)': [],
@@ -49,7 +51,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   _UploadPhotosScreenState({required this.token});
 
   // pick images for a specific prompt using FilePicker
-  Future<void> _pickImages(String prompt, int maxImages, int promptIndex) async {
+  Future<void> _pickImages(String prompt, int promptIndex, int maxImages) async {
   try {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -59,22 +61,9 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
 
     if (result != null && result.files.length + promptImages[prompt]!.length <= maxImages) {
       setState(() {
-      //   // append new file paths to the existing list
-      //   promptImages[prompt]!.addAll(result.files.map((file) => file.path!).toList());
-
-      // Modify the filename to include the prompt index
-        for (int i = 0; i < result.files.length; i++) {
-          String originalFilePath = result.files[i].path!;
-          String extension = originalFilePath.split('.').last; // file extension
-          String newFileName = '${promptIndex + 1}-$i.$extension'; // 1-0.jpg, 1-1.jpg
-
-         
-          String newFilePath = originalFilePath.replaceAll(RegExp(r'[^/]+$'), newFileName);
-
-          // Add the renamed file path to the list of images for this prompt
-          promptImages[prompt]!.add(newFilePath);
-        }
-       });
+        // append new PromptImage instances to the existing list
+        promptImages[prompt]!.addAll(result.files.map((file) => PromptImage(file.path!, promptIndex)).toList());
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -91,19 +80,20 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   }
 }
 
-
   Future<void> _submitLog() async {
     bool allImagesUploaded = true;
-    List<String> images = []; // change to list of strings
+    List<Map<String, dynamic>> imagesJson = []; //holds JSON objects
+  
     promptImages.forEach((key, value) {
       if (value.isEmpty) {
-        allImagesUploaded = true;
+        //allImagesUploaded = false; // Check if any prompt has no images
       }
-      images.addAll(value); // add file paths to the list
+      imagesJson.addAll(value.map((promptImage) => promptImage.toJson())); // add JSON objects to the list
     });
 
+
     if (allImagesUploaded) {
-      await widget.driverApiService.createDrivingLog(images);
+      await widget.driverApiService.createDrivingLog(imagesJson);
       widget.onPhotoUpload();
       widget.resetOffDuty();
       Navigator.pop(context); 
@@ -152,7 +142,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                           spacing: 10,
                           children: promptImages[prompt]!.map((path) {
                             return Image.file(
-                              File(path), // convert path back to File for display
+                              File(path.path), // convert path back to File for display
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
