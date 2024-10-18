@@ -138,21 +138,48 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                   const SizedBox(height: 10),
                   // disp the selected images using the file path
                   promptImages[prompt]!.isNotEmpty
-                      ? Wrap(
-                          spacing: 10,
-                          children: promptImages[prompt]!.map((path) {
-                            return Image.file(
-                              File(path.path), // convert path back to File for display
+                  ? Wrap(
+                      spacing: 10,
+                      children: promptImages[prompt]!.map((image) {
+                        return Stack(
+                          children: [
+                            Image.file(
+                              File(image.path), // convert path back to File for display
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
-                            );
-                          }).toList(),
-                        )
-                      : const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('No images selected'),
-                        ),
+                            ),
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    promptImages[prompt]!.remove(image);
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  padding: const EdgeInsets.all(4),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    )
+                  : const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('No images selected'),
+                    ),
                 ],
               ),
             ),
