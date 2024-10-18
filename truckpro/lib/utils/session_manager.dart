@@ -49,4 +49,13 @@ class SessionManager {
 
     return null;
   }
+
+
+  static bool isTokenExpired(String token) {
+    final expiryDate = getExpiryDate(token);
+    if (expiryDate == null) {
+      return true; // expired if can't decode
+    }
+    return DateTime.now().isAfter(expiryDate);
+  }
 }
