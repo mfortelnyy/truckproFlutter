@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionManager {
@@ -29,5 +31,22 @@ class SessionManager {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
     await prefs.remove(_userIdKey);
+  }
+
+  static DateTime? getExpiryDate(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      return null; // Invalid JWT format
+    }
+
+    // decode the payload 
+    final payload = json.decode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+
+    if (payload['exp'] != null) {
+      final exp = payload['exp'];
+      return DateTime.fromMillisecondsSinceEpoch(exp * 1000); // seconds to milliseconds
+    }
+
+    return null;
   }
 }
