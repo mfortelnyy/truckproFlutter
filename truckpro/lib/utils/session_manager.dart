@@ -58,4 +58,12 @@ class SessionManager {
     }
     return DateTime.now().isAfter(expiryDate);
   }
+
+  // automatically sign out if token is expired
+  Future<void> autoSignOut() async {
+    final token = await getToken();
+    if (token != null && isTokenExpired(token)) {
+      await clearSession(); 
+    }
+  }
 }
