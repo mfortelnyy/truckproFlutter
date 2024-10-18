@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:truckpro/models/log_entry.dart';
+import 'package:truckpro/views/prompt_image.dart';
 
 class DriverApiService {
   final String _baseUrl = 'https://localhost:443';
@@ -84,36 +85,46 @@ class DriverApiService {
     }
   }
 
-Future<String> createDrivingLog(List<String> filePaths) async {
+Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
   final url = Uri.parse('$_baseUrl/createDrivingLog');
 
-
   var request = http.MultipartRequest('POST', url)
-      ..headers['Authorization'] = 'Bearer $token';
-    for (String filePath in filePaths) {
-      var file = await http.MultipartFile.fromPath(
-        'images', 
-        filePath,
-        filename: basename(filePath),
-      );
-      request.files.add(file);
-    }
-    try {
-      final response = await request.send();
-      final responseBody = await http.Response.fromStream(response);
-      if (response.statusCode == 200) {
-        return responseBody.body;
-      } else {
-        throw Exception('Failed to add image: ${responseBody.body}');
-      }
-    } catch (e) {
-      throw Exception('Error: $e');
-    }
+    ..headers['Authorization'] = 'Bearer $token';
+
+  // Extract the images and prompt information from imagesJson
+  List<String> filePaths = [];
+  
+
+  for (var imageInfo in imagesJson) {
+    String filePath = imageInfo['path'];
+    filePaths.add(filePath);
     
+    var file = await http.MultipartFile.fromPath(
+      'images', 
+      filePath,
+      filename: basename(filePath), 
+    );
+    request.files.add(file);
   }
 
+  
+  String promptImagesJson = jsonEncode(imagesJson);
+  request.fields['promptImages'] = promptImagesJson; 
 
-  Future<String> createOffDutyLog() async {
+  try {
+    final response = await request.send();
+    final responseBody = await http.Response.fromStream(response);
+    if (response.statusCode == 200) {
+      return responseBody.body;
+    } else {
+      throw Exception('Failed to add image: ${responseBody.body}');
+    }
+  } catch (e) {
+    throw Exception('Error: $e');
+  }
+}
+
+Future<String> createOffDutyLog() async {
     final response = await http.post(
       Uri.parse('$_baseUrl/createOffDutyLog'),
       headers: {
