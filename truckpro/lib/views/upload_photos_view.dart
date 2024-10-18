@@ -132,7 +132,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                     subtitle: Text('Max $maxImages photos'),
                   ),
                   ElevatedButton(
-                    onPressed: () => _pickImages(prompt, maxImages, promptIndex ),
+                    onPressed: () => _pickImages(prompt,promptIndex, maxImages ),
                     child: const Text('Select Photos'),
                   ),
                   const SizedBox(height: 10),
