@@ -49,7 +49,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   _UploadPhotosScreenState({required this.token});
 
   // pick images for a specific prompt using FilePicker
-  Future<void> _pickImages(String prompt, int maxImages) async {
+  Future<void> _pickImages(String prompt, int maxImages, int promptIndex) async {
   try {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -59,9 +59,22 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
 
     if (result != null && result.files.length + promptImages[prompt]!.length <= maxImages) {
       setState(() {
-        // append new file paths to the existing list
-        promptImages[prompt]!.addAll(result.files.map((file) => file.path!).toList());
-      });
+      //   // append new file paths to the existing list
+      //   promptImages[prompt]!.addAll(result.files.map((file) => file.path!).toList());
+
+      // Modify the filename to include the prompt index
+        for (int i = 0; i < result.files.length; i++) {
+          String originalFilePath = result.files[i].path!;
+          String extension = originalFilePath.split('.').last; // file extension
+          String newFileName = '${promptIndex + 1}-$i.$extension'; // 1-0.jpg, 1-1.jpg
+
+         
+          String newFilePath = originalFilePath.replaceAll(RegExp(r'[^/]+$'), newFileName);
+
+          // Add the renamed file path to the list of images for this prompt
+          promptImages[prompt]!.add(newFilePath);
+        }
+       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -112,7 +125,9 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: ListView(
-        children: promptImages.keys.map((prompt) {
+        children: promptImages.keys.toList().asMap().entries.map((entry) {
+          int promptIndex = entry.key;  //index of the prompt
+          String prompt = entry.value;  //prompt text  
           //get how many images are required for each prompt
           int maxImages = _getMaxImagesForPrompt(prompt);
           return Padding(
@@ -127,7 +142,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                     subtitle: Text('Max $maxImages photos'),
                   ),
                   ElevatedButton(
-                    onPressed: () => _pickImages(prompt, maxImages),
+                    onPressed: () => _pickImages(prompt, maxImages, promptIndex ),
                     child: const Text('Select Photos'),
                   ),
                   const SizedBox(height: 10),
