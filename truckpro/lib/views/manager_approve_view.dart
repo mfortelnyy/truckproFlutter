@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/utils/manager_api_service.dart';
@@ -9,32 +7,30 @@ class ManagerApproveView extends StatelessWidget {
   final LogEntry log;
   final String token;
 
-   static const List<String> promptImages = [
-  'Front truck side with Head lights + Emergency flashers and marker lights ON',
-  'With open hood left side of engine',
-  'Truck Left steer axle tire condition and PSI measurements, brakes condition (3 pictures)',
-  'Truck: 6-way electric socket, green, blue, red hoses condition',
-  'Truck 1st Left axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
-  'Truck 2nd Left axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
-  'Truck Left Mudflap',
-  'Trailer: 6-way electric socket, green, blue, red hoses condition',
-  'Trailer left middle turn signal condition',
-  'Trailer 1st Left axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
-  'Trailer 2nd Left axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
-  'Trailer Left Mudflap',
-  'Trailer rear end with emergency flashers ON, marker lights ON, turn lights condition, brake lights condition, DOT bumper condition, license plate (door condition, door latch condition, 8-hinges, load securement)',
-  'Trailer Right Mudflap',
-  'Trailer 2nd Right axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
-  'Trailer 1st Right axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
-  'Trailer right middle turn signal condition',
-  'Truck right Mudflap',
-  'Truck 2nd right axle outside & inside tire condition and PSI measurements, brakes condition(3 pics)',
-  'Truck 1st Right axle outside & inside tire condition and PSI measurements, brakes condition(3 pics)',
-  'Truck Right steer axle tire condition and PSI measurements, brakes condition(3 pics)',
-  'With open hood right side of engine',
-];
-
-  
+  static const List<String> promptImages = [
+    'Front truck side with Head lights + Emergency flashers and marker lights ON',
+    'With open hood left side of engine',
+    'Truck Left steer axle tire condition and PSI measurements, brakes condition (3 pictures)',
+    'Truck: 6-way electric socket, green, blue, red hoses condition',
+    'Truck 1st Left axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
+    'Truck 2nd Left axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
+    'Truck Left Mudflap',
+    'Trailer: 6-way electric socket, green, blue, red hoses condition',
+    'Trailer left middle turn signal condition',
+    'Trailer 1st Left axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
+    'Trailer 2nd Left axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
+    'Trailer Left Mudflap',
+    'Trailer rear end with emergency flashers ON, marker lights ON, turn lights condition, brake lights condition, DOT bumper condition, license plate (door condition, door latch condition, 8-hinges, load securement)',
+    'Trailer Right Mudflap',
+    'Trailer 2nd Right axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
+    'Trailer 1st Right axle outside & inside tire condition and PSI measurements, brakes condition(3 pictures)',
+    'Trailer right middle turn signal condition',
+    'Truck right Mudflap',
+    'Truck 2nd right axle outside & inside tire condition and PSI measurements, brakes condition(3 pics)',
+    'Truck 1st Right axle outside & inside tire condition and PSI measurements, brakes condition(3 pics)',
+    'Truck Right steer axle tire condition and PSI measurements, brakes condition(3 pics)',
+    'With open hood right side of engine',
+  ];
 
   const ManagerApproveView({
     super.key,
@@ -48,6 +44,7 @@ class ManagerApproveView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Driving Log Images'),
+        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: FutureBuilder<List<String>>(
         future: imageUrls,
@@ -60,7 +57,6 @@ class ManagerApproveView extends StatelessWidget {
             return const Center(child: Text('No images available'));
           } else {
             final urls = snapshot.data!;
-            // Group images by prompt
             final groupedImages = _groupImagesByPrompt(urls);
 
             return ListView.builder(
@@ -72,17 +68,25 @@ class ManagerApproveView extends StatelessWidget {
 
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  elevation: 4,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           prompt,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Color.fromARGB(255, 2, 2, 2), // prompt color
+                          ),
                         ),
                         const SizedBox(height: 8),
-                        if (images.isNotEmpty) 
+                        if (images.isNotEmpty)
                           GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -117,7 +121,7 @@ class ManagerApproveView extends StatelessWidget {
                             },
                           )
                         else
-                          const Text('No images available for this prompt'),
+                          const Text('No images available for this prompt', style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   ),
@@ -127,13 +131,16 @@ class ManagerApproveView extends StatelessWidget {
           }
         },
       ),
-      floatingActionButton: log.isApprovedByManager ? null : FloatingActionButton(
-        onPressed: () async {
-          await _approveLog(log.id, context);
-        },
-        child: const Icon(Icons.check),
-        tooltip: 'Approve Log',
-      ),
+      floatingActionButton: log.isApprovedByManager
+          ? null
+          : FloatingActionButton(
+              onPressed: () async {
+                await _approveLog(log.id, context);
+              },
+              backgroundColor: Colors.orange,
+              child: const Icon(Icons.check),
+              tooltip: 'Approve Log',
+            ),
     );
   }
 
@@ -141,12 +148,10 @@ class ManagerApproveView extends StatelessWidget {
     final Map<String, List<String>> groupedImages = {};
 
     for (String url in urls) {
-      // Extract promptId from the URL (assuming it's the last part of the URL)
       final parts = url.split('promptId');
-      if (parts.length < 2) continue; // skip if the format is incorrect
+      if (parts.length < 2) continue;
       final promptId = int.tryParse(parts[1]) ?? -1;
 
-      // Use promptId to map to the correct prompt in promptImages
       if (promptId >= 0 && promptId < promptImages.length) {
         final prompt = promptImages[promptId];
         groupedImages.putIfAbsent(prompt, () => []).add(url);
@@ -188,7 +193,7 @@ class ManagerApproveView extends StatelessWidget {
     try {
       ManagerApiService managerApiService = ManagerApiService();
       final response = await managerApiService.approveDrivingLogById(logId, token);
-      print("response from approving log $response");
+      print("Response from approving log: $response");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Log approved successfully!')),
       );
