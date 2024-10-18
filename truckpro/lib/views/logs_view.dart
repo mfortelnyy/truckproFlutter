@@ -4,6 +4,7 @@ import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/userDto.dart';
 import 'package:truckpro/utils/manager_api_service.dart';
+import 'package:truckpro/views/manager_approve_view.dart';
 
 
 
@@ -56,11 +57,10 @@ class LogsView extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DrivingLogImagesView(
+                                builder: (context) => ManagerApproveView(
                                   imageUrls: Future.value(log.imageUrls),
                                   log: log,
                                   token: token, 
-                                  approve: approve,
                                 ),
                               ),
                             );
@@ -113,7 +113,9 @@ class LogsView extends StatelessWidget {
             : const Text('Log In Progress'),
         Text('Approved By Manager: ${boolToString(log.isApprovedByManager)}'),
         Text('Images attached: ${log.imageUrls?.length ?? 0}'),
+        
       ],
+      
     );
   }
 
