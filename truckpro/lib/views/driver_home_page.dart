@@ -32,6 +32,12 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   bool isLoading = false;
   Timer? _timer;
   UserDto? user;
+  bool onDutyButtonActive = true;
+  bool offDutyButtonActive = true;
+  bool drivingButtonActive = true;
+  late String totalOnDuty;
+
+
   
 
   final StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
@@ -44,6 +50,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   @override
   void initState() {
     super.initState();
+      
     _fetchLogEntries();
     _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
       _fetchLogEntries();
@@ -52,7 +59,14 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   }
 
   Future<void> _fetchLogEntries() async {
+    totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
     user ??= await LoginService().getUserById(widget.token);
+    if(convertFromTimespan(totalOnDuty)>60)
+    {
+      showTopSnackBar(context, "Driving Limit Exceeded! \nLimit resets every Monday 12:00 AM");
+      onDutyButtonActive = false;
+      drivingButtonActive = false;
+    }
     if (!mounted) return;
     setState(() {
       isLoading = true;
@@ -62,6 +76,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
       if (!mounted) return;
       setState(() {
+        //totalOnDuty = _getTotalOnDutyHoursLastWeek();
         if (activeLogs.isEmpty) {
           _resetAllTimers();
         } else {
@@ -249,99 +264,131 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 
   }
   
+   void showTopSnackBar(BuildContext context, String message) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            color: Colors.red, 
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 24, 
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
 
+    // Insert the overlay entry into the screen
+    overlay?.insert(overlayEntry);
+
+    // Remove the overlay after 3 seconds
+    Future.delayed(Duration(seconds: 3)).then((_) => overlayEntry.remove());
+  }
+   
    void toggleOnDutyLog() async {
-  if (onDutyLog == null) {
-    if (offDutyLog == null) {//&& DateTime.now().difference(offDutyLog!.startTime) > const Duration(hours: 10)) {
-      try {
-        var message = await widget.driverApiService.createOnDutyLog();
-        
-        _fetchLogEntries();
-        _showSnackBar(context, message);
-      } catch (e) {
-        _showSnackBar(context, e.toString());
+    if (onDutyLog == null) {
+      if (offDutyLog == null) {//&& DateTime.now().difference(offDutyLog!.startTime) > const Duration(hours: 10)) {
+        try {
+          var message = await widget.driverApiService.createOnDutyLog();
+          
+          _fetchLogEntries();
+          _showSnackBar(context, message);
+        } catch (e) {
+          _showSnackBar(context, e.toString());
+        }
       }
-    }
-    else{
-      if (!mounted) return;
-      setState(() {
-        _setTimer(_offDutyTimer, Duration.zero, true);
-        offDutyLog = null;
-      });
-      try {
-        var message = await widget.driverApiService.createOnDutyLog();
-        
-        _fetchLogEntries();
-        _showSnackBar(context, message);
-      } catch (e) {
-        _showSnackBar(context, e.toString());
-      }
-    }
-  } else {
-    if (drivingLog == null) {
-      var message = await widget.driverApiService.stopOnDutyLog();
-      if(message.isNotEmpty)
-      {
+      else{
         if (!mounted) return;
         setState(() {
-          _setTimer(_onDutyTimer, Duration.zero, true);
-        // _onDutyTimer.onStopTimer();
-        // _onDutyTimer.clearPresetTime();
-        // _onDutyTimer.setPresetTime(mSec: 0);
-        
-();
-        onDutyLog = null;
+          _setTimer(_offDutyTimer, Duration.zero, true);
+          offDutyLog = null;
         });
-        _showSnackBar(context, 'On Duty log stopped successfully');
-        //_fetchLogEntries();
+        try {
+          var message = await widget.driverApiService.createOnDutyLog();
+          
+          _fetchLogEntries();
+          _showSnackBar(context, message);
+        } catch (e) {
+          _showSnackBar(context, e.toString());
+        }
       }
-      else 
-      {
-        _showSnackBar(context, 'On Duty log did not stop!');
+    } else {
+      if (drivingLog == null) {
+        var message = await widget.driverApiService.stopOnDutyLog();
+        if(message.isNotEmpty)
+        {
+          if (!mounted) return;
+          setState(() {
+            _setTimer(_onDutyTimer, Duration.zero, true);
+          // _onDutyTimer.onStopTimer();
+          // _onDutyTimer.clearPresetTime();
+          // _onDutyTimer.setPresetTime(mSec: 0);
+          
+  ();
+          onDutyLog = null;
+          });
+          _showSnackBar(context, 'On Duty log stopped successfully');
+          //_fetchLogEntries();
+        }
+        else 
+        {
+          _showSnackBar(context, 'On Duty log did not stop!');
+          
+        }
         
       }
-      
     }
-  }
 }
 
   void toggleDrivingLog() async {
-  if (drivingLog == null) {
-    
-    //if (onDutyLog != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => UploadPhotosScreen(token: widget.token, onPhotoUpload: _fetchLogEntries, resetOffDuty: _resetOffDuty),
-        ),
-      );
+    if (drivingLog == null) {
+      
+      //if (onDutyLog != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UploadPhotosScreen(token: widget.token, onPhotoUpload: _fetchLogEntries, resetOffDuty: _resetOffDuty),
+          ),
+        );
 
-      //_showSnackBar(context, 'Driving log started successfully');
-    //}
-  } else {
-    if (onDutyLog != null) {
-      try
-      {
-        var message = await widget.driverApiService.stopDrivingLog();
-        if (!mounted) return;
-        setState(() {
-          _setTimer(_drivingTimer, Duration.zero, true);
-          // _drivingTimer.onStopTimer();
-          // _drivingTimer.clearPresetTime();
-          // _drivingTimer.setPresetTime(mSec: 0);
-          
-           drivingLog = null;
-          });
-        _fetchLogEntries();
-        _showSnackBar(context, message);
-      }
-      catch(e){
+        //_showSnackBar(context, 'Driving log started successfully');
+      //}
+    } else {
+      if (onDutyLog != null) {
+        try
+        {
+          var message = await widget.driverApiService.stopDrivingLog();
+          if (!mounted) return;
+          setState(() {
+            _setTimer(_drivingTimer, Duration.zero, true);
+            // _drivingTimer.onStopTimer();
+            // _drivingTimer.clearPresetTime();
+            // _drivingTimer.setPresetTime(mSec: 0);
+            
+            drivingLog = null;
+            });
+          _fetchLogEntries();
+          _showSnackBar(context, message);
+        }
+        catch(e){
 
-        _showSnackBar(context, "Failed to stop driving log!");
+          _showSnackBar(context, "Failed to stop driving log!");
+        }
       }
     }
   }
-}
  void toggleOffDutyLog() async {
   if (offDutyLog == null) {
     var message = await widget.driverApiService.createOffDutyLog();
@@ -423,11 +470,11 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Expanded(
-                                child: _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer),
+                                child:onDutyButtonActive ? _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer) : const Center(child: SizedBox(height:  100, child: Text("Weekly On Duty Limit exceeded!") )),
                               ),
                               const SizedBox(width: 10), 
                               Expanded(
-                                child: _buildLogButton('Driving', drivingLog, toggleDrivingLog, _drivingTimer),
+                                child: drivingButtonActive? _buildLogButton('Driving', drivingLog, toggleDrivingLog, _drivingTimer) : const SizedBox(height: 100, child: Text("") ),
                               ),
                             ],
                           ),
@@ -438,15 +485,15 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Expanded(
-                                child: _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog, _offDutyTimer),
-                              ),
-                            ],
+                                child: offDutyButtonActive ? _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog, _offDutyTimer) : const SizedBox(height: 100, child: Text("Weekly On Duty Limit exceeded!") )
                           ),
                         ],
                       ),
-              ),
+                ],
             ),
-          );
+          )
+        )
+      );
   }
 
   
@@ -617,6 +664,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             double.parse(timeSpanList[2]).round() / 3600;
           }
         }
+         
+       // _checkWeeklyLimits(hoursSum);
 
         double progress = hoursSum / 60;
 
@@ -658,6 +707,51 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     {
       return "";
     }
+  }
+
+  double convertFromTimespan(String totalOnDutyHours )
+  {
+    var timeSpanList = totalOnDutyHours.split(":");
+
+        double hoursSum = 0;
+
+
+        if (timeSpanList.length == 3) {
+          if(!timeSpanList[0].contains('.'))
+          { 
+            hoursSum = double.parse(timeSpanList[0]) +
+            double.parse(timeSpanList[1]) / 60 +
+            double.parse(timeSpanList[2]) / 3600;
+                   
+          }
+          else{
+            var listdaysHours = timeSpanList[0].split('.');
+            hoursSum = double.parse(listdaysHours[0]) * 24 +
+            double.parse(listdaysHours[1]) +
+            double.parse(timeSpanList[1]) / 60 +
+            double.parse(timeSpanList[2]).round() / 3600;
+          }
+        }
+        return hoursSum;
+  }
+
+  _checkWeeklyLimits(double hours){
+    if (hours > 60) { 
+       if (!mounted) return;
+        
+          // Deactivate buttons except off duty
+          onDutyButtonActive = false; 
+          drivingButtonActive = false;
+   
+        _showSnackBar(context, "You have exceeded the weekly on-duty hour limit!");
+      } else {
+        if (!mounted) return;
+      
+          // Reactivate buttons if within limits
+          onDutyButtonActive = true; 
+          drivingButtonActive = true; 
+        
+      }
   }
 
   Future<void> _resetOffDuty() async {
