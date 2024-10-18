@@ -84,7 +84,7 @@ class DriverApiService {
       throw Exception('Failed to create On Duty log: ${response.body}');
     }
   }
-
+/*
 Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
   final url = Uri.parse('$_baseUrl/createDrivingLog');
 
@@ -118,6 +118,40 @@ Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
       return responseBody.body;
     } else {
       throw Exception('Failed to add image: ${responseBody.body}');
+    }
+  } catch (e) {
+    throw Exception('Error: $e');
+  }
+}
+*/
+
+Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
+  final url = Uri.parse('$_baseUrl/createDrivingLog');
+  var request = http.MultipartRequest('POST', url)
+    ..headers['Authorization'] = 'Bearer $token';
+
+  // Add images as multipart files
+  for (var imageInfo in imagesJson) {
+    String filePath = imageInfo['path'];  // file path of the image
+    var file = await http.MultipartFile.fromPath(
+      'images', 
+      filePath,
+      filename: basename(filePath),
+    );
+    request.files.add(file);
+  }
+
+  // Encode and send metadata as JSON
+  String promptImagesJson = jsonEncode(imagesJson);
+  request.fields['promptImages'] = promptImagesJson;
+
+  try {
+    final response = await request.send();
+    final responseBody = await http.Response.fromStream(response);
+    if (response.statusCode == 200) {
+      return responseBody.body;
+    } else {
+      throw Exception('Failed to upload images: ${responseBody.body}');
     }
   } catch (e) {
     throw Exception('Error: $e');
