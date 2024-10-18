@@ -16,7 +16,7 @@ class LogsView extends StatelessWidget {
   final UserDto? userDto;
   
 
-  const LogsView({super.key, required this.logsFuture, required this.token, required this.approve, this.userDto});
+  const LogsView({super.key, required this.logsFuture, required this.token, required this.approve, this.userDto,});
 
   @override
   Widget build(BuildContext context) {
