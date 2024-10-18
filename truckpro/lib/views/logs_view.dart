@@ -14,10 +14,11 @@ class LogsView extends StatelessWidget {
   final Future<List<LogEntry>> logsFuture;  
   final String token;
   final bool approve;
+  final void Function()? onApprove;
   final UserDto? userDto;
   
 
-  const LogsView({super.key, required this.logsFuture, required this.token, required this.approve, this.userDto,});
+  const LogsView({super.key, required this.logsFuture, required this.token, required this.approve, this.userDto, this.onApprove});
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,8 @@ class LogsView extends StatelessWidget {
                                 builder: (context) => ManagerApproveView(
                                   imageUrls: Future.value(log.imageUrls),
                                   log: log,
-                                  token: token, 
+                                  token: token,
+                                  onApprove: onApprove, 
                                 ),
                               ),
                             );

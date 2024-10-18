@@ -275,7 +275,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LogsView(logsFuture: _activeDrivingLogs, token: widget.token, approve: true, )
+                  builder: (context) => LogsView(logsFuture: _activeDrivingLogs, token: widget.token, approve: true, onApprove: _fetchManagerData, )
                 ),
               );
             },
