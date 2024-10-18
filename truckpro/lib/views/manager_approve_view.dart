@@ -6,6 +6,7 @@ class ManagerApproveView extends StatelessWidget {
   final Future<List<String>> imageUrls; 
   final LogEntry log;
   final String token;
+  final void Function()? onApprove;
 
   static const List<String> promptImages = [
     'Front truck side with Head lights + Emergency flashers and marker lights ON',
@@ -37,6 +38,7 @@ class ManagerApproveView extends StatelessWidget {
     required this.imageUrls,
     required this.log,
     required this.token,
+    this.onApprove,
   });
 
   @override
@@ -193,11 +195,22 @@ class ManagerApproveView extends StatelessWidget {
     try {
       ManagerApiService managerApiService = ManagerApiService();
       final response = await managerApiService.approveDrivingLogById(logId, token);
-      print("Response from approving log: $response");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Log approved successfully!')),
-      );
-      Navigator.of(context).pop(); 
+      //print("Response from approving log: $response"); 
+      if(response.isNotEmpty)
+      {
+        onApprove!();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Log approved successfully!')),
+        );
+        Navigator.of(context).pop(); 
+      }
+      else
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Log was not approved!')),
+        );
+        Navigator.of(context).pop(); 
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
