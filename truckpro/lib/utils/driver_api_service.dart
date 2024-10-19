@@ -84,6 +84,7 @@ class DriverApiService {
       throw Exception('Failed to create On Duty log: ${response.body}');
     }
   }
+  
 /*
 Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
   final url = Uri.parse('$_baseUrl/createDrivingLog');
