@@ -7,7 +7,7 @@ class UserDto {
   String email;
   String phone;
   int role;
-  int companyId;
+  int? companyId;
   Company? company;
   bool emailVerified;
   String? emailVerificationToken;
@@ -20,7 +20,7 @@ class UserDto {
     required this.email,
     required this.phone,
     required this.role,
-    required this.companyId,
+    this.companyId,
     required this.emailVerified,
     required this.emailVerificationToken,    
     this.company,
