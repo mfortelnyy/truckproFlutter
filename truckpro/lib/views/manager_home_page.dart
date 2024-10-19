@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/pending_user.dart';
+import 'package:truckpro/utils/login_service.dart';
 import 'package:truckpro/views/pending_users_view.dart';
 import 'package:truckpro/views/user_signin_page.dart';
 import '../models/log_entry.dart';
 import '../models/user.dart';
+import '../models/userDto.dart';
 import '../utils/manager_api_service.dart';
 import 'drivers_view_manager.dart';
 import 'logs_view.dart';
@@ -30,6 +32,8 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   late Future<List<LogEntry>> _activeDrivingLogs;
   bool _isLoading = true;
   String? _errorMessage;
+  UserDto? user;
+
 
   @override
   void initState() {
@@ -44,6 +48,8 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     });
 
     try {
+      user ??= await LoginService().getUserById(widget.token);
+
       print(widget.token);
       final drivers = managerService.getAllDriversByCompany(widget.token);
       final pendingUsers = managerService.getAllPendingUsers(widget.token);
@@ -104,7 +110,16 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
-        title: const Text('Manager Home'),
+        title: user != null
+              ? Text('Welcome, ${user!.firstName} ${user!.lastName}',        
+                //spaceSize: 72,
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 24,
+                ),
+              )
+              : const Text('Manager Home'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -198,12 +213,31 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          const DrawerHeader(
+           DrawerHeader(
             decoration: BoxDecoration(
               color: Color.fromARGB(255, 241, 158, 89),
             ),
-            child: Text('Manager Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
-          ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                 "Manager Menu",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  user != null ? user!.email : 'Loading...',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ]
+            ),),
           ListTile(
             leading: const Icon(Icons.business, color: Colors.black),
             title: const Text('Upload Driver Emails (.xlsx upload)', style: TextStyle(color: Colors.black)),
