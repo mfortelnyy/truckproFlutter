@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'TruckPro',
       home: SplashScreen(), //checks session
+      debugShowCheckedModeBanner: false , 
     );
   }
 }
