@@ -4,6 +4,7 @@ import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/utils/driver_api_service.dart';
 import 'package:truckpro/utils/login_service.dart';
+import 'package:truckpro/utils/session_manager.dart';
 import 'package:truckpro/views/driver_stats_view.dart';
 import 'package:truckpro/views/logs_view.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
@@ -14,8 +15,9 @@ import 'user_signin_page.dart';
 
 class DriverHomeView extends StatefulWidget {
   final String token;
+  final SessionManager sessionManager;
 
-  DriverHomeView({super.key, required this.token});
+  DriverHomeView({super.key, required this.token, required this.sessionManager});
 
   late DriverApiService driverApiService = DriverApiService(token: token);
   
@@ -59,6 +61,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   }
 
   Future<void> _fetchLogEntries() async {
+    _checkSession();
     totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
     user ??= await LoginService().getUserById(widget.token);
     if(convertFromTimespan(totalOnDuty)>60)
@@ -111,6 +114,19 @@ class _DriverHomeViewState extends State<DriverHomeView> {
         _resetAllTimers();
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _checkSession() async {
+    //clears token is expired
+    await widget.sessionManager.autoSignOut();
+    final token = await widget.sessionManager.getToken();
+    
+    //if token was expired then it's null
+    if (token == null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => SignInPage()),
+      );
     }
   }
 
