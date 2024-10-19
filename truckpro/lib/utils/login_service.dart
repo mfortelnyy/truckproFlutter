@@ -147,7 +147,7 @@ class LoginService {
         return userDto;
       } 
       else {
-        throw Exception('Failed to update password!');
+        throw Exception('Failed to get user!');
       }
     } catch (e) {
       //print(e);
