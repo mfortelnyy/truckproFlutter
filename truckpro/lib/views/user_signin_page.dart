@@ -54,9 +54,9 @@ class SignInPageState extends State<SignInPage> {
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
       
-      int userId = decodedToken['userId']; 
-      
-      await _sessionManager.saveSession(token, userId);
+      String userId = decodedToken['userId']; 
+
+      await _sessionManager.saveSession(token, int.parse(userId));
 
       //navigate to the appropriate homepage based on the role
       switch (role) {
