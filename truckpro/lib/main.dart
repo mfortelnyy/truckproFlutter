@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:truckpro/views/admin_home_page.dart';
 import 'utils/admin_api_service.dart';
+import 'utils/session_manager.dart';
 import 'views/driver_home_page.dart';
 import 'views/manager_home_page.dart';
 import 'views/user_signin_page.dart';
@@ -22,6 +23,8 @@ class MyApp extends StatelessWidget {
 }
 
 class SplashScreen extends StatefulWidget {
+
+  final SessionManager _sessionManager = SessionManager();
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -56,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
           break;
         case "Driver":
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => DriverHomeView(token: token)),
+            MaterialPageRoute(builder: (context) => DriverHomeView(token: token, sessionManager: widget._sessionManager,)),
           );
           break;
         default:
