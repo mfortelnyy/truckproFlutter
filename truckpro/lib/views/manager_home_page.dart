@@ -285,15 +285,15 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
             title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
+              // Navigator.pop(context);
+              // Navigator.pop(context);
 
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => const SignInPage()
-              //   ),
-              // );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SignInPage()
+                ),
+              );
             },
           ),
           

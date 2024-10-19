@@ -270,8 +270,8 @@ class AdminHomePageState extends State<AdminHomePage> {
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
             title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
+              //Navigator.pop(context);
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SignInPage()
