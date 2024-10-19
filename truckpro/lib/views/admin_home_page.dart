@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/company.dart';
+import 'package:truckpro/models/userDto.dart';
+import 'package:truckpro/utils/login_service.dart';
 import 'package:truckpro/views/drivers_view_admin.dart';
 import 'package:truckpro/views/managers_view.dart';
 import '../models/user.dart';
@@ -26,21 +28,36 @@ class AdminHomePageState extends State<AdminHomePage> {
   late Future<List<Company>> _companies;
   late Future<List<User>> _drivers;
   late Future<List<User>> _managers;
+  UserDto? user;
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+
+     _companies = Future.value([]);
+    _drivers = Future.value([]);
+    _managers = Future.value([]);
+    
+    fetchData(); 
+    fetchUser(); 
   }
 
-  void fetchData() {
+  void fetchData() async {
+    
     setState(() {
-      _companies = widget.adminService.getAllCompanies(widget.token);
+      _companies =  widget.adminService.getAllCompanies(widget.token);
       _drivers = widget.adminService.getAllDrivers(widget.token);
       _managers = widget.adminService.getAllManagers(widget.token);
       
     });
     
+  }
+
+  void fetchUser() async 
+  {
+    user = await LoginService().getUserById(widget.token);
+    setState(() {
+    });
   }
 
   @override
@@ -53,12 +70,16 @@ class AdminHomePageState extends State<AdminHomePage> {
             onPressed: fetchData,
           ),
         ],
-        title: const Text(
-          'Admin Dashboard',
-          style: TextStyle(
-            color: Colors.black, 
-          ),
-        ),
+        title: user != null
+                  ? Text('Welcome, ${user!.firstName} ${user!.lastName}',        
+                    //spaceSize: 72,
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 24,
+                    ),
+                  )
+                  : const Text("Admin Home Page"),
         backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
         iconTheme: const IconThemeData(color: Colors.black), 
         elevation: 0, 
