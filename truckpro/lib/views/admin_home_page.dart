@@ -224,7 +224,7 @@ class AdminHomePageState extends State<AdminHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CreateCompanyScreen(adminService: widget.adminService, token: widget.token,onCompanyCreated:  fetchData),
+                  builder: (context) => CreateCompanyScreen(adminService: widget.adminService, token: widget.token, onCompanyCreated:  fetchData),
                 ),
               );
             },

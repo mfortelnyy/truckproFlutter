@@ -34,9 +34,6 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   @override
   void initState() {
     super.initState();
-    
-    
-
     _fetchManagerData();
   }
 
@@ -214,7 +211,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => UploadDriversScreen(managerApiService: managerService, token: widget.token),
+                  builder: (context) => UploadDriversScreen(managerApiService: managerService, token: widget.token, onUpload: _fetchManagerData,),
                 ),
               );
             },
