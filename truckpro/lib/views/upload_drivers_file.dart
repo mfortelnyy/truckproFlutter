@@ -5,8 +5,9 @@ import 'package:truckpro/utils/manager_api_service.dart';
 class UploadDriversScreen extends StatefulWidget {
   final String token;
   final ManagerApiService managerApiService;
+  final VoidCallback? onUpload;
 
-  const UploadDriversScreen({super.key, required this.managerApiService, required this.token});
+  const UploadDriversScreen({super.key, required this.managerApiService, required this.token, this.onUpload});
 
   @override
   _UploadDriversScreenState createState() => _UploadDriversScreenState();
@@ -60,7 +61,7 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
       setState(() {
         _isLoading = false;
       });
-
+      if(widget.onUpload != null) widget.onUpload!();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('File uploaded successfully!')),
       );
