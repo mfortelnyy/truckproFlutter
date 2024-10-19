@@ -7,6 +7,7 @@ import 'package:truckpro/views/forgot_password_view.dart';
 import 'package:truckpro/views/manager_home_page.dart';
 
 import '../utils/admin_api_service.dart';
+import '../utils/session_manager.dart';
 import 'admin_home_page.dart';
 
 class SignInPage extends StatefulWidget {
@@ -20,7 +21,8 @@ class SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final LoginService _loginService = LoginService();
-
+  final SessionManager _sessionManager = SessionManager(); 
+ 
   void _showErrorDialog(String errorMessage) {
     showDialog(
       context: context,
@@ -51,7 +53,11 @@ class SignInPageState extends State<SignInPage> {
       //decode JWT token to get the role
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      //print(role);
+      
+      int userId = decodedToken['userId']; 
+      
+      await _sessionManager.saveSession(token, userId);
+
       //navigate to the appropriate homepage based on the role
       switch (role) {
         case "Admin":
