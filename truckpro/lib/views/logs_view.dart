@@ -46,12 +46,16 @@ class LogsView extends StatelessWidget {
                     children: [
                       ListTile(
                         title: Text(
-                          '${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${userDto?.firstName}',
+                          '${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${log.user.firstName} ${log.user.lastName} ',
                           style: const TextStyle(fontWeight: FontWeight.w600)
                         ),
                         subtitle: log.logEntryType == 0
                             ? _buildDrivingLogInfo(log)
                             : _buildNonDrivingLogInfo(log),
+                        trailing: Text(
+                          '${log.user.email} ',
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
+                        ),
                         onTap: approve ? () async {
                           if (log.logEntryType == 0) {
                             // if driving log => display images 
