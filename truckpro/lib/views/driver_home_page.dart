@@ -16,8 +16,9 @@ import 'user_signin_page.dart';
 class DriverHomeView extends StatefulWidget {
   final String token;
   final SessionManager sessionManager;
+  final Function(bool) toggleTheme; 
 
-  DriverHomeView({super.key, required this.token, required this.sessionManager});
+  DriverHomeView({super.key, required this.token, required this.sessionManager, required this.toggleTheme});
 
   late DriverApiService driverApiService = DriverApiService(token: token);
   
@@ -38,6 +39,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   bool offDutyButtonActive = true;
   bool drivingButtonActive = true;
   late String totalOnDuty;
+  bool isDarkMode = false;
 
 
   
@@ -124,8 +126,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     
     //if token was expired then it's null
     if (token == null) {
+      widget.sessionManager.clearSession();
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => SignInPage()),
+        MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme,)),
       );
     }
   }
@@ -294,7 +297,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             color: Colors.red, 
             child: Text(
               message,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24, 
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -460,9 +463,22 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                     ),
                   )
                   : const Text('Driver Home Page'),
+                 actions: [
+                  IconButton(
+                    icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+                    onPressed: () {
+
+                      setState(() {
+                        isDarkMode = !isDarkMode;
+                      });
+                      widget.toggleTheme(isDarkMode); 
+                    },
+                  ),
+                ],
+      
               backgroundColor: const Color.fromARGB(255, 241, 158, 89),
             ),
-            drawer: _buildDrawer(context),
+            drawer: _buildDrawer(context, widget.toggleTheme),
             body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -534,10 +550,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 46, 47, 47),
+              color:  isDarkMode ? Colors.white : Colors.black,
             ),
           ),
           const SizedBox(height: 10),
@@ -547,7 +563,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     );
   }
 
-  Widget _buildDrawer(BuildContext context) {
+  Widget _buildDrawer(BuildContext context, Function(bool) toggleTheme) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -579,8 +595,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.local_activity_rounded, color: Colors.black),
-            title: const Text('Active Logs', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.local_activity_rounded, color:  isDarkMode ? Colors.white : Colors.black),
+            title: Text('Active Logs', style: TextStyle(color:  isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               var logs = widget.driverApiService.fetchActiveLogs();
               Navigator.push(
@@ -592,8 +608,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.history_rounded, color: Colors.black),
-            title: const Text('History of Logs', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.history_rounded, color:  isDarkMode ? Colors.white : Colors.black),
+            title: Text('History of Logs', style: TextStyle(color:  isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               var logs = widget.driverApiService.fetchAllLogs();
               Navigator.push(
@@ -605,8 +621,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.password_rounded, color: Colors.black),
-            title: const Text('Change Password', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.password_rounded, color:  isDarkMode ? Colors.white : Colors.black),
+            title:  Text('Change Password', style: TextStyle(color:  isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
@@ -617,8 +633,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.analytics_rounded, color: Colors.black),
-            title: const Text('See Statistics', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.analytics_rounded, color:  isDarkMode ? Colors.white : Colors.black),
+            title: Text('See Statistics', style: TextStyle(color:  isDarkMode ? Colors.white : Colors.black )),
             onTap: () {
               Navigator.push(
                 context,
@@ -630,15 +646,15 @@ class _DriverHomeViewState extends State<DriverHomeView> {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.exit_to_app, color: Colors.black),
-            title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.exit_to_app, color:  isDarkMode ? Colors.white : Colors.black),
+            title: Text('Sign Out', style: TextStyle(color:  isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               // Navigator.pop(context);
               // Navigator.pop(context);
 
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const SignInPage()),
+                MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: toggleTheme ,)),
               );
             },
           ),
