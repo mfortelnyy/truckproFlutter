@@ -6,6 +6,7 @@ environment:
   sdk: '>=3.4.3 <4.0.0'
 
 dependencies:
+  url_launcher: ^6.1.7
   shared_preferences: ^2.0.13
   marquee: ^2.0.6
   mime: ^2.0.0
