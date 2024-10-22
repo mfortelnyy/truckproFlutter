@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:truckpro/models/company.dart';
 import 'package:truckpro/models/userDto.dart';
 import 'package:truckpro/utils/login_service.dart';
+import 'package:truckpro/utils/session_manager.dart';
 import 'package:truckpro/views/drivers_view_admin.dart';
 import 'package:truckpro/views/managers_view.dart';
 import '../models/user.dart';
@@ -16,8 +17,10 @@ import 'user_signin_page.dart';
 class AdminHomePage extends StatefulWidget {
   final AdminApiService adminService;
   final String token;
+  final SessionManager sessionManager;
+  final Function(bool) toggleTheme;
 
-  const AdminHomePage({super.key, required this.adminService, required this.token});
+  const AdminHomePage({super.key, required this.adminService, required this.token, required this.sessionManager, required this.toggleTheme, });
 
   @override
   AdminHomePageState createState() => AdminHomePageState();
@@ -43,6 +46,7 @@ class AdminHomePageState extends State<AdminHomePage> {
   }
 
   void fetchData() async {
+    _checkSession();
     
     setState(() {
       _companies =  widget.adminService.getAllCompanies(widget.token);
@@ -59,6 +63,22 @@ class AdminHomePageState extends State<AdminHomePage> {
     setState(() {
     });
   }
+
+   Future<void> _checkSession() async {
+    //clears token is expired
+    await widget.sessionManager.autoSignOut();
+    final token = await widget.sessionManager.getToken();
+    
+    //if token was expired then it's null
+    if (token == null) {
+      widget.sessionManager.clearSession();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme,)),
+      );
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +104,7 @@ class AdminHomePageState extends State<AdminHomePage> {
         iconTheme: const IconThemeData(color: Colors.black), 
         elevation: 0, 
       ),
-      drawer: _buildDrawer(context),
+      drawer: _buildDrawer(context, widget.toggleTheme),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -227,7 +247,7 @@ class AdminHomePageState extends State<AdminHomePage> {
     );
   }
 
-  Widget _buildDrawer(BuildContext context) {
+  Widget _buildDrawer(BuildContext context, Function(bool) toggleTheme) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -291,11 +311,13 @@ class AdminHomePageState extends State<AdminHomePage> {
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
             title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
             onTap: () {
+              widget.sessionManager.clearSession();
+
               //Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SignInPage()
+                  builder: (context) => SignInPage(toggleTheme: toggleTheme,)
                 ),
               );
             },
