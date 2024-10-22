@@ -37,6 +37,8 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   UserDto? user;
+  bool isDarkMode = false;
+
 
 
   @override
@@ -141,12 +143,18 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
                 ),
               )
               : const Text('Manager Home'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _fetchManagerData,
-          ),
-        ],
+         actions: [
+            IconButton(
+              icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+              onPressed: () {
+
+                setState(() {
+                  isDarkMode = !isDarkMode;
+                });
+                widget.toggleTheme(isDarkMode); 
+              },
+            ),
+          ],
       ),
       drawer: _buildDrawer(context, widget.toggleTheme),
       body: _isLoading
