@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/pending_user.dart';
 import 'package:truckpro/utils/login_service.dart';
+import 'package:truckpro/utils/session_manager.dart';
 import 'package:truckpro/views/pending_users_view.dart';
 import 'package:truckpro/views/user_signin_page.dart';
 import '../models/log_entry.dart';
@@ -15,8 +16,11 @@ import 'upload_drivers_file.dart';
 
 class ManagerHomeScreen extends StatefulWidget {
   final String token;
+  final SessionManager sessionManager;
+  final Function(bool) toggleTheme;
+  
 
-  const ManagerHomeScreen({super.key, required this.token});
+  const ManagerHomeScreen({super.key, required this.token, required this.sessionManager, required this.toggleTheme});
   
 
   @override
@@ -42,6 +46,8 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   }
 
   Future<void> _fetchManagerData() async {
+    _checkSession();
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -73,6 +79,21 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
       });
     }
   }
+
+  Future<void> _checkSession() async {
+    //clears token is expired
+    await widget.sessionManager.autoSignOut();
+    final token = await widget.sessionManager.getToken();
+    
+    //if token was expired then it's null
+    if (token == null) {
+      widget.sessionManager.clearSession();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme,)),
+      );
+    }
+  }
+
 
   Future<void> _approveDrivingLog(int logEntryId, String token) async {
     try {
@@ -127,7 +148,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
           ),
         ],
       ),
-      drawer: _buildDrawer(context),
+      drawer: _buildDrawer(context, widget.toggleTheme),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
@@ -208,7 +229,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
 }
 
  
-  Widget _buildDrawer(BuildContext context) {
+  Widget _buildDrawer(BuildContext context, Function(bool) toggleTheme) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -322,7 +343,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SignInPage()
+                  builder: (context) => SignInPage(toggleTheme: toggleTheme,)
                 ),
               );
             },
