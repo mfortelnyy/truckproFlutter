@@ -27,7 +27,7 @@ class ManagerHomeScreen extends StatefulWidget {
   _ManagerHomeScreenState createState() => _ManagerHomeScreenState();
 }
 
-class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
+class _ManagerHomeScreenState extends State<ManagerHomeScreen> with SingleTickerProviderStateMixin {
   final ManagerApiService managerService = ManagerApiService();
   late Future<List<User>> _drivers;
   late Future<List<PendingUser>> _allPendingUsers;
@@ -39,11 +39,29 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> {
   UserDto? user;
   bool isDarkMode = false;
 
+  // animation controller
+  late AnimationController _animationController;
+  late Animation<double> _fadeInAnimation;
+
+
 
 
   @override
   void initState() {
     super.initState();
+    // Initialize animations
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+
+    _fadeInAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    );
+
+    _animationController.forward();
+
     _fetchManagerData();
   }
 
