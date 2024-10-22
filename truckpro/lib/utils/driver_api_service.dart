@@ -320,9 +320,26 @@ Future<String> createOffDutyLog() async {
     } else {
       throw Exception('Failed to load total Off Duty hours for driver: ${response.body}');
     }
-
-
   }
+
+   Future<String> notifyManager() async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/notifyManager'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      
+      return jsonDecode(response.body);
+      
+    } else {
+      throw Exception('Failed to notify managers: ${response.body}');
+    }
+
+   }
 
 }
 
