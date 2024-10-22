@@ -58,13 +58,6 @@ class LogsView extends StatelessWidget {
                                       Text('${log.user.email} ',
                                         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
                                       ),
-                                      ElevatedButton.icon(
-                                        icon: Icon(Icons.phone),
-                                        label: Text('Call'),
-                                        onPressed: () {
-                                          _makePhoneCall(log.user.phone);  
-                                        },
-                                      )
                                     ],
                                   ),
                         onTap: approve ? () async {
@@ -138,14 +131,7 @@ class LogsView extends StatelessWidget {
     }
   }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-  final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
-  if (await canLaunchUrl(phoneUri)) {
-    await launchUrl(phoneUri);
-  } else {
-    throw 'Could not launch $phoneNumber';
-  }
-}
+  
   
   Widget _buildDrivingLogInfo(LogEntry log) {
     return Column(
