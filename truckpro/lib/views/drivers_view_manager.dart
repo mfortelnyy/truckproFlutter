@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/user.dart';
 import 'package:truckpro/utils/manager_api_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'logs_view.dart';
 
 class DriversViewManager extends StatelessWidget {
@@ -46,6 +47,13 @@ class DriversViewManager extends StatelessWidget {
                         Text('Email Verified: ${driver.emailVerified ? "Yes" : "No"}'),
                       ],
                     ),
+                    trailing: ElevatedButton.icon(
+                                icon: Icon(Icons.phone),
+                                label: Text('Call'),
+                                onPressed: () {
+                                  _makePhoneCall(driver.phone);  
+                                },
+                              ) ,
                     onTap: () async {
 
                       // fetch logs for this driver
@@ -63,6 +71,15 @@ class DriversViewManager extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+Future<void> _makePhoneCall(String phoneNumber) async {
+  final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+  if (await canLaunchUrl(phoneUri)) {
+    await launchUrl(phoneUri);
+  } else {
+    throw 'Could not launch $phoneNumber';
   }
 }
 
