@@ -54,6 +54,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   @override
   void initState() {
     super.initState();
+   
+    _notificationTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _checkUnapprovedDrivingLog();
+    });
       
     _fetchLogEntries();
     _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
@@ -61,6 +65,36 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       _buildWeeklyHoursSection();
     });
   }
+
+  Future<void> _checkUnapprovedDrivingLog() async {
+  if (drivingLog != null) {
+    //log is unapproved
+    if (!drivingLog!.isApprovedByManager) {
+      //time difference between now and the log start time
+      Duration timeDifference = DateTime.now().difference(drivingLog!.startTime);
+      
+      //notify managers that logIs not approved
+      if (timeDifference.inMinutes > 30) {
+        _sendNotificationToManager(drivingLog!);
+      }
+    }
+  }
+}
+
+void _sendNotificationToManager(LogEntry logEntry) async {
+  try {
+    // Send notification using driverApiService
+    String message = await widget.driverApiService.notifyManager(
+      'Driving log needs approval',
+      'The driving log started at ${logEntry.startTime} has not been approved for over 30 minutes.'
+    );
+    
+    _showSnackBar(context, "Manager notified: $message");
+  } catch (e) {
+    _showSnackBar(context, "Failed to notify manager: $e");
+  }
+}
+
 
   Future<void> _fetchLogEntries() async {
     _checkSession();
@@ -330,14 +364,15 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       }
       else{
         if (!mounted) return;
-        setState(() {
-          _setTimer(_offDutyTimer, Duration.zero, true);
-          offDutyLog = null;
-        });
+       
         try {
           var message = await widget.driverApiService.createOnDutyLog();
           
           _fetchLogEntries();
+           setState(() {
+          _setTimer(_offDutyTimer, Duration.zero, true);
+            offDutyLog = null;
+          });
           _showSnackBar(context, message);
         } catch (e) {
           _showSnackBar(context, e.toString());
