@@ -32,6 +32,8 @@ class AdminHomePageState extends State<AdminHomePage> {
   late Future<List<User>> _drivers;
   late Future<List<User>> _managers;
   UserDto? user;
+  bool isDarkMode = false;
+
 
   @override
   void initState() {
@@ -86,8 +88,14 @@ class AdminHomePageState extends State<AdminHomePage> {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: fetchData,
+            icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () {
+
+              setState(() {
+                isDarkMode = !isDarkMode;
+              });
+              widget.toggleTheme(isDarkMode); 
+            },
           ),
         ],
         title: user != null
