@@ -52,7 +52,7 @@ class LogsView extends StatelessWidget {
                         subtitle: log.logEntryType == 0
                             ? _buildDrivingLogInfo(log)
                             : _buildNonDrivingLogInfo(log),
-                        onTap: () async {
+                        onTap: approve ? () async {
                           if (log.logEntryType == 0) {
                             // if driving log => display images 
                             Navigator.push(
@@ -71,7 +71,26 @@ class LogsView extends StatelessWidget {
                               const SnackBar(content: Text('This is not a driving log!')),
                             );
                           }
-                        },
+                        } : () async {
+                          if (log.logEntryType == 0) {
+                            // if driving log => display images 
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DrivingLogImagesView(
+                                  imageUrls: Future.value(log.imageUrls),
+                                  log: log,
+                                  token: token,
+                                  approve: false, 
+                                ),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('This is not a driving log!')),
+                            );
+                          }
+                        } ,
                       ),
                       
                     ],
