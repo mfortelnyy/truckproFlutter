@@ -256,43 +256,46 @@ class AdminHomePageState extends State<AdminHomePage> {
   }
 
   Widget _buildDrawer(BuildContext context, Function(bool) toggleTheme) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDarkMode ? Colors.white : Colors.black;
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           const DrawerHeader(
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 241, 158, 89), 
+              color: Color.fromARGB(255, 241, 158, 89),
             ),
             child: Text('Admin Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           ListTile(
-            leading: const Icon(Icons.business, color: Colors.black), // Black icons
-            title: const Text('Create Company', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.business, color: textColor), // Dynamic text color
+            title: Text('Create Company', style: TextStyle(color: textColor)),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CreateCompanyScreen(adminService: widget.adminService, token: widget.token, onCompanyCreated:  fetchData),
+                  builder: (context) => CreateCompanyScreen(adminService: widget.adminService, token: widget.token, onCompanyCreated: fetchData),
                 ),
               );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.person_add, color: Colors.black),
-            title: const Text('Sign Up Manager', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.person_add, color: textColor),
+            title: Text('Sign Up Manager', style: TextStyle(color: textColor)),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ManagerSignupView(token: widget.token, onManagerCreated: fetchData ),
+                  builder: (context) => ManagerSignupView(token: widget.token, onManagerCreated: fetchData),
                 ),
               );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.password_rounded, color: Colors.black),
-            title: const Text('Change Password', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.password_rounded, color: textColor),
+            title: Text('Change Password', style: TextStyle(color: textColor)),
             onTap: () {
               Navigator.push(
                 context,
@@ -303,8 +306,8 @@ class AdminHomePageState extends State<AdminHomePage> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.man_2_rounded, color: Colors.black),
-            title: const Text('Get All Managers', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.man_2_rounded, color: textColor),
+            title: Text('Get All Managers', style: TextStyle(color: textColor)),
             onTap: () {
               Navigator.push(
                 context,
@@ -314,18 +317,16 @@ class AdminHomePageState extends State<AdminHomePage> {
               );
             },
           ),
-          const Divider(), 
+          const Divider(),
           ListTile(
-            leading: const Icon(Icons.exit_to_app, color: Colors.black),
-            title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.exit_to_app, color: textColor),
+            title: Text('Sign Out', style: TextStyle(color: textColor)),
             onTap: () {
               widget.sessionManager.clearSession();
-
-              //Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SignInPage(toggleTheme: toggleTheme,)
+                  builder: (context) => SignInPage(toggleTheme: toggleTheme),
                 ),
               );
             },
@@ -334,4 +335,5 @@ class AdminHomePageState extends State<AdminHomePage> {
       ),
     );
   }
+
 }
