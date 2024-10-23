@@ -47,7 +47,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   final StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
   final StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
   final StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
-  
+  Timer? _notificationTimer;
+
   List<LogEntry>? _allActiveLogs;
 
   
@@ -85,8 +86,7 @@ void _sendNotificationToManager(LogEntry logEntry) async {
   try {
     // Send notification using driverApiService
     String message = await widget.driverApiService.notifyManager(
-      'Driving log needs approval',
-      'The driving log started at ${logEntry.startTime} has not been approved for over 30 minutes.'
+      'Driving log needs approval. The driving log started at ${logEntry.startTime} has not been approved for over 30 minutes.'
     );
     
     _showSnackBar(context, "Manager notified: $message");
