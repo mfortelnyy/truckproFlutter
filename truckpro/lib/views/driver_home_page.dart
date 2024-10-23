@@ -56,9 +56,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   void initState() {
     super.initState();
    
-    _notificationTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      _checkUnapprovedDrivingLog();
-    });
+    // _notificationTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+    //   _checkUnapprovedDrivingLog();
+    // });
       
     _fetchLogEntries();
     _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
@@ -66,7 +66,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       _buildWeeklyHoursSection();
     });
   }
-
+/*
   Future<void> _checkUnapprovedDrivingLog() async {
   if (drivingLog != null) {
     //log is unapproved
@@ -82,7 +82,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   }
 }
 
-void _sendNotificationToManager(LogEntry logEntry) async {
+  void _sendNotificationToManager(LogEntry logEntry) async {
   try {
     // Send notification using driverApiService
     String message = await widget.driverApiService.notifyManager(
@@ -95,7 +95,7 @@ void _sendNotificationToManager(LogEntry logEntry) async {
   }
 }
 
-
+*/
   Future<void> _fetchLogEntries() async {
     _checkSession();
     totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
