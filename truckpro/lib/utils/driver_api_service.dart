@@ -322,12 +322,13 @@ Future<String> createOffDutyLog() async {
     }
   }
 
-   Future<String> notifyManager() async {
-    final response = await http.get(
+   Future<String> notifyManager(String message) async {
+    final response = await http.post(
       Uri.parse('$_baseUrl/notifyManager'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
+        'Message': message,
       },
     );
 
