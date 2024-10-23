@@ -70,22 +70,24 @@ class _DriverStatsViewState extends State<DriverStatsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Driver Statistics'),
-      ),
+      title: const Text('Driver Statistics'),
+    ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
               ? Center(child: Text(_errorMessage!))
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 20),
-                      _buildPieChart(),
-                      const SizedBox(height: 20),
-                      _buildBarChart(),
-                    ],
+              : SingleChildScrollView(  // Make the content scrollable
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 20),
+                        _buildPieChart(),
+                        const SizedBox(height: 20),
+                        _buildBarChart(),
+                      ],
+                    ),
                   ),
                 ),
     );
