@@ -352,9 +352,5 @@ class ManagerApiService {
     }
 
 
-}
-    
-
-
-
+  }
 }
