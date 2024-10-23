@@ -68,7 +68,7 @@ class LogsView extends StatelessWidget {
                                         ),
                         onTap: approve ? () async {
                           if (log.logEntryType == 0) {
-                            // if driving log => display images 
+                            // if driving log and manager => display images for approval 
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -94,8 +94,7 @@ class LogsView extends StatelessWidget {
                                 builder: (context) => DrivingLogImagesView(
                                   imageUrls: Future.value(log.imageUrls),
                                   log: log,
-                                  token: token,
-                                  approve: false, 
+                                  token: token, 
                                 ),
                               ),
                             );
@@ -118,26 +117,6 @@ class LogsView extends StatelessWidget {
     );
   }
 
-  
-  Future<void> _approveLog(int logId, BuildContext context) async {
-    try {
-      ManagerApiService mservice = ManagerApiService();
-  
-      await mservice.approveDrivingLogById(logId, token); 
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Log approved successfully!')),
-      );
-      Navigator.pop(context);
-
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error approving log: $e')),
-      );
-    }
-  }
-
-  
   
   Widget _buildDrivingLogInfo(LogEntry log) {
     return Column(
