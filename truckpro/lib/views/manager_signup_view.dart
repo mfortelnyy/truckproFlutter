@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:truckpro/models/manager_signup_dto.dart';
 import 'package:truckpro/utils/admin_api_service.dart';
 
@@ -23,6 +24,7 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
 
   var _companies = [];
   int? _selectedCompanyId;
+  bool isDark = false;
   
   
 
@@ -54,6 +56,8 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
 
   Future<void> _fetchCompanies() async {
     try {
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      isDark = sp.getBool('isDarkMode') ?? false;
       final companies = await _adminService.getAllCompanies("token"); 
       setState(() {
         _companies = companies;
@@ -178,8 +182,8 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
         controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.black54),
+          labelText: label ,
+          labelStyle: isDark ? const TextStyle(color: Colors.white) : const TextStyle(color: Colors.black),
           enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Colors.black12),
             borderRadius: BorderRadius.circular(8),
@@ -189,8 +193,9 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
             borderRadius: BorderRadius.circular(8),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          fillColor: Colors.white,
+          fillColor: const Color.fromARGB(83, 0, 0, 0),
           filled: true,
+          
         ),
       );
     }
