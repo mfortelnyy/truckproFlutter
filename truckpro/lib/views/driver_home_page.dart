@@ -183,7 +183,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   void _showVerificationDialog() {
     showDialog(
       context: context,
-      barrierDismissible: false,  
+      barrierDismissible: true,  
       builder: (BuildContext context) {
         TextEditingController _verificationCodeController = TextEditingController();
         return AlertDialog(
@@ -212,13 +212,32 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             ElevatedButton(
               onPressed: () async {
                 String verificationCode = _verificationCodeController.text.trim();
-                await LoginService().verifyEmail(widget.token, verificationCode);  
+                String res = await LoginService().verifyEmail(widget.token, verificationCode); 
+                if(res.isEmpty)
+                {
+                  _showSnackBar(context, "Can not verify email!");
+                  Navigator.of(context).pop();
+                  
+                } 
+                 _showSnackBar(context, "Email verified! successfully");
+                 
+                  Navigator.of(context).pop();
+
+
               },
               child: const Text('Verify'),
             ),
             TextButton(
-              onPressed: () {
-                LoginService().reSendEmailCode(widget.token, user!.email);
+              onPressed: () async {
+                var res = await LoginService().reSendEmailCode(widget.token, user!.email);
+                if (res.isNotEmpty)
+                {
+                  _showSnackBar(context, res);
+                }
+                else 
+                {
+                   _showSnackBar(context, "Email can not be sent!");
+                }
               },
               child: Text('Resend Code to ${user!.email}'),
             ),

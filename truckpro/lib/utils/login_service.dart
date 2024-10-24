@@ -141,8 +141,8 @@ class LoginService {
       ); 
 
       if (response.statusCode == 200) {
-        var jsonUserDto = json.decode(response.body);
-        var result = jsonUserDto['message'];
+        var jsonList = json.decode(response.body);
+        var result = jsonList['message'];
 
         return result;
       } 
