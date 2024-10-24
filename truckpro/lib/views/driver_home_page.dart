@@ -209,7 +209,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             ElevatedButton(
               onPressed: () async {
                 String verificationCode = _verificationCodeController.text.trim();
-                await _verifyEmail(verificationCode);  
+                await LoginService().verifyEmail(verificationCode);  
               },
               child: const Text('Verify'),
             ),
