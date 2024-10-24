@@ -126,6 +126,33 @@ class LoginService {
     }
   }
 
+  Future<String> verifyEmail(String code) async
+  {
+    try {
+      final url = Uri.parse('$_baseUrl/getUserbyToken?emailToken=$code');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        }, 
+        
+      ); 
+
+      if (response.statusCode == 200) {
+        var jsonUserDto = json.decode(response.body);
+        var result = jsonUserDto['message'];
+
+        return result;
+      } 
+      else {
+        throw Exception('Failed to verify email!');
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+
 
   Future<UserDto> getUserById(String token) async
   {
