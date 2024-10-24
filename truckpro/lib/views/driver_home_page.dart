@@ -96,6 +96,25 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 }
 
 */
+  _checkWeeklyLimits(double hours){
+    if (hours > 60) { 
+       if (!mounted) return;
+        
+          // Deactivate buttons except off duty
+          onDutyButtonActive = false; 
+          drivingButtonActive = false;
+   
+        _showSnackBar(context, "You have exceeded the weekly on-duty hour limit!");
+      } else {
+        if (!mounted) return;
+      
+          // Reactivate buttons if within limits
+          onDutyButtonActive = true; 
+          drivingButtonActive = true; 
+        
+      }
+  }
+
   Future<void> _fetchLogEntries() async {
     _checkSession();
     
@@ -180,6 +199,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     }
   }
 
+  
   void _showVerificationDialog() {
     showDialog(
       context: context,
@@ -387,7 +407,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     return elapsedTime.inSeconds / 36000; // Normalize to 10 hours of rest
   }
 
-   void _showSnackBar(BuildContext context, String message)
+  void _showSnackBar(BuildContext context, String message)
   {
     if(mounted)
       {
@@ -398,7 +418,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 
   }
   
-   void showTopSnackBar(BuildContext context, String message) {
+  void showTopSnackBar(BuildContext context, String message) {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
@@ -431,7 +451,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     Future.delayed(Duration(seconds: 3)).then((_) => overlayEntry.remove());
   }
    
-   void toggleOnDutyLog() async {
+  void toggleOnDutyLog() async {
     if (onDutyLog == null) {
       if (offDutyLog == null) {//&& DateTime.now().difference(offDutyLog!.startTime) > const Duration(hours: 10)) {
         try {
@@ -524,7 +544,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       }
     }
   }
- void toggleOffDutyLog() async {
+  
+  void toggleOffDutyLog() async {
   if (offDutyLog == null) {
     var message = await widget.driverApiService.createOffDutyLog();
     if (!mounted) return;
@@ -779,7 +800,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   );
   }
 
- Widget _buildWeeklyHoursSection() {
+  Widget _buildWeeklyHoursSection() {
   return FutureBuilder<String>(
     future: _getTotalOnDutyHoursLastWeek(),
     builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -881,25 +902,6 @@ class _DriverHomeViewState extends State<DriverHomeView> {
           }
         }
         return hoursSum;
-  }
-
-  _checkWeeklyLimits(double hours){
-    if (hours > 60) { 
-       if (!mounted) return;
-        
-          // Deactivate buttons except off duty
-          onDutyButtonActive = false; 
-          drivingButtonActive = false;
-   
-        _showSnackBar(context, "You have exceeded the weekly on-duty hour limit!");
-      } else {
-        if (!mounted) return;
-      
-          // Reactivate buttons if within limits
-          onDutyButtonActive = true; 
-          drivingButtonActive = true; 
-        
-      }
   }
 
   Future<void> _resetOffDuty() async {
