@@ -126,14 +126,16 @@ class LoginService {
     }
   }
 
-  Future<String> verifyEmail(String code) async
+  Future<String> verifyEmail(String token, String code) async
   {
     try {
-      final url = Uri.parse('$_baseUrl/getUserbyToken?emailToken=$code');
+      final url = Uri.parse('$_baseUrl/verifyEmail');
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+          'EmailCode' : code
         }, 
         
       ); 
@@ -182,15 +184,16 @@ class LoginService {
     }
   }
 
-  Future<UserDto> reSendEmailCode(String token) async
+  Future<String> reSendEmailCode(String token, String email) async
   {
     try {
       final url = Uri.parse('$_baseUrl/reSendEmailVerificationCode');
-      final response = await http.get(
+      final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
+          'Authorization': 'Bearer $token',
+          'Email': email, 
         }, 
         
       ); 
