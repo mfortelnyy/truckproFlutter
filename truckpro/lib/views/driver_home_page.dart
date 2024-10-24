@@ -167,6 +167,18 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     }
   }
 
+  Future<void> _checkEmailVerification() async {
+    try {
+      if (user != null && !user!.emailVerified) {
+        _showVerificationDialog();  // Show the dialog to enter verification code
+      }
+    } catch (e) {
+      print('Error checking email verification: $e');
+    }
+  }
+
+  
+
   @override
   void dispose() {
     _timer?.cancel();
