@@ -182,4 +182,29 @@ class LoginService {
     }
   }
 
+  Future<UserDto> reSendEmailCode(String token) async
+  {
+    try {
+      final url = Uri.parse('$_baseUrl/reSendEmailVerificationCode');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        }, 
+        
+      ); 
+      var jsonUserDto = json.decode(response.body);
+      var res = jsonUserDto['message'];
+      if (response.statusCode == 200) {
+        return res;
+      } 
+      else {
+        throw Exception(res);
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
 }
