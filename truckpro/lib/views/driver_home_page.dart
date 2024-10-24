@@ -98,8 +98,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 */
   Future<void> _fetchLogEntries() async {
     _checkSession();
+    
     totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
     user ??= await LoginService().getUserById(widget.token);
+    _checkEmailVerification();
     if(convertFromTimespan(totalOnDuty)>60)
     {
       showTopSnackBar(context, "Driving Limit Exceeded! \nLimit resets every Monday 12:00 AM");
@@ -169,6 +171,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
 
   Future<void> _checkEmailVerification() async {
     try {
+      print(user!.emailVerified);
       if (user != null && !user!.emailVerified) {
         _showVerificationDialog();  // Show the dialog to enter verification code
       }
@@ -209,13 +212,13 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             ElevatedButton(
               onPressed: () async {
                 String verificationCode = _verificationCodeController.text.trim();
-                await LoginService().verifyEmail(verificationCode);  
+                await LoginService().verifyEmail(widget.token, verificationCode);  
               },
               child: const Text('Verify'),
             ),
             TextButton(
               onPressed: () {
-                LoginService().reSendEmailCode(widget.token);
+                LoginService().reSendEmailCode(widget.token, user!.email);
               },
               child: Text('Resend Code to ${user!.email}'),
             ),
