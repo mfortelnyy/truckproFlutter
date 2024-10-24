@@ -177,7 +177,48 @@ class _DriverHomeViewState extends State<DriverHomeView> {
     }
   }
 
-  
+  void _showVerificationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,  
+      builder: (BuildContext context) {
+        TextEditingController _verificationCodeController = TextEditingController();
+        return AlertDialog(
+          title: const Text('Email Verification Required'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Text('Please enter the verification code sent to your email:'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _verificationCodeController,
+                decoration: const InputDecoration(
+                  labelText: 'Verification Code',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();  
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String verificationCode = _verificationCodeController.text.trim();
+                await _verifyEmail(verificationCode);  
+              },
+              child: const Text('Verify'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   @override
   void dispose() {
