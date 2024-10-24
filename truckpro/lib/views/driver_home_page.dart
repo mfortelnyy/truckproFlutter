@@ -213,6 +213,12 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               },
               child: const Text('Verify'),
             ),
+            TextButton(
+              onPressed: () {
+                LoginService().reSendEmailCode(widget.token);
+              },
+              child: Text('Resend Code to ${user!.email}'),
+            ),
           ],
         );
       },
