@@ -7,7 +7,12 @@ class UploadDriversScreen extends StatefulWidget {
   final ManagerApiService managerApiService;
   final VoidCallback? onUpload;
 
-  const UploadDriversScreen({super.key, required this.managerApiService, required this.token, this.onUpload});
+  const UploadDriversScreen({
+    super.key,
+    required this.managerApiService,
+    required this.token,
+    this.onUpload,
+  });
 
   @override
   _UploadDriversScreenState createState() => _UploadDriversScreenState();
@@ -61,7 +66,7 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
       setState(() {
         _isLoading = false;
       });
-      if(widget.onUpload != null) widget.onUpload!();
+      if (widget.onUpload != null) widget.onUpload!();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('File uploaded successfully!')),
       );
@@ -81,19 +86,37 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_fileName != null) Text('Selected file: $_fileName'),
-            if (_errorMessage != null) Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _pickFile,
-              child: const Text('Pick Excel File'),
-            ),
-            const SizedBox(height: 20),
-            if (_isLoading) const CircularProgressIndicator(),
-          ],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Instructions for file upload
+              const Text(
+                'Please select an Excel file containing the driver emails to upload. \nemails\ne1@example.com\ne2@example.com\n...',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              if (_fileName != null) Text('Selected file: $_fileName'),
+              if (_errorMessage != null)
+                Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _pickFile,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  textStyle: const TextStyle(fontSize: 18),
+                ),
+                child: const Text('Pick Excel File'),
+              ),
+              const SizedBox(height: 20),
+              if (_isLoading) const CircularProgressIndicator(),
+            ],
+          ),
         ),
       ),
     );
