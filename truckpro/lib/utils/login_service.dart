@@ -7,7 +7,8 @@ import 'package:truckpro/models/userDto.dart';
 class LoginService {
 
   //base url of .net truckApi
-  final String _baseUrl = 'https://localhost:443';
+  //final String _baseUrl = 'https://localhost:443';
+  final String _baseUrl = 'https://7e1d-2601-240-cb01-cff0-00-1e08.ngrok-free.app';
 
   //handles user login
   Future<String?> loginUser(String email, String password) async {

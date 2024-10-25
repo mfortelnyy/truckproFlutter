@@ -5,8 +5,9 @@ import 'package:truckpro/models/pending_user.dart';
 import 'package:truckpro/models/user.dart';
 
 class ManagerApiService {
-  final String baseUrl = 'https://localhost:443'; 
-  
+  //final String baseUrl = 'https://localhost:443';
+   final String baseUrl = 'https://7e1d-2601-240-cb01-cff0-00-1e08.ngrok-free.app';
+
 
   ManagerApiService();
 

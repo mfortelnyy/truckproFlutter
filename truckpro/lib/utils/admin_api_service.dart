@@ -8,8 +8,8 @@ import 'package:truckpro/models/user.dart';
 
     class AdminApiService
     {
-        final String baseUrl = 'https://localhost:443';
-
+        //final String baseUrl = 'https://localhost:443';
+        final String baseUrl = 'https://7e1d-2601-240-cb01-cff0-00-1e08.ngrok-free.app';
         Future<List<Company>> getAllCompanies(String token) async {
           //print("token passed:  $token");
             final response = await http.get(Uri.parse('$baseUrl/getAllCompanies'), 
