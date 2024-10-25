@@ -46,13 +46,13 @@ class LogsView extends StatelessWidget {
                   child: Column(
                     children: [
                       ListTile(
-                        title: onApprove != null 
-                        ? Text( "${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${log.user!.firstName} ${log.user!.lastName} ",
+                        title: !approve 
+                         ? Text( "${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${userDto!.firstName} ${userDto!.lastName} ",
+                          style: const TextStyle(fontWeight: FontWeight.w600))
+                         : Text( "${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${log.user!.firstName} ${log.user!.lastName} ",
                           style: const TextStyle(fontWeight: FontWeight.w600)
-                          )
-                        : Text( "${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${userDto!.firstName} ${userDto!.lastName} ",
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: log.logEntryType == 0
+                          ),
+                       subtitle: log.logEntryType == 0
                             ? _buildDrivingLogInfo(log)
                             : _buildNonDrivingLogInfo(log),
                         trailing: Column(
