@@ -7,6 +7,7 @@ import 'package:truckpro/views/drivers_view_admin.dart';
 import 'package:truckpro/views/managers_view.dart';
 import '../models/user.dart';
 import '../utils/admin_api_service.dart';
+import 'base_home_view.dart';
 import 'companies_view.dart'; 
 import 'create_company_screen.dart';
 import 'logs_view.dart';
@@ -14,19 +15,20 @@ import 'manager_signup_view.dart';
 import 'update_password_view.dart';
 import 'user_signin_page.dart'; 
 
-class AdminHomePage extends StatefulWidget {
+class AdminHomePage extends BaseHomeView {
   final AdminApiService adminService;
   final String token;
   final SessionManager sessionManager;
   final Function(bool) toggleTheme;
 
-  const AdminHomePage({super.key, required this.adminService, required this.token, required this.sessionManager, required this.toggleTheme, });
+  const AdminHomePage({super.key, required this.adminService, required this.token, required this.sessionManager, required this.toggleTheme, }) 
+  : super(sessionManager: sessionManager, toggleTheme: toggleTheme);
 
   @override
   AdminHomePageState createState() => AdminHomePageState();
 }
 
-class AdminHomePageState extends State<AdminHomePage> {
+class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
   
   late Future<List<Company>> _companies;
   late Future<List<User>> _drivers;
@@ -40,11 +42,13 @@ class AdminHomePageState extends State<AdminHomePage> {
     super.initState();
 
      _companies = Future.value([]);
-    _drivers = Future.value([]);
-    _managers = Future.value([]);
+     _drivers = Future.value([]);
+     _managers = Future.value([]);
     
-    fetchData(); 
-    fetchUser(); 
+     fetchUser(); 
+     fetchData();
+     super.checkEmailVerification(); 
+     
   }
 
   void fetchData() async {

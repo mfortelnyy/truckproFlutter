@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:truckpro/models/pending_user.dart';
 import 'package:truckpro/utils/login_service.dart';
 import 'package:truckpro/utils/session_manager.dart';
+import 'package:truckpro/views/base_home_view.dart';
 import 'package:truckpro/views/pending_users_view.dart';
 import 'package:truckpro/views/user_signin_page.dart';
 import '../models/log_entry.dart';
@@ -14,20 +15,22 @@ import 'logs_view.dart';
 import 'update_password_view.dart';
 import 'upload_drivers_file.dart';
 
-class ManagerHomeScreen extends StatefulWidget {
+class ManagerHomeScreen extends BaseHomeView {
   final String token;
   final SessionManager sessionManager;
   final Function(bool) toggleTheme;
   
 
-  const ManagerHomeScreen({super.key, required this.token, required this.sessionManager, required this.toggleTheme});
+  const ManagerHomeScreen({ required this.token, required this.sessionManager, required this.toggleTheme})
+    : super(sessionManager: sessionManager, toggleTheme: toggleTheme);
+
   
 
   @override
   _ManagerHomeScreenState createState() => _ManagerHomeScreenState();
 }
 
-class _ManagerHomeScreenState extends State<ManagerHomeScreen> with SingleTickerProviderStateMixin {
+class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with SingleTickerProviderStateMixin {
   final ManagerApiService managerService = ManagerApiService();
   late Future<List<User>> _drivers;
   late Future<List<PendingUser>> _allPendingUsers;
@@ -67,7 +70,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> with SingleTicker
 
   Future<void> _fetchManagerData() async {
     _checkSession();
-
+  
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -75,7 +78,7 @@ class _ManagerHomeScreenState extends State<ManagerHomeScreen> with SingleTicker
 
     try {
       user ??= await LoginService().getUserById(widget.token);
-
+      super.checkEmailVerification();
       print(widget.token);
       final drivers = managerService.getAllDriversByCompany(widget.token);
       final pendingUsers = managerService.getAllPendingUsers(widget.token);
