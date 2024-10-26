@@ -9,7 +9,7 @@ import 'package:truckpro/models/user.dart';
     class AdminApiService
     {
         //final String baseUrl = 'https://localhost:443';
-        final String baseUrl = 'https://7e1d-2601-240-cb01-cff0-00-1e08.ngrok-free.app';
+        final String baseUrl = 'https://3cbb-2601-240-cb01-cff0-00-980b.ngrok-free.app'; 
         Future<List<Company>> getAllCompanies(String token) async {
           //print("token passed:  $token");
             final response = await http.get(Uri.parse('$baseUrl/getAllCompanies'), 
@@ -89,7 +89,7 @@ import 'package:truckpro/models/user.dart';
                                                 
                                               });
 
-            if (response.statusCode == 200) {
+            if (response.statusCode == 200) { 
             List<dynamic> jsonList = json.decode(response.body);
             return jsonList.map((json) => LogEntry.fromJson(json)).toList();
             } else {
@@ -118,7 +118,7 @@ import 'package:truckpro/models/user.dart';
         Future<String?> signUpManager(ManagerSignUpDto manager, String token) async {
             final response = await http.post(
             Uri.parse('$baseUrl/signUpManager'),
-            headers: 
+            headers:             
               {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer $token"

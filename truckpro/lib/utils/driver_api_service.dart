@@ -5,7 +5,7 @@ import 'package:truckpro/views/prompt_image.dart';
 
 class DriverApiService {
   //final String _baseUrl = 'https://localhost:443';
-        final String _baseUrl = 'https://7e1d-2601-240-cb01-cff0-00-1e08.ngrok-free.app';
+  final String _baseUrl = 'https://3cbb-2601-240-cb01-cff0-00-980b.ngrok-free.app';
 
   final String token;
 
