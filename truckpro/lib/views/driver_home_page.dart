@@ -5,6 +5,7 @@ import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/utils/driver_api_service.dart';
 import 'package:truckpro/utils/login_service.dart';
 import 'package:truckpro/utils/session_manager.dart';
+import 'package:truckpro/views/base_home_view.dart';
 import 'package:truckpro/views/driver_stats_view.dart';
 import 'package:truckpro/views/logs_view.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
@@ -13,12 +14,13 @@ import '../models/userDto.dart';
 import 'update_password_view.dart';
 import 'user_signin_page.dart';
 
-class DriverHomeView extends StatefulWidget {
+class DriverHomeView extends BaseHomeView {
   final String token;
   final SessionManager sessionManager;
   final Function(bool) toggleTheme; 
 
-  DriverHomeView({super.key, required this.token, required this.sessionManager, required this.toggleTheme});
+  DriverHomeView({super.key, required this.token, required this.sessionManager, required this.toggleTheme}) 
+  : super(sessionManager: sessionManager, toggleTheme: toggleTheme);
 
   late DriverApiService driverApiService = DriverApiService(token: token);
   
@@ -28,7 +30,7 @@ class DriverHomeView extends StatefulWidget {
   _DriverHomeViewState createState() => _DriverHomeViewState();
 }
 
-class _DriverHomeViewState extends State<DriverHomeView> {
+class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   LogEntry? onDutyLog;
   LogEntry? drivingLog;
   LogEntry? offDutyLog;
@@ -56,17 +58,17 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   void initState() {
     super.initState();
    
-    // _notificationTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
-    //   _checkUnapprovedDrivingLog();
-    // });
+    _notificationTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _checkUnapprovedDrivingLog();
+    });
       
     _fetchLogEntries();
-    _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
+    _timer = Timer.periodic(const Duration(minutes: 15), (timer) {
       _fetchLogEntries();
       _buildWeeklyHoursSection();
     });
   }
-/*
+
   Future<void> _checkUnapprovedDrivingLog() async {
   if (drivingLog != null) {
     //log is unapproved
@@ -76,12 +78,12 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       
       //notify managers that logIs not approved
       if (timeDifference.inMinutes > 30) {
-        _sendNotificationToManager(drivingLog!);
+        //_sendNotificationToManager(drivingLog!);
       }
     }
   }
 }
-
+/*
   void _sendNotificationToManager(LogEntry logEntry) async {
   try {
     // Send notification using driverApiService
@@ -116,11 +118,23 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   }
 
   Future<void> _fetchLogEntries() async {
-    _checkSession();
+    super.checkSession();
     
     totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
-    user ??= await LoginService().getUserById(widget.token);
-    _checkEmailVerification();
+    try
+    {
+      user ??= await LoginService().getUserById(widget.token);
+    }
+    catch(e)
+    {
+        widget.sessionManager.clearSession();
+        Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
+              );
+       _showSnackBar(context, "Failed to get user, user is not found!");
+    }
+    super.checkEmailVerification();
     if(convertFromTimespan(totalOnDuty)>60)
     {
       showTopSnackBar(context, "Driving Limit Exceeded! \nLimit resets every Monday 12:00 AM");
@@ -173,101 +187,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
       });
     }
   }
-
-  Future<void> _checkSession() async {
-    //clears token is expired
-    await widget.sessionManager.autoSignOut();
-    final token = await widget.sessionManager.getToken();
-    
-    //if token was expired then it's null
-    if (token == null) {
-      widget.sessionManager.clearSession();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme,)),
-      );
-    }
-  }
-
-  Future<void> _checkEmailVerification() async {
-    try {
-      print(user!.emailVerified);
-      if (user != null && !user!.emailVerified) {
-        _showVerificationDialog();  // Show the dialog to enter verification code
-      }
-    } catch (e) {
-      print('Error checking email verification: $e');
-    }
-  }
-
-  
-  void _showVerificationDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: true,  
-      builder: (BuildContext context) {
-        TextEditingController _verificationCodeController = TextEditingController();
-        return AlertDialog(
-          title: const Text('Email Verification Required'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Text('Please enter the verification code sent to your email:'),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _verificationCodeController,
-                decoration: const InputDecoration(
-                  labelText: 'Verification Code',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();  
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                String verificationCode = _verificationCodeController.text.trim();
-                String res = await LoginService().verifyEmail(widget.token, verificationCode); 
-                if(res.isEmpty)
-                {
-                  _showSnackBar(context, "Can not verify email!");
-                  Navigator.of(context).pop();
-                  
-                } 
-                 _showSnackBar(context, "Email verified! successfully");
-                 
-                  Navigator.of(context).pop();
-
-
-              },
-              child: const Text('Verify'),
-            ),
-            TextButton(
-              onPressed: () async {
-                var res = await LoginService().reSendEmailCode(widget.token, user!.email);
-                if (res.isNotEmpty)
-                {
-                  _showSnackBar(context, res);
-                }
-                else 
-                {
-                   _showSnackBar(context, "Email can not be sent!");
-                }
-              },
-              child: Text('Resend Code to ${user!.email}'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-
+ 
   @override
   void dispose() {
     _timer?.cancel();
