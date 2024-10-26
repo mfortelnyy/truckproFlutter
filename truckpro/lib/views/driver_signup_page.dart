@@ -79,16 +79,23 @@ class DriverSignupPageState extends State<DriverSignupPage> {
       companyId: _selectedCompanyId!, 
     );
 
-    // make the signup request
-    String? res = await _loginService.registerUser(signupDTO);
-    
-    if (res!=null && res.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration successful $res')),
-        
-      );
-    } else {
-      _showErrorDialog('Failed to register user. $res');
+    try
+      {
+      // make the signup request
+      String? res = await _loginService.registerUser(signupDTO);
+      
+      if (res!=null && res.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration successful')),
+          
+        );
+      } else {
+        _showErrorDialog('Failed to register user. $res');
+      }
+    }
+    catch(e)
+    {
+       _showErrorDialog('Failed to register user. ${e.toString()}');
     }
   }
 
