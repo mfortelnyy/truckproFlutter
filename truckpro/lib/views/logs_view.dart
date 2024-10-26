@@ -46,10 +46,11 @@ class LogsView extends StatelessWidget {
                   child: Column(
                     children: [
                       ListTile(
-                        title: !approve 
+                        title:  userDto != null
                          ? Text( "${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${userDto!.firstName} ${userDto!.lastName} ",
                           style: const TextStyle(fontWeight: FontWeight.w600))
-                         : Text( "${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${log.user!.firstName} ${log.user!.lastName} ",
+                         :
+                         Text( "${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${log.user!.firstName} ${log.user!.lastName} ",
                           style: const TextStyle(fontWeight: FontWeight.w600)
                           ),
                        subtitle: log.logEntryType == 0
@@ -57,14 +58,14 @@ class LogsView extends StatelessWidget {
                             : _buildNonDrivingLogInfo(log),
                         trailing: Column(
                                     children: [ 
-                                      onApprove != null 
-                                        ? Text('${log.user?.email} ',
+                                      userDto != null
+                                        ? Text('${userDto?.email} ',
                                               style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
                                             )
-                                        :   Text('${userDto?.email} ',
+                                        :   Text('${log.user?.email} ',
                                               style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
-                                            ),
-                                          ],
+                                            )
+                                          ]
                                         ),
                         onTap: approve ? () async {
                           if (log.logEntryType == 0) {
