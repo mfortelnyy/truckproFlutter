@@ -87,13 +87,13 @@ class LoginService {
       ); //{"userId":3,"oldPassword":"SecurePassword123!","newPassword":"12345678"}
       //print("upd PASSWRD ${response.statusCode}");
       //print("RESPOSE BODY: ${jsonDecode(response.body)}");
-
+      var res = json.decode(response.body);
       if (response.statusCode == 200) {
-        var res = json.decode(response.body);
+        
         return res['message'];
       } 
       else {
-        throw Exception('Failed to update password!');
+        throw Exception('Failed to update password! ${res['message']}');
       }
     } catch (e) {
       //print(e);
