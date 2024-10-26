@@ -82,6 +82,7 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
                   _showSnackBar('Cannot verify email!');
                 } else {
                   _showSnackBar('Email verified successfully!');
+                  
                   Navigator.of(context).pop();
                 }
               },
