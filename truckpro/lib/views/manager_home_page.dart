@@ -368,9 +368,10 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
               );
             },
           ),
+          /*
           ListTile(
             leading: const Icon(Icons.local_activity_rounded, color: Colors.black),
-            title: const Text('All Active Logs', style: TextStyle(color: Colors.black)),
+            title: const Text('All Dri Logs', style: TextStyle(color: Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
@@ -379,7 +380,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
                 ),
               );
             },
-          ),
+          ),*/
           const Divider(), 
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
