@@ -275,10 +275,10 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               Text(
+               const Text(
                  "Manager Menu",
                   style: TextStyle(
-                    color: isDarkMode ? Colors.white : Colors.black,
+                    color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
