@@ -47,10 +47,10 @@ class LogsView extends StatelessWidget {
                     children: [
                       ListTile(
                         title:  userDto != null
-                         ? Text( "${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${userDto!.firstName} ${userDto!.lastName} ",
+                         ? Text( "${log.logEntryType.toString().split(".")[1]} Log by ${userDto!.firstName} ${userDto!.lastName} ",
                           style: const TextStyle(fontWeight: FontWeight.w600))
                          :
-                         Text( "${LogEntryType.values[log.logEntryType].toString().split(".")[1]} Log by ${log.user!.firstName} ${log.user!.lastName} ",
+                         Text( "${log.logEntryType.toString().split(".")[1]} Log by ${log.user!.firstName} ${log.user!.lastName} ",
                           style: const TextStyle(fontWeight: FontWeight.w600)
                           ),
                        subtitle: log.logEntryType == 0
@@ -68,7 +68,8 @@ class LogsView extends StatelessWidget {
                                           ]
                                         ),
                         onTap: approve ? () async {
-                          if (log.logEntryType == 0) {
+                          if (log.logEntryType == LogEntryType.Driving) {
+                           
                             // if driving log and manager => display images for approval 
                             Navigator.push(
                               context,
