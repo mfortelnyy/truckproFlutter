@@ -371,6 +371,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
             title: Text('Sign Out', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
+              widget.sessionManager.clearSession();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
