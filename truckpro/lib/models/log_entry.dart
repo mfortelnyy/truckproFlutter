@@ -1,12 +1,14 @@
 import 'package:truckpro/models/user.dart';
 
+import 'log_entry_type.dart';
+
 class LogEntry {
   final int id;
   final int userId;
   final User? user; 
   final DateTime startTime;
   final DateTime? endTime; 
-  final int logEntryType;
+  final LogEntryType logEntryType;
   final List<String>? imageUrls; 
   final bool isApprovedByManager;
 
@@ -29,7 +31,7 @@ class LogEntry {
       user: json['user'] !=null ? User.fromJson(json['user']) : null,
       startTime: DateTime.parse(json['startTime']),
       endTime: json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
-      logEntryType: json['logEntryType'],
+      logEntryType: LogEntryType.values[json['logEntryType']], 
       imageUrls: json['imageUrls'] != null ? List<String>.from(json['imageUrls']) : null,
       isApprovedByManager: json['isApprovedByManager'],
     );
@@ -43,7 +45,7 @@ class LogEntry {
       'user': user,
       'startTime': startTime.toIso8601String(),
       'endTime': endTime?.toIso8601String(),
-      'logEntryType': logEntryType,
+      'logEntryType': logEntryType.index,
       'imageUrls': imageUrls,
       'isApprovedByManager': isApprovedByManager,
     };
