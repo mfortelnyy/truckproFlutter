@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/pending_user.dart';
 import 'package:truckpro/utils/login_service.dart';
@@ -54,6 +56,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
   @override
   void initState() {
     super.initState();
+    _loadSettings();
     // Initialize animations
     _animationController = AnimationController(
       duration: const Duration(seconds: 2),
@@ -119,36 +122,16 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
     }
   }
 
-
-  Future<void> _approveDrivingLog(int logEntryId, String token) async {
-    try {
-      await managerService.approveDrivingLogById(logEntryId, token);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Driving Log approved!')),
-      );
-      _fetchManagerData(); 
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
+   String formatDateTime(DateTime dateTime) {
+    DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
+    return formatter.format(dateTime);
   }
 
-  Future<void> _sendEmailToPendingUsers(String token) async {
-    try {
-      await managerService.sendEmailToPendingUsers(token);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Emails sent to pending users!')),
-      );
-      _fetchManagerData(); 
-    } catch (e) {
-      if(mounted)
-      {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    }
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false; 
+    });
   }
 
   @override
@@ -203,7 +186,8 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
                         backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
                       ),
                       child: const Text('Show All Active', style: TextStyle(color: Colors.white)),
-                    )
+                    ), 
+                    const SizedBox(height: 20,)
                   ]
                 ),
     );
@@ -233,15 +217,16 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
                   child: ListTile(
                     title: Text(
                       log.logEntryType.toString().split(".").last,
-                      style: const TextStyle(color: Colors.black),
+                      style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+                      
                     ),
                     subtitle:log.endTime != null
                       ? Text(
-                        'Driver: ${log.user!.firstName} ${log.user!.lastName} \n ${log.startTime} - ${log.endTime}',
+                        'Driver: ${log.user!.firstName} ${log.user!.lastName} \n ${formatDateTime(log.startTime)} - ${formatDateTime(log.endTime!)}',
                         style: TextStyle(color: Colors.grey[600]),
                       )
                       : Text(
-                        'Driver: ${log.user!.firstName} ${log.user!.lastName} \nStart Time: ${log.startTime}\nIn Progress',
+                        'Driver: ${log.user!.firstName} ${log.user!.lastName} \nStart Time: ${formatDateTime(log.startTime)}\nIn Progress',
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                     trailing: log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
@@ -290,10 +275,10 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+               Text(
                  "Manager Menu",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: isDarkMode ? Colors.white : Colors.black,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -310,7 +295,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
             ),),
           ListTile(
             leading: const Icon(Icons.business, color: Colors.black),
-            title: const Text('Upload Driver Emails (.xlsx upload)', style: TextStyle(color: Colors.black)),
+            title: Text('Upload Driver Emails (.xlsx upload)', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
@@ -322,7 +307,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
           ),
           ListTile(
             leading: const Icon(Icons.password_rounded, color: Colors.black),
-            title: const Text('Change Password', style: TextStyle(color: Colors.black)),
+            title: Text('Change Password', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
@@ -334,7 +319,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
           ),
            ListTile(
             leading: const Icon(Icons.pending_rounded, color: Colors.black),
-            title: const Text('Get All Pending Users', style: TextStyle(color: Colors.black)),
+            title: Text('Get All Pending Users', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
@@ -346,7 +331,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
           ),
            ListTile(
             leading: const Icon(Icons.verified_user_rounded, color: Colors.black),
-            title: const Text('All Registered Users from Pending', style: TextStyle(color: Colors.black)),
+            title: Text('All Registered Users from Pending', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
@@ -358,7 +343,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
           ),
           ListTile(
             leading: const Icon(Icons.pending_rounded, color: Colors.black),
-            title: const Text('Not Registered Pending Users', style: TextStyle(color: Colors.black)),
+            title: Text('Not Registered Pending Users', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
@@ -384,7 +369,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
           const Divider(), 
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
-            title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
+            title: Text('Sign Out', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               Navigator.pushReplacement(
                 context,
