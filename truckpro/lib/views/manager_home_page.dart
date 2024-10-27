@@ -74,7 +74,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
   }
 
   Future<void> _fetchManagerData() async {
-    _checkSession();
+    super.checkSession();
   
     setState(() {
       _isLoading = true;
@@ -105,20 +105,6 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
         _errorMessage = "Failed to load data: $e";
         _isLoading = false;
       });
-    }
-  }
-
-  Future<void> _checkSession() async {
-    //clears token is expired
-    await widget.sessionManager.autoSignOut();
-    final token = await widget.sessionManager.getToken();
-    
-    //if token was expired then it's null
-    if (token == null) {
-      widget.sessionManager.clearSession();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme,)),
-      );
     }
   }
 

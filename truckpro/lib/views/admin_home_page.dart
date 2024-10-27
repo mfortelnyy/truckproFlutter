@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:truckpro/models/company.dart';
 import 'package:truckpro/models/userDto.dart';
 import 'package:truckpro/utils/login_service.dart';
@@ -40,6 +41,7 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
   @override
   void initState() {
     super.initState();
+    _loadSettings();
 
      _companies = Future.value([]);
      _drivers = Future.value([]);
@@ -52,7 +54,7 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
   }
 
   void fetchData() async {
-    _checkSession();
+    super.checkSession();
     
     setState(() {
       _companies =  widget.adminService.getAllCompanies(widget.token);
@@ -70,18 +72,12 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
     });
   }
 
-   Future<void> _checkSession() async {
-    //clears token is expired
-    await widget.sessionManager.autoSignOut();
-    final token = await widget.sessionManager.getToken();
-    
-    //if token was expired then it's null
-    if (token == null) {
-      widget.sessionManager.clearSession();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme,)),
-      );
-    }
+  
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false; 
+    });
   }
 
 
