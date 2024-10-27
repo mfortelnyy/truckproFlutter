@@ -3,9 +3,9 @@ import 'package:truckpro/models/user.dart';
 import '../utils/admin_api_service.dart';
 import 'logs_view.dart';
 
-class DriversViewAdmin extends StatelessWidget {
+class DriversViewAdmin extends StatefulWidget {
   final AdminApiService adminService;
-  final Future<List<User>> driversFuture;  
+  final Future<List<User>> driversFuture;
   final String? companyName;
   final String token;
 
@@ -18,24 +18,74 @@ class DriversViewAdmin extends StatelessWidget {
   });
 
   @override
+  _DriversViewAdminState createState() => _DriversViewAdminState();
+}
+
+class _DriversViewAdminState extends State<DriversViewAdmin> {
+  List<User> allDrivers = [];
+  List<User> filteredDrivers = [];
+  String searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    widget.driversFuture.then((drivers) {
+      setState(() {
+        allDrivers = drivers;
+        filteredDrivers = drivers;
+      });
+    });
+  }
+
+  void _filterDrivers(String query) {
+    final filtered = allDrivers.where((driver) {
+      final fullName = '${driver.firstName} ${driver.lastName}'.toLowerCase();
+      return fullName.contains(query.toLowerCase());
+    }).toList();
+
+    setState(() {
+      searchQuery = query;
+      filteredDrivers = filtered;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Drivers'), backgroundColor: const Color.fromARGB(255, 241, 158, 89),),
+      appBar: AppBar(
+        title: const Text('Drivers'),
+        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60.0),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              onChanged: _filterDrivers,
+              decoration: InputDecoration(
+                hintText: 'Search by name',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: FutureBuilder<List<User>>(
-        future: driversFuture,
+        future: widget.driversFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No drivers found for company: $companyName'));
+            return Center(child: Text('No drivers found for company: ${widget.companyName}'));
           } else {
-            final drivers = snapshot.data!;
             return ListView.builder(
-              itemCount: drivers.length,
+              itemCount: filteredDrivers.length,
               itemBuilder: (context, index) {
-                var driver = drivers[index];
+                var driver = filteredDrivers[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   elevation: 4,
@@ -51,11 +101,16 @@ class DriversViewAdmin extends StatelessWidget {
                       ],
                     ),
                     onTap: () async {
-                      // fetch logs for this driver
-                      var logs = adminService.getLogsByDriverId(driver.id, token);
+                      var logs = widget.adminService.getLogsByDriverId(driver.id, widget.token);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LogsView(logsFuture: logs, token: token, approve: false,)),
+                        MaterialPageRoute(
+                          builder: (context) => LogsView(
+                            logsFuture: logs,
+                            token: widget.token,
+                            approve: false,
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -69,7 +124,7 @@ class DriversViewAdmin extends StatelessWidget {
   }
 }
 
-roleToString(int role) {
+String roleToString(int role) {
   switch (role) {
     case 0:
       return "Admin";
