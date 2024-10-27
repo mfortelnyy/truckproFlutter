@@ -53,7 +53,7 @@ class LogsView extends StatelessWidget {
                          Text( "${log.logEntryType.toString().split(".")[1]} Log by ${log.user!.firstName} ${log.user!.lastName} ",
                           style: const TextStyle(fontWeight: FontWeight.w600)
                           ),
-                       subtitle: log.logEntryType == 0
+                       subtitle: log.logEntryType == LogEntryType.Driving
                             ? _buildDrivingLogInfo(log)
                             : _buildNonDrivingLogInfo(log),
                         trailing: Column(
@@ -69,7 +69,6 @@ class LogsView extends StatelessWidget {
                                         ),
                         onTap: approve ? () async {
                           if (log.logEntryType == LogEntryType.Driving) {
-                           
                             // if driving log and manager => display images for approval 
                             Navigator.push(
                               context,
@@ -88,7 +87,7 @@ class LogsView extends StatelessWidget {
                             );
                           }
                         } : () async {
-                          if (log.logEntryType == 0) {
+                          if (log.logEntryType == LogEntryType.Driving) {
                             // if driving log => display images 
                             Navigator.push(
                               context,
