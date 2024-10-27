@@ -157,16 +157,16 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           for (var log in activeLogs) {
             var elapsed = _calculateElapsedTime(log);
 
-            if (log.logEntryType == LogEntryType.OnDuty.index && onDutyLog == null) {
+            if (log.logEntryType == LogEntryType.OnDuty && onDutyLog == null) {
               onDutyLog = log;
               if (_onDutyTimer.minuteTime.value > 0) {
                 _onDutyTimer.onResetTimer();
               }
               _setTimer(_onDutyTimer, elapsed, false);
-            } else if (log.logEntryType == LogEntryType.Driving.index && drivingLog == null) {
+            } else if (log.logEntryType == LogEntryType.Driving && drivingLog == null) {
               drivingLog = log;
               _setTimer(_drivingTimer, elapsed, false);
-            } else if (log.logEntryType == LogEntryType.OffDuty.index && offDutyLog == null) {
+            } else if (log.logEntryType == LogEntryType.OffDuty && offDutyLog == null) {
               offDutyLog = log;
               _setTimer(_offDutyTimer, elapsed, false);
             }
@@ -706,9 +706,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
             leading: Icon(Icons.exit_to_app, color:  isDarkMode ? Colors.white : Colors.black),
             title: Text('Sign Out', style: TextStyle(color:  isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
-              // Navigator.pop(context);
-              // Navigator.pop(context);
-
+              widget.sessionManager.clearSession();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: toggleTheme ,)),
