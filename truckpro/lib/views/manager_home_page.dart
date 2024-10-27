@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/pending_user.dart';
 import 'package:truckpro/utils/login_service.dart';
 import 'package:truckpro/utils/session_manager.dart';
 import 'package:truckpro/views/base_home_view.dart';
+import 'package:truckpro/views/manager_approve_view.dart';
 import 'package:truckpro/views/pending_users_view.dart';
 import 'package:truckpro/views/user_signin_page.dart';
 import '../models/log_entry.dart';
@@ -184,88 +186,106 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
               ? Center(child: Text(_errorMessage!))
               : Column(
                   children: [
-                    const Text('Drivers List', style: TextStyle(fontSize: 20)),
-                    _buildDriversList(),
-                  ],
+                    const SizedBox(height: 15,),
+                    const Text('Active Logs', style: TextStyle(fontSize: 20)),
+                    const SizedBox(height: 25,),
+                    _buildActiveLogsList(),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LogsView(logsFuture: _activeDrivingLogs, token: widget.token, approve: true, onApprove: _fetchManagerData,),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
+                      ),
+                      child: const Text('Show All Active', style: TextStyle(color: Colors.white)),
+                    )
+                  ]
                 ),
     );
   }
 
-  Widget _buildDriversList() {
-  return Expanded(  
-    child: FutureBuilder<List<User>>(
-      future: _drivers,  
-            builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No drivers found'));
-        } else {
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    var driver = snapshot.data![index];
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 2,
-                      child: ListTile(
-                        title: Text(driver.firstName, style: const TextStyle(color: Colors.black)),
-                        subtitle: Text('Driver ID: ${driver.id}', style: TextStyle(color: Colors.grey[600])),
-                        onTap: () {
-                          var logs = managerService.getLogsByDriverId(driver.id, widget.token);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LogsView(logsFuture: logs, token: widget.token, approve: true,),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DriversViewManager(driversFuture: Future.value(snapshot.data!), token: widget.token,),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
+  Widget _buildActiveLogsList() {
+    return Expanded(
+      child: FutureBuilder<List<LogEntry>>(
+        future: _activeDrivingLogs,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No active logs found'));
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                var log = snapshot.data![index];
+                return Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: const Text('Show All Drivers', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          );
-        }
-      },
-    ),
-  );
-}
+                  elevation: 2,
+                  child: ListTile(
+                    title: Text(
+                      log.logEntryType.toString().split(".").last,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                    subtitle:log.endTime != null
+                      ? Text(
+                        'Driver: ${log.user!.firstName} ${log.user!.lastName} \n ${log.startTime} - ${log.endTime}',
+                        style: TextStyle(color: Colors.grey[600]),
+                      )
+                      : Text(
+                        'Driver: ${log.user!.firstName} ${log.user!.lastName} \nStart Time: ${log.startTime}\nIn Progress',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    trailing: log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
+                      ? IconButton(
+                          icon: const Icon(Icons.check, color: Colors.green),
+                          onPressed: () {
+                          },
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.block, color: Colors.red),
+                          onPressed: () {
+                          },
+                        ),
+                    onTap: log.logEntryType == LogEntryType.Driving
+                    ? () async {
+                      //var imageUrls = await managerService.getImagesOfDrivingLog(log.id, widget.token);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ManagerApproveView(imageUrls: Future.value(log.imageUrls), log: log, token: widget.token, onApprove: _fetchManagerData,),
+                        ),
+                      );
+                    }
+                    : () async {
+                      
+                    }
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
 
- 
   Widget _buildDrawer(BuildContext context, Function(bool) toggleTheme) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
            DrawerHeader(
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 241, 158, 89),
+            decoration: const BoxDecoration(
+              color:  Color.fromARGB(255, 241, 158, 89),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,7 +328,6 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
                 context,
                 MaterialPageRoute(
                   builder: (context) => UpdatePasswordView(token: widget.token),
-                //UploadDriversScreen(managerApiService: managerService, token: widget.token), 
                   ),
               );
             },
@@ -366,9 +385,6 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
             title: const Text('Sign Out', style: TextStyle(color: Colors.black)),
             onTap: () {
-              // Navigator.pop(context);
-              // Navigator.pop(context);
-
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
