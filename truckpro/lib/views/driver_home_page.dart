@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/utils/driver_api_service.dart';
@@ -57,7 +58,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   @override
   void initState() {
     super.initState();
-   
+    _loadSettings();
     _notificationTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       _checkUnapprovedDrivingLog();
     });
@@ -117,8 +118,16 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
       }
   }
 
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDarkMode = prefs.getBool('isDarkMode') ?? false; 
+    });
+  }
+
   Future<void> _fetchLogEntries() async {
     super.checkSession();
+    _checkWeeklyLimits(double.parse(totalOnDuty));
     
     totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
     try
