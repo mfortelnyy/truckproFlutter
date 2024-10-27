@@ -127,9 +127,10 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
 
   Future<void> _fetchLogEntries() async {
     super.checkSession();
-    _checkWeeklyLimits(double.parse(totalOnDuty));
     
     totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
+    _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
+
     try
     {
       user ??= await LoginService().getUserById(widget.token);
