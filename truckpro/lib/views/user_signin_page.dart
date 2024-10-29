@@ -52,7 +52,7 @@ class SignInPageState extends State<SignInPage> {
     final password = _passwordController.text;
     String? token = await _loginService.loginUser(email, password);
     
-    if (token != null && token.length > 50) {
+    if (token!.length > 50) {
       //decode JWT token to get the role
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
@@ -86,23 +86,6 @@ class SignInPageState extends State<SignInPage> {
    @override
    Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('User Log In'),
-        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
-        elevation: 10,
-        actions: [
-          IconButton(
-            icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () {
-
-              setState(() {
-                isDarkMode = !isDarkMode;
-              });
-              widget.toggleTheme(isDarkMode); 
-            },
-          ),
-        ],
-      ),
       body: Stack(
         children: [
           Container(
