@@ -10,7 +10,7 @@ import 'views/manager_home_page.dart';
 import 'views/user_signin_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
