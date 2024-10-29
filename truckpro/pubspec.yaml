@@ -7,7 +7,7 @@ environment:
 
 dependencies:
   url_launcher: ^6.1.7
-  shared_preferences: ^2.0.13
+  shared_preferences: ^2.2.1
   marquee: ^2.0.6
   mime: ^2.0.0
   intl: ^0.19.0
@@ -21,10 +21,10 @@ dependencies:
   fl_chart: ^0.69.0
 
 dev_dependencies:
-  flutter_launcher_icons: ^0.10.0
+  flutter_launcher_icons: ^0.14.1
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 flutter_icons:
   android: true
