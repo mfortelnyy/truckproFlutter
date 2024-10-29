@@ -110,7 +110,7 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
     {
       String? res = await _adminService.signUpManager(managerSignupDTO, widget.token);
     
-      if (res!=null && res.isNotEmpty) {
+      if (res!.isNotEmpty) {
         if(mounted)
         {
           ScaffoldMessenger.of(context).showSnackBar(
