@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:truckpro/models/log_entry_type.dart';
@@ -9,7 +8,6 @@ import 'package:truckpro/views/logs_view.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
 import 'update_password_view.dart';
-import 'user_signin_page.dart';
 
 class DriverTestView extends StatefulWidget {
   final String token;

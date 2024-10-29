@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:truckpro/models/log_entry.dart';
-import 'package:truckpro/views/prompt_image.dart';
 
 class DriverApiService {
   //final String _baseUrl = 'https://localhost:443';

@@ -17,7 +17,9 @@ import 'user_signin_page.dart';
 
 class DriverHomeView extends BaseHomeView {
   final String token;
+  @override
   final SessionManager sessionManager;
+  @override
   final Function(bool) toggleTheme; 
 
   DriverHomeView({super.key, required this.token, required this.sessionManager, required this.toggleTheme}) 
@@ -37,6 +39,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   LogEntry? offDutyLog;
   bool isLoading = false;
   Timer? _timer;
+  @override
   UserDto? user;
   bool onDutyButtonActive = true;
   bool offDutyButtonActive = true;
@@ -358,7 +361,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             color: Colors.red, 
             child: Text(
               message,
@@ -375,10 +378,10 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     );
 
     // Insert the overlay entry into the screen
-    overlay?.insert(overlayEntry);
+    overlay.insert(overlayEntry);
 
     // Remove the overlay after 3 seconds
-    Future.delayed(Duration(seconds: 3)).then((_) => overlayEntry.remove());
+    Future.delayed(const Duration(seconds: 3)).then((_) => overlayEntry.remove());
   }
    
   void toggleOnDutyLog() async {

@@ -14,6 +14,8 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -72,7 +74,7 @@ class _MyAppState extends State<MyApp> {
 
 class SplashScreen extends StatefulWidget {
   final Function(bool) toggleTheme;
-  SplashScreen({required this.toggleTheme});
+  const SplashScreen({super.key, required this.toggleTheme});
 
 
   
@@ -130,7 +132,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: CircularProgressIndicator(),
       ),

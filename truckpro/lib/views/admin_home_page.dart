@@ -19,7 +19,9 @@ import 'user_signin_page.dart';
 class AdminHomePage extends BaseHomeView {
   final AdminApiService adminService;
   final String token;
+  @override
   final SessionManager sessionManager;
+  @override
   final Function(bool) toggleTheme;
 
   const AdminHomePage({super.key, required this.adminService, required this.token, required this.sessionManager, required this.toggleTheme, }) 
@@ -34,6 +36,7 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
   late Future<List<Company>> _companies;
   late Future<List<User>> _drivers;
   late Future<List<User>> _managers;
+  @override
   UserDto? user;
   bool isDarkMode = false;
 

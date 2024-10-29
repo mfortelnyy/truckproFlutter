@@ -159,7 +159,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                                   });
                                 },
                                 child: Container(
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: Colors.red,
                                     shape: BoxShape.circle,
                                   ),

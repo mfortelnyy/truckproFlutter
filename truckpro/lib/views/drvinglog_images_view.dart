@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/log_entry.dart';
-import 'package:truckpro/utils/manager_api_service.dart';
 
 class DrivingLogImagesView extends StatelessWidget {
   final Future<List<String>> imageUrls; 

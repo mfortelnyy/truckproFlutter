@@ -9,7 +9,7 @@ class BaseHomeView extends StatefulWidget {
   final SessionManager sessionManager;
   final Function(bool) toggleTheme;
 
-  const BaseHomeView({required this.sessionManager, required this.toggleTheme, Key? key}) : super(key: key);
+  const BaseHomeView({required this.sessionManager, required this.toggleTheme, super.key});
 
   @override
   BaseHomeViewState createState() => BaseHomeViewState();
@@ -55,7 +55,7 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        TextEditingController _verificationCodeController = TextEditingController();
+        TextEditingController verificationCodeController = TextEditingController();
         return AlertDialog(
           title: const Text('Email Verification Required'),
           content: Column(
@@ -64,7 +64,7 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
               const Text('Please enter the verification code sent to your email:'),
               const SizedBox(height: 16),
               TextField(
-                controller: _verificationCodeController,
+                controller: verificationCodeController,
                 decoration: const InputDecoration(
                   labelText: 'Verification Code',
                   border: OutlineInputBorder(),
@@ -76,7 +76,7 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
             TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () async {
-                String verificationCode = _verificationCodeController.text.trim();
+                String verificationCode = verificationCodeController.text.trim();
                 String res = await LoginService().verifyEmail(token!, verificationCode);
                 if (res.isEmpty) {
                   _showSnackBar('Cannot verify email!');

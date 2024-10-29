@@ -3,9 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/userDto.dart';
-import 'package:truckpro/utils/manager_api_service.dart';
 import 'package:truckpro/views/manager_approve_view.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 
 

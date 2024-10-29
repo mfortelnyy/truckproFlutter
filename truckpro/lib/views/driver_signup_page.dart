@@ -86,7 +86,7 @@ class DriverSignupPageState extends State<DriverSignupPage> {
       
       if (res!=null && res.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration successful')),
+          const SnackBar(content: Text('Registration successful')),
           
         );
       } else {

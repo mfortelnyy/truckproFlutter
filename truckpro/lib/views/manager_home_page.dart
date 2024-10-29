@@ -21,11 +21,13 @@ import 'upload_drivers_file.dart';
 
 class ManagerHomeScreen extends BaseHomeView {
   final String token;
+  @override
   final SessionManager sessionManager;
+  @override
   final Function(bool) toggleTheme;
   
 
-  const ManagerHomeScreen({ required this.token, required this.sessionManager, required this.toggleTheme})
+  const ManagerHomeScreen({super.key,  required this.token, required this.sessionManager, required this.toggleTheme})
     : super(sessionManager: sessionManager, toggleTheme: toggleTheme);
 
   
@@ -43,6 +45,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
   late Future<List<LogEntry>> _activeDrivingLogs;
   bool _isLoading = true;
   String? _errorMessage;
+  @override
   UserDto? user;
   bool isDarkMode = false;
 

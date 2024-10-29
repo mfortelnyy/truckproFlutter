@@ -140,8 +140,8 @@ class ManagerApproveView extends StatelessWidget {
                 await _approveLog(log.id, context);
               },
               backgroundColor: Colors.orange,
-              child: const Icon(Icons.check),
               tooltip: 'Approve Log',
+              child: const Icon(Icons.check),
             ),
     );
   }
