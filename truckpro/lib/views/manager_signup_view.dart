@@ -25,6 +25,7 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
   var _companies = [];
   int? _selectedCompanyId;
   bool isDark = false;
+  bool obscurePassword = true;
   
   
 
@@ -150,9 +151,9 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
               const SizedBox(height: 16),
               _buildTextField(_phoneController, 'Phone Number'),
               const SizedBox(height: 16),
-              _buildTextField(_passwordController, 'Password', obscureText: true),
+              _buildTextField(_passwordController, 'Password'),
               const SizedBox(height: 16),
-              _buildTextField(_confirmPasswordController, 'Confirm Password', obscureText: true),
+              _buildTextField(_confirmPasswordController, 'Confirm Password'),
               const SizedBox(height: 24),
               _buildDropdown(),
               const SizedBox(height: 24),
@@ -177,10 +178,10 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
     );  
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false}) {
+  Widget _buildTextField(TextEditingController controller, String label) {
       return TextField(
         controller: controller,
-        obscureText: obscureText,
+        obscureText: obscurePassword,
         decoration: InputDecoration(
           labelText: label ,
           labelStyle: isDark ? const TextStyle(color: Colors.white) : const TextStyle(color: Colors.black),
@@ -195,7 +196,17 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           fillColor: const Color.fromARGB(83, 0, 0, 0),
           filled: true,
-          
+          suffixIcon: 
+            IconButton(
+              icon: Icon(
+                obscurePassword ? Icons.visibility : Icons.visibility_off,
+                color: Colors.black54,
+              ),
+              onPressed: () {
+                setState(() {
+                  obscurePassword = !obscurePassword; 
+              });}
+            ),
         ),
       );
     }
