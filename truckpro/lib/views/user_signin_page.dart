@@ -20,6 +20,7 @@ class SignInPage extends StatefulWidget {
 
 class SignInPageState extends State<SignInPage> {
   bool isDarkMode = false; 
+  bool obscurePassword = true;
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -130,7 +131,7 @@ class SignInPageState extends State<SignInPage> {
                     const SizedBox(height: 35),
                     TextField(
                       controller: _passwordController,
-                      obscureText: true,
+                      obscureText: obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'Password',
                         labelStyle: const TextStyle(color: Colors.black),
@@ -152,7 +153,19 @@ class SignInPageState extends State<SignInPage> {
                           fontSize: 16,
                           color: Color.fromARGB(255, 249, 249, 249), 
                         ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            obscurePassword ? Icons.visibility : Icons.visibility_off,
+                            color: Colors.black54,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              obscurePassword = !obscurePassword; 
+                            });
+                          },
+                        ),
                       ),
+                      
                     ),
                     const SizedBox(height: 10),
                     Align(
