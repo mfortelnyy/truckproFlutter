@@ -26,6 +26,7 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
   int? _selectedCompanyId;
   bool isDark = false;
   bool obscurePassword = true;
+  bool obscureConfirmPassword = true;
   
   
 
@@ -178,40 +179,50 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
     );  
   }
 
-  Widget _buildTextField(TextEditingController controller, String label) {
-      return TextField(
-        controller: controller,
-        obscureText: obscurePassword,
-        decoration: InputDecoration(
-          labelText: label ,
-          labelStyle: isDark ? const TextStyle(color: Colors.white) : const TextStyle(color: Colors.black),
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.black12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.black54),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          fillColor: const Color.fromARGB(83, 0, 0, 0),
-          filled: true,
-          suffixIcon: 
-            IconButton(
+   Widget _buildTextField(TextEditingController controller, String label) {
+    bool isPasswordField = label == "Password";
+    bool isConfirmPasswordField = label == "Confirm Password";
+    
+    return TextField(
+      controller: controller,
+      obscureText: isPasswordField ? obscurePassword : (isConfirmPasswordField ? obscureConfirmPassword : false),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: isDark ? const TextStyle(color: Colors.white) : const TextStyle(color: Colors.black),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black12),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black54),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        fillColor: const Color.fromARGB(82, 248, 243, 243),
+        filled: true,
+        suffixIcon: (isPasswordField || isConfirmPasswordField) 
+          ? IconButton(
               icon: Icon(
-                obscurePassword ? Icons.visibility : Icons.visibility_off,
+                (isPasswordField ? obscurePassword : obscureConfirmPassword)
+                    ? Icons.visibility
+                    : Icons.visibility_off,
                 color: Colors.black54,
               ),
               onPressed: () {
                 setState(() {
-                  obscurePassword = !obscurePassword; 
-              });}
-            ),
-        ),
-      );
-    }
-
-
+                  if (isPasswordField) {
+                    obscurePassword = !obscurePassword;
+                  } else {
+                    obscureConfirmPassword = !obscureConfirmPassword;
+                  }
+                });
+              },
+            )
+          : null,
+      ),
+    );
+  }
+  
   Widget _buildDropdown() {
       return DropdownButtonFormField<int>(
         decoration: InputDecoration(
