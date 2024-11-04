@@ -63,10 +63,19 @@ class ForgotPasswordViewState extends State<ForgotPasswordView> {
                     ),
                     const SizedBox(height: 35),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         final email = _emailController.text;
                         if (email.isNotEmpty) {
-                          widget.loginService.forgetPassword(email); // call the function to send email
+                          try
+                          {
+                            await widget.loginService.forgetPassword(email); // call the function to send email
+                          }
+                          catch(e)
+                          { 
+                            ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Failed to send an email!')),
+                            );
+                          }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Please enter an email address')),
