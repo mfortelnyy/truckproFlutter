@@ -7,8 +7,8 @@ import 'package:truckpro/models/userDto.dart';
 class LoginService {
 
   //base url of .net truckApi
-  //final String _baseUrl = 'https://localhost:443';
-  final String _baseUrl = 'https://stunning-tadpole-deadly.ngrok-free.app'; 
+  //final String _baseUrl = 'https://localhost:443';  'https://stunning-tadpole-deadly.ngrok-free.app'; 
+  final String _baseUrl = 'http://174.138.184.240:2020'; 
 
   //handles user login
   Future<String?> loginUser(String email, String password) async {
@@ -32,10 +32,9 @@ class LoginService {
         //if the server returns a successful response, parse the JSON. 
         String responseBody = response.body;
         //split string by the token, choose the right side with token and trim the whitespace
-       var token = responseBody.split("Token: ")[1].trim();
-       //print("token:    ${token}");
-       return token;
-
+        var token = responseBody.split("Token: ")[1].trim();
+        //print("token:    ${token}");
+        return token;
       } else {
         //if the server returns an error, throw an exception.
         throw Exception('Failed to log in + ${response.statusCode}');

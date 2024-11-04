@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:truckpro/models/log_entry.dart';
 
 class DriverApiService {
-  //final String _baseUrl = 'https://localhost:443';
-  final String _baseUrl = 'https://stunning-tadpole-deadly.ngrok-free.app';
+  //final String _baseUrl = 'https://localhost:443'; 'https://stunning-tadpole-deadly.ngrok-free.app';
+  final String _baseUrl = 'http://174.138.184.240:2020';
 
   final String token;
 
@@ -42,6 +42,7 @@ class DriverApiService {
 
     var request = http.MultipartRequest('POST', url)
       ..headers['Authorization'] = 'Bearer $token';
+      
     for (String filePath in filePaths) {
       var file = await http.MultipartFile.fromPath(
         'images', 
@@ -223,23 +224,22 @@ Future<String> createOffDutyLog() async {
     }
   }
 
-  Future<List<LogEntry>> fetchActiveLogs() async { 
-    final response = await http.get(
-      Uri.parse('$_baseUrl/getActiveLogs'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-    
-    if (response.statusCode == 200) {
-      var jsonList =  jsonDecode(response.body);
-      return jsonList.map<LogEntry>((json) => LogEntry.fromJson(json)).toList();
+  Future<List<LogEntry>> fetchActiveLogs() async {     
+      final response = await http.get(
+        Uri.parse('$_baseUrl/getActiveLogs'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
       
-    } else {
-      throw Exception('Failed to load active logs: ${response.body}');
-    }
-
+      if (response.statusCode == 200) {
+        var jsonList =  jsonDecode(response.body);
+        return jsonList.map<LogEntry>((json) => LogEntry.fromJson(json)).toList();
+        
+      } else {
+        throw Exception('Failed to load active logs: ${response.body}');
+      }
 
   }
 
