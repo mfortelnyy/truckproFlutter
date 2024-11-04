@@ -38,11 +38,11 @@ class ManagerHomeScreen extends BaseHomeView {
 
 class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with SingleTickerProviderStateMixin {
   final ManagerApiService managerService = ManagerApiService();
-  late Future<List<User>> _drivers;
-  late Future<List<PendingUser>> _allPendingUsers;
-  late Future<List<User>> _allRegisteredUsers;
-  late Future<List<PendingUser>> _notRegistered;
-  late Future<List<LogEntry>> _activeDrivingLogs;
+  Future<List<User>>? _drivers;
+  Future<List<PendingUser>>? _allPendingUsers; 
+  Future<List<User>>? _allRegisteredUsers;
+  Future<List<PendingUser>>? _notRegistered;
+  Future<List<LogEntry>>? _activeDrivingLogs;
   bool _isLoading = true;
   String? _errorMessage;
   @override
@@ -53,63 +53,56 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
   late AnimationController _animationController;
   late Animation<double> _fadeInAnimation;
 
-
-
-
   @override
-  void initState() {
-    super.initState();
-    _loadSettings();
-    // Initialize animations
-    _animationController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    );
+  @override
+void initState() {
+  super.initState();
+  _loadSettings();
+  _fetchManagerData(); // Fetch data only once during init
+  // Initialize animations
+  _animationController = AnimationController(
+    duration: const Duration(seconds: 2),
+    vsync: this,
+  );
 
-    _fadeInAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    );
+  _fadeInAnimation = CurvedAnimation(
+    parent: _animationController,
+    curve: Curves.easeIn,
+  );
 
-    _animationController.forward();
+  _animationController.forward();
+}
 
-    _fetchManagerData();
-  }
+Future<void> _fetchManagerData() async {
+  super.checkSession();
 
-  Future<void> _fetchManagerData() async {
-    super.checkSession();
-  
+  setState(() {
+    _isLoading = true;
+    _errorMessage = null;
+  });
+
+  try {
+    // Fetch user and token
+    user ??= await LoginService().getUserById(widget.token);
+
+    // Only assign Futures if they are null, so we don't reset them every time this method is called
+    _drivers ??= managerService.getAllDriversByCompany(widget.token);
+    _allPendingUsers ??= managerService.getAllPendingUsers(widget.token);
+    _allRegisteredUsers ??= managerService.getRegisteredFromPending(widget.token);
+    _notRegistered ??= managerService.getNotRegisteredFromPending(widget.token);
+    _activeDrivingLogs ??= managerService.getAllActiveDrivingLogs(widget.token);
+
     setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      user ??= await LoginService().getUserById(widget.token);
+      _isLoading = false;
       super.checkEmailVerification();
-      print(widget.token);
-      final drivers = managerService.getAllDriversByCompany(widget.token);
-      final pendingUsers = managerService.getAllPendingUsers(widget.token);
-      final registeredUsers = managerService.getRegisteredFromPending(widget.token);
-      final notRegisteredPendingUsers = managerService.getNotRegisteredFromPending(widget.token);
-      final activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
-
-      setState(() {
-        _drivers = drivers;
-        _isLoading = false;
-        _allPendingUsers = pendingUsers;
-        _allRegisteredUsers = registeredUsers;
-        _notRegistered = notRegisteredPendingUsers;
-        _activeDrivingLogs = activeDrivingLogs;
-        
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = "Failed to load data: $e";
-        _isLoading = false;
-      });
-    }
+    });
+  } catch (e) {
+    setState(() {
+      _errorMessage = e.toString().split(': ').last;
+      _isLoading = false;
+    });
   }
+}
 
    String formatDateTime(DateTime dateTime) {
     DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
@@ -123,64 +116,223 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
-        title: user != null
-              ? Text('Welcome, ${user!.firstName} ${user!.lastName}',        
-                //spaceSize: 72,
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 255, 255, 255),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 24,
-                ),
-              )
-              : const Text('Manager Home'),
-         actions: [
-            IconButton(
-              icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
-              onPressed: () {
+  void _showSnackBar(BuildContext context, String message)
+  {
+    if(mounted)
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
+  }
 
-                setState(() {
-                  isDarkMode = !isDarkMode;
-                });
-                widget.toggleTheme(isDarkMode); 
-              },
+  Widget _buildDrawer(BuildContext context, Function(bool) toggleTheme) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+           DrawerHeader(
+            decoration: const BoxDecoration(
+              color:  Color.fromARGB(255, 241, 158, 89),
             ),
-          ],
-      ),
-      drawer: _buildDrawer(context, widget.toggleTheme),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage != null
-              ? Center(child: Text(_errorMessage!))
-              : Column(
-                  children: [
-                    const SizedBox(height: 15,),
-                    const Text('Active Logs', style: TextStyle(fontSize: 20)),
-                    const SizedBox(height: 25,),
-                    _buildActiveLogsList(),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LogsView(logsFuture: _activeDrivingLogs, token: widget.token, approve: true, onApprove: _fetchManagerData,),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 241, 158, 89), 
-                      ),
-                      child: const Text('Show All Active', style: TextStyle(color: Colors.white)),
-                    ), 
-                    const SizedBox(height: 20,)
-                  ]
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+               const Text(
+                 "Manager Menu",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  user != null ? user!.email : 'Loading...',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ]
+            ),),
+          ListTile(
+            leading: const Icon(Icons.business, color: Colors.black),
+            title: Text('Upload Driver Emails (.xlsx upload)', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UploadDriversScreen(managerApiService: managerService, token: widget.token, onUpload: _fetchManagerData,),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.password_rounded, color: Colors.black),
+            title: Text('Change Password', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UpdatePasswordView(token: widget.token),
+                  ),
+              );
+            },
+          ),
+           ListTile(
+            leading: const Icon(Icons.pending_rounded, color: Colors.black),
+            title: Text('Get All Pending Users', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _allPendingUsers!, token: widget.token, sendEmail: true, onEmailsSent: _fetchManagerData,),
+                ),
+              );
+            },
+          ),
+           ListTile(
+            leading: const Icon(Icons.verified_user_rounded, color: Colors.black),
+            title: Text('All Registered Users from Pending', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+            onTap: () {
+              if(_allRegisteredUsers!=null)
+              {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DriversViewManager(driversFuture: _allRegisteredUsers!, token: widget.token),
+                  ),
+                );
+              }
+              else{
+                _showSnackBar(context, "No Registered Users at this time!");
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.pending_rounded, color: Colors.black),
+            title: Text('Not Registered Pending Users', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _notRegistered!, token: widget.token, sendEmail: true,)
+                ),
+              );
+            },
+          ),
+          /*
+          ListTile(
+            leading: const Icon(Icons.local_activity_rounded, color: Colors.black),
+            title: const Text('All Dri Logs', style: TextStyle(color: Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LogsView(logsFuture: _activeDrivingLogs, token: widget.token, approve: true, onApprove: _fetchManagerData,)
+                ),
+              );
+            },
+          ),*/
+          const Divider(), 
+          ListTile(
+            leading: const Icon(Icons.exit_to_app, color: Colors.black),
+            title: Text('Sign Out', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+            onTap: () {
+              widget.sessionManager.clearSession();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SignInPage(toggleTheme: toggleTheme,)
+                ),
+              );
+            },
+          ),
+          
+        ],
+      ),
     );
   }
+
+
+
+  @override
+ @override
+Widget build(BuildContext context) {
+  return FutureBuilder(
+    future: _fetchManagerData(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text('Error: ${snapshot.error}'));
+      } else {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+            title: user != null
+                ? Text(
+                    'Welcome, ${user!.firstName} ${user!.lastName}',
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 24,
+                    ),
+                  )
+                : const Text('Manager Home'),
+            actions: [
+              IconButton(
+                icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+                onPressed: () {
+                  setState(() {
+                    isDarkMode = !isDarkMode;
+                  });
+                  widget.toggleTheme(isDarkMode);
+                },
+              ),
+            ],
+          ),
+          drawer: _buildDrawer(context, widget.toggleTheme),
+          body: Column(
+            children: [
+              const SizedBox(height: 15,),
+              const Text('Active Logs', style: TextStyle(fontSize: 20)),
+              const SizedBox(height: 25,),
+              _buildActiveLogsList(),
+              ElevatedButton(
+                onPressed: () {
+                  if (_activeDrivingLogs != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LogsView(
+                          logsFuture: _activeDrivingLogs!,
+                          token: widget.token,
+                          approve: true,
+                          onApprove: _fetchManagerData,
+                        ),
+                      ),
+                    );
+                  } else {
+                    _showSnackBar(context, "No drivers are active at the moment!");
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+                ),
+                child: const Text('Show All Active', style: TextStyle(color: Colors.white)),
+              ),
+              const SizedBox(height: 20,)
+            ]
+          ),
+        );
+      }
+    },
+  );
+}
+
 
   Widget _buildActiveLogsList() {
     return Expanded(
@@ -252,126 +404,4 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
     );
   }
 
-  Widget _buildDrawer(BuildContext context, Function(bool) toggleTheme) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-           DrawerHeader(
-            decoration: const BoxDecoration(
-              color:  Color.fromARGB(255, 241, 158, 89),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-               const Text(
-                 "Manager Menu",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  user != null ? user!.email : 'Loading...',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-              ]
-            ),),
-          ListTile(
-            leading: const Icon(Icons.business, color: Colors.black),
-            title: Text('Upload Driver Emails (.xlsx upload)', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UploadDriversScreen(managerApiService: managerService, token: widget.token, onUpload: _fetchManagerData,),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.password_rounded, color: Colors.black),
-            title: Text('Change Password', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UpdatePasswordView(token: widget.token),
-                  ),
-              );
-            },
-          ),
-           ListTile(
-            leading: const Icon(Icons.pending_rounded, color: Colors.black),
-            title: Text('Get All Pending Users', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PendingUsersView(pendingUsersFuture: _allPendingUsers, token: widget.token, sendEmail: true, onEmailsSent: _fetchManagerData,),
-                ),
-              );
-            },
-          ),
-           ListTile(
-            leading: const Icon(Icons.verified_user_rounded, color: Colors.black),
-            title: Text('All Registered Users from Pending', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DriversViewManager(driversFuture: _allRegisteredUsers, token: widget.token),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.pending_rounded, color: Colors.black),
-            title: Text('Not Registered Pending Users', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PendingUsersView(pendingUsersFuture: _notRegistered, token: widget.token, sendEmail: true,)
-                ),
-              );
-            },
-          ),
-          /*
-          ListTile(
-            leading: const Icon(Icons.local_activity_rounded, color: Colors.black),
-            title: const Text('All Dri Logs', style: TextStyle(color: Colors.black)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LogsView(logsFuture: _activeDrivingLogs, token: widget.token, approve: true, onApprove: _fetchManagerData,)
-                ),
-              );
-            },
-          ),*/
-          const Divider(), 
-          ListTile(
-            leading: const Icon(Icons.exit_to_app, color: Colors.black),
-            title: Text('Sign Out', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
-            onTap: () {
-              widget.sessionManager.clearSession();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SignInPage(toggleTheme: toggleTheme,)
-                ),
-              );
-            },
-          ),
-          
-        ],
-      ),
-    );
   }
-}
