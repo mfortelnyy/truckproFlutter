@@ -6,7 +6,7 @@ import 'package:truckpro/models/user.dart';
 
 class ManagerApiService {
   //final String baseUrl = 'https://localhost:443';
-   final String baseUrl = 'https://stunning-tadpole-deadly.ngrok-free.app';
+   final String baseUrl = 'http://174.138.184.240:2020';
 
 
   ManagerApiService();
@@ -40,7 +40,7 @@ class ManagerApiService {
   Future<String> sendEmailToPendingUsers(String token) async {
     final url = Uri.parse('$baseUrl/sendEmailToPendingUsers');
 
-    try {
+    
       final response = await http.post(
         url,
         headers: {
@@ -54,9 +54,6 @@ class ManagerApiService {
       } else {
         throw Exception('Failed to send emails: ${response.body}');
       }
-    } catch (e) {
-      throw Exception('Error: $e');
-    }
   }
 
   //get all active driving logs
@@ -113,24 +110,21 @@ class ManagerApiService {
   Future<List<User>> getAllDriversByCompany(String token) async {
     final url = Uri.parse('$baseUrl/allDriversByCompany');
 
-    try {
+    
       final response = await http.get(
         url,
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
-      print("getting all comanies response code: ${response.statusCode}");
+      print("getting all drivers response code: ${response.statusCode}");
       if (response.statusCode == 200) {
            List<dynamic> jsonList = json.decode(response.body);
            var result = jsonList.map((json) => User.fromJson(json)).toList(); 
            return result;
       } else {
-        throw Exception('Failed to fetch drivers: ${response.body}');
+        return [];
       }
-    } catch (e) {
-      throw Exception('Error: $e');
-    }
   }
 
   //get logs by driver ID
@@ -185,7 +179,7 @@ class ManagerApiService {
 
     print("manager with token $token");
 
-    try {
+  
       final response = await http.get(
         url,
         headers: {
@@ -199,16 +193,12 @@ class ManagerApiService {
       } else {
         throw Exception('Failed to fetch registered users: ${response.body}');
       }
-    } catch (e) {
-      throw Exception('Error: $e');
-    }
   }
 
   // get not registered users from pending users
   Future<List<PendingUser>> getNotRegisteredFromPending(String token) async {
     final url = Uri.parse('$baseUrl/getNotRegisteredFromPending');
 
-    try {
       final response = await http.get(
         url,
         headers: {
@@ -225,9 +215,6 @@ class ManagerApiService {
       } else {
         throw Exception('Failed to fetch not registered users: ${response.body}');
       }
-    } catch (e) {
-      throw Exception('Error: $e');
-    }
   }
 /*
   Future<String> approveDrivingLogById(int logEntryId, String token) async{
@@ -298,7 +285,6 @@ class ManagerApiService {
   Future<List<PendingUser>> getAllPendingUsers(String token) async {
     final url = Uri.parse('$baseUrl/getAllPendingUsers');
 
-    try {
       final response = await http.get(
         url,
         headers: {
@@ -317,17 +303,14 @@ class ManagerApiService {
           throw Exception('Failed to fetch not registered users: ${response.body}');
         }
       } else {
-        throw Exception('Failed to fetch not registered users: ${response.body}');
+        return [];
+        //throw Exception('Failed to fetch not registered users: ${response.body}');
       }
-    } catch (e) {
-      throw Exception('Error: $e');
-    }
-  }
+    } 
 
    Future<String> deletePendingUser(String token, int userId) async {
       final url = Uri.parse('$baseUrl/deletePendingUser?userId=$userId');
 
-      try {
       final response = await http.delete(
         url,
         headers: {
@@ -348,10 +331,5 @@ class ManagerApiService {
       } else {
         throw Exception('Failed to delete pending user: ${response.body}');
       }
-    } catch (e) {
-      throw Exception('Error: $e');
     }
-
-
-  }
 }
