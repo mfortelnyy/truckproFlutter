@@ -64,10 +64,13 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     _loadSettings();
     _notificationTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       _checkUnapprovedDrivingLog();
+      _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
+
     });
       
     _fetchLogEntries();
     _timer = Timer.periodic(const Duration(minutes: 15), (timer) {
+      super.checkSession();
       _fetchLogEntries();
       _buildWeeklyHoursSection();
     });
@@ -129,7 +132,6 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   }
 
   Future<void> _fetchLogEntries() async {
-    super.checkSession();
     
     totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
     _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
