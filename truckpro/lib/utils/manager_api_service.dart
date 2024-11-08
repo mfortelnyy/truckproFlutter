@@ -29,7 +29,7 @@ class ManagerApiService {
       if (response.statusCode == 200) {
         return json.decode(responseBody.body)['message'];
       } else {
-        throw Exception('${json.decode(responseBody.body)['message']}');
+        return '${json.decode(responseBody.body)['message']}';
       }
     } catch (e) {
       throw Exception('Error: $e');
