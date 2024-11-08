@@ -8,7 +8,7 @@ class LoginService {
 
   //base url of .net truckApi
   //final String _baseUrl = 'https://localhost:443';  'https://stunning-tadpole-deadly.ngrok-free.app'; 
-  final String _baseUrl = 'http://174.138.184.240:2020'; 
+  final String _baseUrl = 'https://truckcheck.org:443'; 
 
   //handles user login
   Future<String?> loginUser(String email, String password) async {

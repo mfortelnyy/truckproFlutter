@@ -4,7 +4,7 @@ import 'package:truckpro/models/log_entry.dart';
 
 class DriverApiService {
   //final String _baseUrl = 'https://localhost:443'; 'https://stunning-tadpole-deadly.ngrok-free.app';
-  final String _baseUrl = 'http://174.138.184.240:2020';
+  final String _baseUrl = 'https://truckcheck.org:443';
 
   final String token;
 

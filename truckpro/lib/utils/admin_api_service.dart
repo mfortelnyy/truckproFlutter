@@ -9,7 +9,7 @@ import 'package:truckpro/models/user.dart';
     class AdminApiService
     {
         //final String baseUrl = 'https://localhost:443';
-        final String baseUrl = 'http://174.138.184.240:2020'; 
+        final String baseUrl = 'https://truckcheck.org:443'; 
         Future<List<Company>> getAllCompanies(String token) async {
           //print("token passed:  $token");
             final response = await http.get(Uri.parse('$baseUrl/getAllCompanies'), 
