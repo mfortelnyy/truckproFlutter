@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionManager {
@@ -59,11 +59,36 @@ class SessionManager {
     return DateTime.now().isAfter(expiryDate);
   }
 
+  // check token validity with server
+  Future<bool> isTokenValidWithServer(String token) async {
+    final url = Uri.parse('https://truckcheck.org:443/ValidateToken');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // 200 means token is valid
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
   // automatically sign out if token is expired
   Future<void> autoSignOut() async {
     final token = await getToken();
-    if (token != null && isTokenExpired(token)) {
-      await clearSession(); 
+    if (token != null) {
+      bool tokenExpired = isTokenExpired(token);
+      bool tokenValid = !tokenExpired && await isTokenValidWithServer(token);
+
+      if (!tokenValid) {
+        await clearSession();
+      }
     }
   }
 }
