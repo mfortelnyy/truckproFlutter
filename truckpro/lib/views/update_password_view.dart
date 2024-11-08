@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:truckpro/views/user_signin_page.dart';
 import '../models/change_password_request.dart';
 import '../utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
-
 class UpdatePasswordView extends StatefulWidget {
   final String token;
+  final Function(bool) toggleTheme;
 
-  const UpdatePasswordView({super.key, required this.token});
+  const UpdatePasswordView({super.key, required this.token, required this.toggleTheme});
 
   @override
   _UpdatePasswordViewState createState() => _UpdatePasswordViewState();
@@ -19,11 +20,14 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
 
   bool _isLoading = false;
   String? _errorMessage;
-  
+
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
+  bool _obscureOldPassword = true;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
@@ -36,48 +40,50 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
   Future<void> _updatePassword() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
-         _isLoading = false;
+        _isLoading = true;
         _errorMessage = null;
       });
 
       try {
-         //decode JWT token to get the userid
         Map<String, dynamic> decodedToken = JwtDecoder.decode(widget.token);
         var userId = decodedToken['userId'];
-        if(_oldPasswordController.text == _newPasswordController.text)
-        {
-           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('New password can not be the same as your old!')),
+
+        if (_oldPasswordController.text == _newPasswordController.text) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('New password cannot be the same as your old password!')),
           );
-        }
-        else{
+        } else {
           ChangePasswordRequest cpr = ChangePasswordRequest(
             userId: int.parse(userId),
             oldPassword: _oldPasswordController.text,
             newPassword: _newPasswordController.text,
           );
           String? res = await _loginService.updatePassword(cpr, widget.token);
-
-          
-          if(res!.isNotEmpty)
-          {
+          setState(() {
+            _isLoading = false;
+          });
+          if (res!.isNotEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Password updated successfully!')),
+              const SnackBar(content: Text('Password updated successfully!'), backgroundColor: Color.fromARGB(219, 79, 194, 70) ,),
             );
-            Navigator.pop(context);
-          }
-          else
-          {
+            Future.delayed(const Duration(seconds: 2), () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
+                );
+            });
+          } else {
             ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to update password.')),
+              const SnackBar(content: Text('Failed to update password.'), backgroundColor: Color.fromARGB(230, 247, 42, 66,),)
             );
-
-          
           }
         }
       } catch (e) {
         setState(() {
-          _errorMessage = 'Failed to update password: $e';
+          _errorMessage = e.toString().split(":").last;
+          _isLoading = false;
+        });
+      } finally {
+        setState(() {
           _isLoading = false;
         });
       }
@@ -98,15 +104,27 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    if (_errorMessage != null) 
+                    if (_errorMessage != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
                       ),
                     TextFormField(
                       controller: _oldPasswordController,
-                      decoration: const InputDecoration(labelText: 'Old Password'),
-                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Old Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureOldPassword ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureOldPassword = !_obscureOldPassword;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: _obscureOldPassword,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your old password';
@@ -117,8 +135,20 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _newPasswordController,
-                      decoration: const InputDecoration(labelText: 'New Password'),
-                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'New Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureNewPassword ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureNewPassword = !_obscureNewPassword;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: _obscureNewPassword,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a new password';
@@ -132,8 +162,20 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _confirmPasswordController,
-                      decoration: const InputDecoration(labelText: 'Confirm New Password'),
-                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm New Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword = !_obscureConfirmPassword;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: _obscureConfirmPassword,
                       validator: (value) {
                         if (value != _newPasswordController.text) {
                           return 'Passwords do not match';
