@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/userDto.dart';
-
 import '../utils/login_service.dart';
 import '../utils/session_manager.dart';
 import 'user_signin_page.dart';
@@ -9,7 +8,7 @@ class BaseHomeView extends StatefulWidget {
   final SessionManager sessionManager;
   final Function(bool) toggleTheme;
 
-  const BaseHomeView({required this.sessionManager, required this.toggleTheme, super.key});
+  const BaseHomeView({required this.sessionManager, required this.toggleTheme, Key? key}) : super(key: key);
 
   @override
   BaseHomeViewState createState() => BaseHomeViewState();
@@ -23,24 +22,25 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
   void initState() {
     super.initState();
     checkSession();
-    checkEmailVerification();
   }
 
   Future<void> checkSession() async {
     await widget.sessionManager.autoSignOut();
     token = await widget.sessionManager.getToken();
-    
+
     if (token == null) {
-      widget.sessionManager.clearSession();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
       );
+    } else {
+      await checkEmailVerification();
     }
   }
 
-   void checkEmailVerification() async {
+  Future<void> checkEmailVerification() async {
+    if (token == null) return; 
+
     try {
-      //var userId = await widget.sessionManager.getUserId();
       user = await LoginService().getUserById(token!);
       if (user != null && !user!.emailVerified) {
         _showVerificationDialog();
@@ -73,31 +73,26 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
             ],
           ),
           actions: <Widget>[
-            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
             ElevatedButton(
               onPressed: () async {
                 String verificationCode = verificationCodeController.text.trim();
                 String res = await LoginService().verifyEmail(token!, verificationCode);
-                if (res.isEmpty) {
-                  _showSnackBar('Cannot verify email!');
-                } else {
-                  _showSnackBar('Email verified successfully!');
-                  
-                  Navigator.of(context).pop();
-                }
+                res.isEmpty ? _showSnackBar('Cannot verify email!') : _showSnackBar('Email verified successfully!');
+                Navigator.of(context).pop();
               },
               child: const Text('Verify'),
             ),
             TextButton(
               onPressed: () async {
-                try{
+                try {
                   var res = await LoginService().reSendEmailCode(token!, user!.email);
                   res.isNotEmpty ? _showSnackBar(res) : _showSnackBar('Cannot resend email.');
-                }
-                catch(ex)
-                {
+                } catch (ex) {
                   _showSnackBar(ex.toString());
-
                 }
               },
               child: Text('Resend Code to ${user!.email}'),
