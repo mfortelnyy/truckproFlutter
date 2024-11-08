@@ -61,15 +61,26 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
     });
 
     try {
-      await widget.managerApiService.addDriversToCompany(filePath, widget.token);
+      var res = await widget.managerApiService.addDriversToCompany(filePath, widget.token);
 
       setState(() {
         _isLoading = false;
       });
+      if(res.contains('successfully'))
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File uploaded successfully!')),
+        );
+      }
+        else
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text('File upload failed!\n${res.split("Error: ").last}'), backgroundColor: Color.fromARGB(230, 247, 42, 66),  ),
+          );
+        }
+      
       if (widget.onUpload != null) widget.onUpload!();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('File uploaded successfully!')),
-      );
+      
     } catch (e) {
       setState(() {
         _isLoading = false;
