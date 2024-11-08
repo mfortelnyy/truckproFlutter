@@ -177,7 +177,7 @@ Future<void> _deletePendingUser(int userId, int index) async {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error sending emails: $e')),
+        SnackBar(content: Text('$e')),
       );
     }
   }
