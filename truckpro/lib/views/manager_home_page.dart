@@ -175,7 +175,7 @@ Future<void> _fetchManagerData() async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => UpdatePasswordView(token: widget.token),
+                  builder: (context) => UpdatePasswordView(token: widget.token, toggleTheme: toggleTheme,),
                   ),
               );
             },

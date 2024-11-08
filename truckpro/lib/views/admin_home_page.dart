@@ -303,7 +303,7 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => UpdatePasswordView(token: widget.token),
+                  builder: (context) => UpdatePasswordView(token: widget.token, toggleTheme: toggleTheme,),
                 ),
               );
             },
