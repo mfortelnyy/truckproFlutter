@@ -66,11 +66,11 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Password updated successfully!'), backgroundColor: Color.fromARGB(219, 79, 194, 70) ,),
             );
-            Future.delayed(const Duration(seconds: 2), () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
+            
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
                 );
-            });
+         
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Failed to update password.'), backgroundColor: Color.fromARGB(230, 247, 42, 66,),)
