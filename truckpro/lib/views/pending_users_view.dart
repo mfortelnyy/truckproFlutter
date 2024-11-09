@@ -168,16 +168,16 @@ Future<void> _deletePendingUser(int userId, int index) async {
         widget.onEmailsSent!();
       }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Emails sent successfully: $res')),
+          SnackBar(content: Text('$res'), backgroundColor:  Color.fromARGB(219, 79, 194, 70),),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No response from the server')),
+          const SnackBar(content: Text('No response from the server'), backgroundColor: Color.fromARGB(230, 247, 42, 66,)),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$e')),
+        SnackBar(content: Text('$e'), backgroundColor: Color.fromARGB(230, 247, 42, 66,)),
       );
     }
   }
