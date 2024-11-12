@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:truckpro/models/company.dart';
@@ -24,6 +26,7 @@ class AdminHomePage extends BaseHomeView {
   @override
   final Function(bool) toggleTheme;
 
+
   const AdminHomePage({super.key, required this.adminService, required this.token, required this.sessionManager, required this.toggleTheme, }) 
   : super(sessionManager: sessionManager, toggleTheme: toggleTheme);
 
@@ -40,6 +43,9 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
   UserDto? user;
   bool isDarkMode = false;
 
+  Timer? _timer;
+
+
 
   @override
   void initState() {
@@ -49,12 +55,18 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
      _companies = Future.value([]);
      _drivers = Future.value([]);
      _managers = Future.value([]);
+
+     _timer = Timer.periodic(const Duration(minutes: 15), (timer) {
+      super.checkEmailVerification();
+    });
+    
     
      fetchUser(); 
      fetchData();
      super.checkEmailVerification(); 
      
   }
+  
 
   void fetchData() async {
     super.checkSession();
@@ -273,7 +285,7 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
             child: Text('Admin Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           ListTile(
-            leading: Icon(Icons.business, color: textColor), // Dynamic text color
+            leading: Icon(Icons.business, color: textColor), 
             title: Text('Create Company', style: TextStyle(color: textColor)),
             onTap: () {
               Navigator.push(
