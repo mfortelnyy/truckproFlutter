@@ -58,8 +58,9 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
 void initState() {
   super.initState();
   _loadSettings();
-  _fetchManagerData(); // Fetch data only once during init
-  // Initialize animations
+  _fetchManagerData(); 
+  
+  //animation init
   _animationController = AnimationController(
     duration: const Duration(seconds: 2),
     vsync: this,
@@ -82,10 +83,8 @@ Future<void> _fetchManagerData() async {
   });
 
   try {
-    // Fetch user and token
     user ??= await LoginService().getUserById(widget.token);
 
-    // Only assign Futures if they are null, so we don't reset them every time this method is called
     _drivers ??= managerService.getAllDriversByCompany(widget.token);
     _allPendingUsers ??= managerService.getAllPendingUsers(widget.token);
     _allRegisteredUsers ??= managerService.getRegisteredFromPending(widget.token);
@@ -180,9 +179,21 @@ Future<void> _fetchManagerData() async {
               );
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.pending_rounded, color: Colors.black),
+            title: Text('All Drivers in the Company', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DriversViewManager(driversFuture: _drivers!, token: widget.token),
+                ),
+              );
+            },
+          ),
            ListTile(
             leading: const Icon(Icons.pending_rounded, color: Colors.black),
-            title: Text('Get All Pending Users', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+            title: Text('All Pending Drivers', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
               Navigator.push(
                 context,
@@ -335,73 +346,112 @@ Widget build(BuildContext context) {
 
 
   Widget _buildActiveLogsList() {
-    return Expanded(
-      child: FutureBuilder<List<LogEntry>>(
-        future: _activeDrivingLogs,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No active logs found'));
-          } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                var log = snapshot.data![index];
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 2,
-                  child: ListTile(
-                    title: Text(
-                      log.logEntryType.toString().split(".").last,
-                      style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
-                      
-                    ),
-                    subtitle:log.endTime != null
-                      ? Text(
-                        'Driver: ${log.user!.firstName} ${log.user!.lastName} \n ${formatDateTime(log.startTime)} - ${formatDateTime(log.endTime!)}',
-                        style: TextStyle(color: Colors.grey[600]),
-                      )
-                      : Text(
-                        'Driver: ${log.user!.firstName} ${log.user!.lastName} \nStart Time: ${formatDateTime(log.startTime)}\nIn Progress',
-                        style: TextStyle(color: Colors.grey[600]),
+  return Expanded(
+    child: FutureBuilder<List<LogEntry>>(
+      future: _activeDrivingLogs,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No active logs found'));
+        } else {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              var log = snapshot.data![index];
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 2,
+                child: ListTile(
+                  title: Row(
+                    children: [
+                      Icon(
+                        log.logEntryType == LogEntryType.Driving
+                            ? Icons.directions_car
+                            : Icons.description,
+                        color: log.logEntryType == LogEntryType.Driving
+                            ? Colors.blue
+                            : Colors.orange,
                       ),
-                    trailing: log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
-                      ? IconButton(
-                          icon: const Icon(Icons.check, color: Colors.green),
-                          onPressed: () {
-                          },
-                        )
-                      : IconButton(
-                          icon: const Icon(Icons.block, color: Colors.red),
-                          onPressed: () {
-                          },
+                      const SizedBox(width: 8),
+                      Text(
+                        log.logEntryType.toString().split(".").last,
+                        style: TextStyle(
+                          color: isDarkMode ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
-                    onTap: log.logEntryType == LogEntryType.Driving
-                    ? () async {
-                      //var imageUrls = await managerService.getImagesOfDrivingLog(log.id, widget.token);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ManagerApproveView(imageUrls: Future.value(log.imageUrls), log: log, token: widget.token, onApprove: _fetchManagerData,),
-                        ),
-                      );
-                    }
-                    : () async {
-                      
-                    }
+                      ),
+                    ],
                   ),
-                );
-              },
-            );
-          }
-        },
-      ),
-    );
-  }
-
-  }
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: log.endTime != null
+                        ? Text(
+                            'Driver: ${log.user!.firstName} ${log.user!.lastName}\n'
+                            '${formatDateTime(log.startTime)} - ${formatDateTime(log.endTime!)}',
+                            style: TextStyle(color: Colors.grey[600]),
+                          )
+                        : Text(
+                            'Driver: ${log.user!.firstName} ${log.user!.lastName}\n'
+                            'Start Time: ${formatDateTime(log.startTime)}\nIn Progress',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                  ),
+                  trailing: PopupMenuButton<int>(
+                    icon: Icon(
+                      log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
+                          ? Icons.check_circle
+                          : Icons.block,
+                      color: log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                    onSelected: (value) {
+                      
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 1,
+                        child: Text(
+                          log.logEntryType == LogEntryType.Driving
+                              ? 'Approve Driving'
+                              : 'View Log',
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 2,
+                        child: Text('Details'),
+                      ),
+                    ],
+                  ),
+                  onTap: log.logEntryType == LogEntryType.Driving
+                      ? () async {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ManagerApproveView(
+                                imageUrls: Future.value(log.imageUrls),
+                                log: log,
+                                token: widget.token,
+                                onApprove: _fetchManagerData,
+                              ),
+                            ),
+                          );
+                        }
+                      : () {
+                          
+                        },
+                ),
+              );
+            },
+          );
+        }
+      },
+    ),
+  );
+ }
+}
