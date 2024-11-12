@@ -47,7 +47,6 @@ class LoginService {
 
   // handle user sign-up
   Future<String?> registerUser(SignUpRequest signupDTO) async {
-    try {
       final url = Uri.parse('$_baseUrl/signup');
       final response = await http.post(
         url,
@@ -56,19 +55,12 @@ class LoginService {
         },
         body: jsonEncode(signupDTO.toJson()),
       );
-      print(response.statusCode);
-      print(jsonDecode(response.body));
+      //print(response.statusCode);
+      //print(jsonDecode(response.body));
 
-      if (response.statusCode == 200) { 
-
-        return jsonDecode(response.body)['message'];
-      } else { 
-        return jsonDecode(response.body)['message'];
-      }
-    } catch (e) { 
-      //print(e);
-      return null;
-    }
+      
+      return jsonDecode(response.body)['message'];
+  
   }
 
 
