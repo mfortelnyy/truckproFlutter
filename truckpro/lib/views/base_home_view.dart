@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:truckpro/models/userDto.dart';
 import '../utils/login_service.dart';
 import '../utils/session_manager.dart';
@@ -17,11 +18,20 @@ class BaseHomeView extends StatefulWidget {
 class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
   String? token;
   UserDto? user;
+  bool isDialogShowing = false;
+  bool isResendEnabled = true;
+  Timer? _resendTimer;
 
   @override
   void initState() {
     super.initState();
     checkSession();
+  }
+
+  @override
+  void dispose() {
+    _resendTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> checkSession() async {
@@ -38,11 +48,11 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
   }
 
   Future<void> checkEmailVerification() async {
-    if (token == null) return; 
+    if (token == null) return;
 
     try {
       user = await LoginService().getUserById(token!);
-      if (user != null && !user!.emailVerified) {
+      if (user != null && !user!.emailVerified && !isDialogShowing) {
         _showVerificationDialog();
       }
     } catch (e) {
@@ -51,21 +61,32 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
   }
 
   void _showVerificationDialog() {
+    setState(() {
+      isDialogShowing = true;
+    });
+
     showDialog(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         TextEditingController verificationCodeController = TextEditingController();
         return AlertDialog(
-          title: const Text('Email Verification Required'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: const Text(
+            'Email Verification Required',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text('Please enter the verification code sent to your email:'),
+              const Text(
+                'Please enter the verification code sent to your email:',
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 16),
               TextField(
                 controller: verificationCodeController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Verification Code',
                   border: OutlineInputBorder(),
                 ),
@@ -74,33 +95,59 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  isDialogShowing = false;
+                });
+              },
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
                 String verificationCode = verificationCodeController.text.trim();
                 String res = await LoginService().verifyEmail(token!, verificationCode);
-                res.isEmpty ? _showSnackBar('Cannot verify email!') : _showSnackBar('Email verified successfully!');
+                res.isEmpty
+                    ? _showSnackBar('Cannot verify email!')
+                    : _showSnackBar('Email verified successfully!');
                 Navigator.of(context).pop();
+                setState(() {
+                  isDialogShowing = false;
+                });
               },
               child: const Text('Verify'),
             ),
             TextButton(
-              onPressed: () async {
-                try {
-                  var res = await LoginService().reSendEmailCode(token!, user!.email);
-                  res.isNotEmpty ? _showSnackBar(res) : _showSnackBar('Cannot resend email.');
-                } catch (ex) {
-                  _showSnackBar(ex.toString());
-                }
-              },
-              child: Text('Resend Code to ${user!.email}'),
+              onPressed: isResendEnabled ? _handleResendCode : null,
+              child: Text(
+                isResendEnabled ? 'Resend Code to ${user!.email}' : 'Resend in 1 minute',
+                style: TextStyle(color: isResendEnabled ? Colors.blue : Colors.grey),
+              ),
             ),
           ],
         );
       },
     );
+  }
+
+  void _handleResendCode() async {
+    setState(() {
+      isResendEnabled = false;
+    });
+
+    try {
+      var res = await LoginService().reSendEmailCode(token!, user!.email);
+      res.isNotEmpty ? _showSnackBar(res) : _showSnackBar('Cannot resend email.');
+    } catch (ex) {
+      _showSnackBar(ex.toString());
+    }
+
+    // Start 1-minute timer
+    _resendTimer = Timer(Duration(minutes: 1), () {
+      setState(() {
+        isResendEnabled = true;
+      });
+    });
   }
 
   void _showSnackBar(String message) {
