@@ -6,6 +6,7 @@ environment:
   sdk: '>=3.4.3 <4.0.0'
 
 dependencies:
+  photo_view: ^0.14.0
   url_launcher: ^6.1.7
   shared_preferences: ^2.2.1
   marquee: ^2.0.6
