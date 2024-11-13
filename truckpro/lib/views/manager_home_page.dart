@@ -346,112 +346,124 @@ Widget build(BuildContext context) {
 
 
   Widget _buildActiveLogsList() {
-  return Expanded(
-    child: FutureBuilder<List<LogEntry>>(
-      future: _activeDrivingLogs,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No active logs found'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              var log = snapshot.data![index];
-              return Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 2,
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      Icon(
-                        log.logEntryType == LogEntryType.Driving
-                            ? Icons.directions_car
-                            : Icons.description,
-                        color: log.logEntryType == LogEntryType.Driving
-                            ? Colors.blue
-                            : Colors.orange,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        log.logEntryType.toString().split(".").last,
-                        style: TextStyle(
-                          color: isDarkMode ? Colors.white : Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+    return Expanded(
+      child: FutureBuilder<List<LogEntry>>(
+        future: _activeDrivingLogs,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No active logs found'));
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                var log = snapshot.data![index];
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: log.endTime != null
-                        ? Text(
-                            'Driver: ${log.user!.firstName} ${log.user!.lastName}\n'
-                            '${formatDateTime(log.startTime)} - ${formatDateTime(log.endTime!)}',
-                            style: TextStyle(color: Colors.grey[600]),
-                          )
-                        : Text(
-                            'Driver: ${log.user!.firstName} ${log.user!.lastName}\n'
-                            'Start Time: ${formatDateTime(log.startTime)}\nIn Progress',
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                  ),
-                  trailing: PopupMenuButton<int>(
-                    icon: Icon(
-                      log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
-                          ? Icons.check_circle
-                          : Icons.block,
-                      color: log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
-                          ? Colors.green
-                          : Colors.red,
-                    ),
-                    onSelected: (value) {
-                      
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 1,
-                        child: Text(
+                  elevation: 2,
+                  child: ListTile(
+                    title: Row(
+                      children: [
+                        Icon(
                           log.logEntryType == LogEntryType.Driving
-                              ? 'Approve Driving'
-                              : 'View Log',
+                              ? Icons.directions_car
+                              : Icons.description,
+                          color: log.logEntryType == LogEntryType.Driving
+                              ? Colors.blue
+                              : Colors.orange,
                         ),
-                      ),
-                      PopupMenuItem(
-                        value: 2,
-                        child: Text('Details'),
-                      ),
-                    ],
-                  ),
-                  onTap: log.logEntryType == LogEntryType.Driving
-                      ? () async {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ManagerApproveView(
-                                imageUrls: Future.value(log.imageUrls),
-                                log: log,
-                                token: widget.token,
-                                onApprove: _fetchManagerData,
-                              ),
+                        const SizedBox(width: 8),
+                        Text(
+                          log.logEntryType.toString().split(".").last,
+                          style: TextStyle(
+                            color: isDarkMode ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager) ...[
+                          const SizedBox(width: 8),
+                          Icon(Icons.warning, color: Colors.red, size: 18),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Needs Approval',
+                            style: TextStyle(
+                              color: Colors.red[700],
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                             ),
-                          );
-                        }
-                      : () {
-                          
-                        },
-                ),
-              );
-            },
-          );
-        }
-      },
-    ),
-  );
- }
+                          ),
+                        ],
+                      ],
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: log.endTime != null
+                          ? Text(
+                              'Driver: ${log.user!.firstName} ${log.user!.lastName}\n'
+                              '${formatDateTime(log.startTime)} - ${formatDateTime(log.endTime!)}',
+                              style: TextStyle(color: Colors.grey[600]),
+                            )
+                          : Text(
+                              'Driver: ${log.user!.firstName} ${log.user!.lastName}\n'
+                              'Start Time: ${formatDateTime(log.startTime)}\nIn Progress',
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                    ),
+                    trailing: PopupMenuButton<int>(
+                      icon: Icon(
+                        log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
+                            ? Icons.check_circle
+                            : Icons.block,
+                        color: log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                      onSelected: (value) {
+                        // Handle menu options here
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 1,
+                          child: Text(
+                            log.logEntryType == LogEntryType.Driving
+                                ? 'Approve Driving'
+                                : 'View Log',
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 2,
+                          child: Text('Details'),
+                        ),
+                      ],
+                    ),
+                    onTap: log.logEntryType == LogEntryType.Driving
+                        ? () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ManagerApproveView(
+                                  imageUrls: Future.value(log.imageUrls),
+                                  log: log,
+                                  token: widget.token,
+                                  onApprove: _fetchManagerData,
+                                ),
+                              ),
+                            );
+                          }
+                        : () {
+                          },
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
 }
