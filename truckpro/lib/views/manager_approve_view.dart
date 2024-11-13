@@ -207,7 +207,7 @@ class ManagerApproveView extends StatelessWidget {
       else
       {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Log was not approved!')),
+          const SnackBar(content: Text('Log was not approved!'), backgroundColor: Color.fromARGB(219, 79, 194, 70),),
         );
         Navigator.of(context).pop(); 
       }
