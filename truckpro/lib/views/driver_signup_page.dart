@@ -88,7 +88,7 @@ class DriverSignupPageState extends State<DriverSignupPage> {
       
       if (res != null && res.isNotEmpty && res.length == 6) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration successful')),
+          const SnackBar(content: Text('Registration successful'), backgroundColor: Color.fromARGB(219, 79, 194, 70) ,),
         );
       } else {
         _showErrorDialog('Failed to register user. $res');
