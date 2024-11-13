@@ -19,14 +19,15 @@ class SignInPage extends StatefulWidget {
 }
 
 class SignInPageState extends State<SignInPage> {
-  bool isDarkMode = false; 
+  bool isDarkMode = false;
   bool obscurePassword = true;
+  bool loading = false; //loading state
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final LoginService _loginService = LoginService();
-  final SessionManager _sessionManager = SessionManager(); 
- 
+  final SessionManager _sessionManager = SessionManager();
+
   void _showErrorDialog(String errorMessage) {
     showDialog(
       context: context,
@@ -47,45 +48,68 @@ class SignInPageState extends State<SignInPage> {
     );
   }
 
-  //handle sign in and navigation based on role
-  void _handleSignIn(BuildContext context) async {
+  Future<void> _handleSignIn(BuildContext context) async {
+    setState(() {
+      loading = true; 
+    });
+
     final email = _emailController.text;
     final password = _passwordController.text;
     String? token = await _loginService.loginUser(email, password);
     
-    if (token!.length > 50) {
-      //decode JWT token to get the role
+    // Stop loading after the response
+    setState(() {
+      loading = false; 
+    });
+
+    if (token != null && token.length > 50) {
+      
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      
-      String userId = decodedToken['userId']; 
+      String userId = decodedToken['userId'];
 
       await _sessionManager.saveSession(token, int.parse(userId));
 
-      //navigate to the appropriate homepage based on the role
+      // Navigate to the appropriate homepage based on the role
       switch (role) {
         case "Admin":
-          Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme,)),
-          );
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => AdminHomePage(
+              adminService: AdminApiService(),
+              token: token,
+              sessionManager: _sessionManager,
+              toggleTheme: widget.toggleTheme,
+            ),
+          ));
+          break;
         case "Manager":
-          Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => ManagerHomeScreen(token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme,)),
-          );
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ManagerHomeScreen(
+              token: token,
+              sessionManager: _sessionManager,
+              toggleTheme: widget.toggleTheme,
+            ),
+          ));
+          break;
         case "Driver":
-          Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => DriverHomeView(token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme,)),
-          );
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => DriverHomeView(
+              token: token,
+              sessionManager: _sessionManager,
+              toggleTheme: widget.toggleTheme,
+            ),
+          ));
           break;
         default:
+          _showErrorDialog('Unknown role');
       }
-      
     } else {
       _showErrorDialog('Invalid email or password');
     }
   }
-   @override
-   Widget build(BuildContext context) {
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
@@ -108,7 +132,7 @@ class SignInPageState extends State<SignInPage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        labelStyle: const TextStyle(color: Colors.black), 
+                        labelStyle: const TextStyle(color: Colors.black),
                         filled: true,
                         fillColor: const Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
                         border: OutlineInputBorder(
@@ -118,13 +142,13 @@ class SignInPageState extends State<SignInPage> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
                           borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 109, 219, 236), 
+                            color: Color.fromARGB(255, 109, 219, 236),
                             width: 2,
                           ),
                         ),
                         floatingLabelStyle: const TextStyle(
                           fontSize: 16,
-                          color: Color.fromARGB(255, 249, 249, 249), // label color when focused (floating above)
+                          color: Color.fromARGB(255, 249, 249, 249),
                         ),
                       ),
                     ),
@@ -143,15 +167,10 @@ class SignInPageState extends State<SignInPage> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),
-                          borderSide: const BorderSide(color: Color.fromARGB(255, 109, 219, 236), width: 2.0),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.white, width: 2.0),
-                        ),
-                        floatingLabelStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Color.fromARGB(255, 249, 249, 249), 
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(255, 109, 219, 236),
+                            width: 2.0,
+                          ),
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -160,26 +179,17 @@ class SignInPageState extends State<SignInPage> {
                           ),
                           onPressed: () {
                             setState(() {
-                              obscurePassword = !obscurePassword; 
+                              obscurePassword = !obscurePassword;
                             });
                           },
                         ),
                       ),
-                      
                     ),
                     const SizedBox(height: 10),
                     Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.5), // Set border color with low opacity
-                          width: 2, // Border width
-                        ),
-                        borderRadius: BorderRadius.circular(20), // Circular border
-                      ),
+                      alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {
+                        onPressed: loading ? null : () {
                           Navigator.of(context).push(
                             MaterialPageRoute(builder: (context) => ForgotPasswordView()),
                           );
@@ -193,10 +203,9 @@ class SignInPageState extends State<SignInPage> {
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 25),
+                    const SizedBox(height: 25),
                     ElevatedButton(
-                      onPressed: () => _handleSignIn(context), 
+                      onPressed: loading ? null : () => _handleSignIn(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 66, 164, 70),
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
@@ -205,11 +214,14 @@ class SignInPageState extends State<SignInPage> {
                         ),
                         textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                       ),
-                      child: const Text('Log In', style: TextStyle(color:Colors.white ),),
+                      child: const Text(
+                        'Log In',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                      onPressed: () => Navigator.of(context).push(
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: loading ? null : () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => const DriverSignupPage()),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -220,17 +232,26 @@ class SignInPageState extends State<SignInPage> {
                         ),
                         textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                       ),
-                      child: const Text('Sign Up', style: TextStyle(color:Colors.white ),),
+                      child: const Text(
+                        'Sign Up',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-
                   ],
                 ),
               ),
             ),
           ),
+          //loading indicator 
+          if (loading)
+            Container(
+              color: Colors.black.withOpacity(0.6),
+              child: const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+            ),
         ],
       ),
     );
+  }
 }
-
- }
