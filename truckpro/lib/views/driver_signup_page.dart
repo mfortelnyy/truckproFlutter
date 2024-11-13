@@ -24,6 +24,9 @@ class DriverSignupPageState extends State<DriverSignupPage> {
   var _companies = [];
   int? _selectedCompanyId;
 
+  bool _isPasswordObscured = true;
+  bool _isConfirmPasswordObscured = true;
+
   @override
   void initState() {
     super.initState();
@@ -79,23 +82,19 @@ class DriverSignupPageState extends State<DriverSignupPage> {
       companyId: _selectedCompanyId!, 
     );
 
-    try
-      {
+    try {
       // make the signup request
       String? res = await _loginService.registerUser(signupDTO);
       
-      if (res!=null && res.isNotEmpty && res.length == 6) {
+      if (res != null && res.isNotEmpty && res.length == 6) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registration successful')),
-          
         );
       } else {
         _showErrorDialog('Failed to register user. $res');
       }
-    }
-    catch(e)
-    {
-       _showErrorDialog('Failed to register user. ${e.toString()}');
+    } catch (e) {
+      _showErrorDialog('Failed to register user. ${e.toString()}');
     }
   }
 
@@ -142,9 +141,23 @@ class DriverSignupPageState extends State<DriverSignupPage> {
               const SizedBox(height: 16),
               _buildTextField(_phoneController, 'Phone Number'),
               const SizedBox(height: 16),
-              _buildTextField(_passwordController, 'Password', obscureText: true),
+              _buildTextField(_passwordController, 'Password', 
+                obscureText: _isPasswordObscured, 
+                toggleObscureText: () {
+                  setState(() {
+                    _isPasswordObscured = !_isPasswordObscured;
+                  });
+                },
+              ),
               const SizedBox(height: 16),
-              _buildTextField(_confirmPasswordController, 'Confirm Password', obscureText: true),
+              _buildTextField(_confirmPasswordController, 'Confirm Password', 
+                obscureText: _isConfirmPasswordObscured, 
+                toggleObscureText: () {
+                  setState(() {
+                    _isConfirmPasswordObscured = !_isConfirmPasswordObscured;
+                  });
+                },
+              ),
               const SizedBox(height: 24),
               _buildDropdown(),
               const SizedBox(height: 24),
@@ -169,58 +182,68 @@ class DriverSignupPageState extends State<DriverSignupPage> {
     );  
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false}) {
-      return TextField(
-        controller: controller,
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.black54),
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.black12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.black54),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          fillColor: Colors.white,
-          filled: true,
+  Widget _buildTextField(
+    TextEditingController controller, 
+    String label, 
+    {bool obscureText = false, VoidCallback? toggleObscureText}) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.black54),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black12),
+          borderRadius: BorderRadius.circular(8),
         ),
-      );
-    }
-
-
-  Widget _buildDropdown() {
-      return DropdownButtonFormField<int>(
-        decoration: InputDecoration(
-          labelText: 'Select Company',
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.black12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.black54),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          fillColor: Colors.white,
-          filled: true,
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black54),
+          borderRadius: BorderRadius.circular(8),
         ),
-        value: _selectedCompanyId,
-        onChanged: (int? newValue) {
-          setState(() {
-            _selectedCompanyId = newValue;
-          });
-        },
-        items: _companies.map((company) {
-          return DropdownMenuItem<int>(
-            value: company.id,
-            child: Text(company.name),
-          );
-        }).toList(),
-      );
-    }
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        fillColor: Colors.white,
+        filled: true,
+        suffixIcon: toggleObscureText != null
+            ? IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.black54,
+                ),
+                onPressed: toggleObscureText,
+              )
+            : null,
+      ),
+    );
   }
 
+  Widget _buildDropdown() {
+    return DropdownButtonFormField<int>(
+      decoration: InputDecoration(
+        labelText: 'Select Company',
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black12),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.black54),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        fillColor: Colors.white,
+        filled: true,
+      ),
+      value: _selectedCompanyId,
+      onChanged: (int? newValue) {
+        setState(() {
+          _selectedCompanyId = newValue;
+        });
+      },
+      items: _companies.map((company) {
+        return DropdownMenuItem<int>(
+          value: company.id,
+          child: Text(company.name),
+        );
+      }).toList(),
+    );
+  }
+}
