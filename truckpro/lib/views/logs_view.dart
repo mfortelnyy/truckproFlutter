@@ -4,162 +4,293 @@ import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/userDto.dart';
 import 'package:truckpro/views/manager_approve_view.dart';
-
-
-
 import 'drvinglog_images_view.dart';
 
-class LogsView extends StatelessWidget {
-  final Future<List<LogEntry>> logsFuture;  
+class LogsView extends StatefulWidget {
+  final Future<List<LogEntry>> logsFuture;
   final String token;
   final bool approve;
   final void Function()? onApprove;
   final UserDto? userDto;
-  
 
-  const LogsView({super.key, required this.logsFuture, required this.token, required this.approve, this.userDto, this.onApprove});
+  const LogsView({
+    super.key,
+    required this.logsFuture,
+    required this.token,
+    required this.approve,
+    this.userDto,
+    this.onApprove,
+  });
+
+  @override
+  _LogsViewState createState() => _LogsViewState();
+}
+
+class _LogsViewState extends State<LogsView> {
+  DateTime? startDate;
+  DateTime? endDate;
+  LogEntryType? selectedLogType;
+  late Future<List<LogEntry>> filteredLogsFuture;
+  bool showFilters = false;
+
+  @override
+  void initState() {
+    super.initState();
+    filteredLogsFuture = widget.logsFuture.then((logs) => logs ?? []);
+  }
+
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: isStartDate ? startDate ?? DateTime.now() : endDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStartDate) {
+          startDate = picked;
+        } else {
+          endDate = picked;
+        }
+        _applyFilters();
+      });
+    }
+  }
+
+  void _applyFilters() {
+    setState(() {
+      filteredLogsFuture = widget.logsFuture.then((logs) {
+        logs = logs ?? [];
+        if (startDate != null && endDate != null) {
+          logs = logs.where((log) {
+            return log.startTime.isAfter(startDate!) && log.startTime.isBefore(endDate!);
+          }).toList();
+        }
+        if (selectedLogType != null) {
+          logs = logs.where((log) => log.logEntryType == selectedLogType).toList();
+        }
+        return logs;
+      });
+    });
+  }
+
+  bool get isFilterActive => startDate != null || endDate != null || selectedLogType != null;
+
+  Future<void> _generatePdf() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Generating PDF...')),
+    );
+  }
+
+  void _resetFilters() {
+    setState(() {
+      startDate = null;
+      endDate = null;
+      selectedLogType = null;
+      filteredLogsFuture = widget.logsFuture;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Logs')),
-      body: FutureBuilder<List<dynamic>>(
-        future: logsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return const Center(child: Text('No logs found'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No logs found'));
-          } else {
-            final logs = snapshot.data!;
-            return ListView.builder(
-              itemCount: logs.length,
-              itemBuilder: (context, index) {
-                var log = logs[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  elevation: 4,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title:  userDto != null
-                         ? Text( "${log.logEntryType.toString().split(".")[1]} Log by ${userDto!.firstName} ${userDto!.lastName} ",
-                          style: const TextStyle(fontWeight: FontWeight.w600))
-                         :
-                         Text( "${log.logEntryType.toString().split(".")[1]} Log by ${log.user!.firstName} ${log.user!.lastName} ",
-                          style: const TextStyle(fontWeight: FontWeight.w600)
-                          ),
-                       subtitle: log.logEntryType == LogEntryType.Driving
-                            ? _buildDrivingLogInfo(log)
-                            : _buildNonDrivingLogInfo(log),
-                        trailing: Column(
-                                    children: [ 
-                                      userDto != null
-                                        ? Text('${userDto?.email} ',
-                                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
-                                            )
-                                        :   Text('${log.user?.email} ',
-                                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
-                                            )
-                                          ]
-                                        ),
-                        onTap: approve ? () async {
-                          if (log.logEntryType == LogEntryType.Driving) {
-                            // if driving log and manager => display images for approval 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ManagerApproveView(
-                                  imageUrls: Future.value(log.imageUrls),
-                                  log: log,
-                                  token: token,
-                                  onApprove: onApprove, 
-                                ),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('This is not a driving log!')),
-                            );
-                          }
-                        } : () async {
-                          if (log.logEntryType == LogEntryType.Driving) {
-                            // if driving log => display images 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DrivingLogImagesView(
-                                  imageUrls: Future.value(log.imageUrls),
-                                  log: log,
-                                  token: token, 
-                                ),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('This is not a driving log!')),
-                            );
-                          }
-                        } ,
-                      ),
-                      
-                    ],
+      appBar: AppBar(
+        title: const Text('Logs'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_alt),
+            onPressed: () {
+              setState(() {
+                showFilters = !showFilters;
+              });
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Visibility(
+            visible: showFilters,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Wrap(
+                spacing: 16.0,
+                runSpacing: 8.0,
+                alignment: WrapAlignment.start,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _selectDate(context, true),
+                    child: Text(
+                      startDate == null
+                          ? 'Select Start Date'
+                          : DateFormat('MMMM dd, yyyy').format(startDate!),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                );
+                  ElevatedButton(
+                    onPressed: () => _selectDate(context, false),
+                    child: Text(
+                      endDate == null
+                          ? 'Select End Date'
+                          : DateFormat('MMMM dd, yyyy').format(endDate!),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  DropdownButton<LogEntryType>(
+                    value: selectedLogType,
+                    hint: const Text("Select Type"),
+                    onChanged: (LogEntryType? newType) {
+                      setState(() {
+                        selectedLogType = newType;
+                        _applyFilters();
+                      });
+                    },
+                    items: LogEntryType.values.map((LogEntryType type) {
+                      return DropdownMenuItem<LogEntryType>(
+                        value: type,
+                        child: Text(type.toString().split('.').last),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (isFilterActive) //show generate PDF button when filters are active
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton.icon(
+                icon: Icon(Icons.picture_as_pdf),
+                label: const Text('Generate PDF'),
+                onPressed: _generatePdf,
+              ),
+            ),
+          Expanded(
+            child: FutureBuilder<List<LogEntry>>(
+              future: filteredLogsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text('Error loading logs'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'No logs found. Try adjusting the filters.',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: _resetFilters,
+                          child: const Text('Reset Filters'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  final logs = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: logs.length,
+                    itemBuilder: (context, index) {
+                      var log = logs[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        elevation: 4,
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Text(
+                                "${log.logEntryType?.toString().split(".")[1] ?? 'Unknown'} Log by ${log.user?.firstName ?? widget.userDto!.firstName} ${log.user?.lastName ?? widget.userDto!.lastName}",
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              subtitle: log.logEntryType == LogEntryType.Driving
+                                  ? _buildDrivingLogInfo(log)
+                                  : _buildNonDrivingLogInfo(log),
+                              trailing: Text(
+                                log.user?.email ?? widget.userDto!.email,
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                              onTap: widget.approve
+                                  ? () async {
+                                      if (log.logEntryType == LogEntryType.Driving) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ManagerApproveView(
+                                              imageUrls: Future.value(log.imageUrls),
+                                              log: log,
+                                              token: widget.token,
+                                              onApprove: widget.onApprove,
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('This is not a driving log!')),
+                                        );
+                                      }
+                                    }
+                                  : () async {
+                                      if (log.logEntryType == LogEntryType.Driving) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => DrivingLogImagesView(
+                                              imageUrls: Future.value(log.imageUrls),
+                                              log: log,
+                                              token: widget.token,
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('This is not a driving log!')),
+                                        );
+                                      }
+                                    },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                }
               },
-            );
-          }
-        },
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  
   Widget _buildDrivingLogInfo(LogEntry log) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        //const Text('Driving Log'),
         Text('Log Start Date: ${formatDateTime(log.startTime)}'),
         log.endTime != null
             ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
             : const Text('Log In Progress'),
         Text('Approved By Manager: ${boolToString(log.isApprovedByManager)}'),
         Text('Images attached: ${log.imageUrls?.length ?? 0}'),
-        
       ],
-      
     );
   }
 
-  
   Widget _buildNonDrivingLogInfo(LogEntry log) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        //const Text('Non-Driving Log'),
         Text('Log Start Date: ${formatDateTime(log.startTime)}'),
         log.endTime != null
             ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
             : const Text('In Progress', style: TextStyle(fontSize: 14)),
-        ],
+      ],
     );
-  }
-
-  String roleToString(int role) {
-    switch (role) 
-    {
-      case 0:
-        return "Admin";
-      case 1:
-        return "Manager";
-      case 2:
-        return "Driver";
-      default:
-        return "default";
-    }
   }
 
   String boolToString(bool val) {
