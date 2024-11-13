@@ -74,6 +74,8 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
         _isButtonDisabled = false; // Enable button immediately if successful
       });
       
+      if (res.contains('successfully')) widget.onUpload!();
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(res.contains('successfully')
@@ -85,7 +87,6 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
         ),
       );
 
-      if (widget.onUpload != null) widget.onUpload!();
     } catch (e) {
       setState(() {
         _isLoading = false;
