@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/utils/manager_api_service.dart';
 
@@ -164,56 +165,60 @@ class ManagerApproveView extends StatelessWidget {
   }
 
   void _showImageDialog(BuildContext context, String imageUrl) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.black,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                alignment: Alignment.centerRight,
-                child: const Icon(Icons.close, color: Colors.white),
-              ),
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      backgroundColor: Colors.black,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              alignment: Alignment.centerRight,
+              child: const Icon(Icons.close, color: Colors.white),
             ),
-            Expanded(
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
+          ),
+          Expanded(
+            child: PhotoView(
+              imageProvider: NetworkImage(imageUrl),
+              minScale: PhotoViewComputedScale.contained,
+              maxScale: PhotoViewComputedScale.covered * 2,
+              backgroundDecoration: BoxDecoration(
+                color: Colors.black,
               ),
+              enableRotation: true,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-
+    ),
+  );
+}
   Future<void> _approveLog(int logId, BuildContext context) async {
     try {
       ManagerApiService managerApiService = ManagerApiService();
       final response = await managerApiService.approveDrivingLogById(logId, token);
-      //print("Response from approving log: $response"); 
+
       if(response.isNotEmpty)
       {
         onApprove!();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Log approved successfully!')),
+          const SnackBar(content: Text('Log approved successfully!'), backgroundColor: Color.fromARGB(219, 79, 194, 70), ),
         );
         Navigator.of(context).pop(); 
       }
       else
       {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Log was not approved!'), backgroundColor: Color.fromARGB(219, 79, 194, 70),),
+          const SnackBar(content: Text('Log was not approved!'), backgroundColor: Color.fromARGB(230, 247, 42, 66) ),
         );
         Navigator.of(context).pop(); 
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Color.fromARGB(230, 247, 42, 66),),
       );
     }
   }
