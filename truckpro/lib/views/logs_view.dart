@@ -333,22 +333,61 @@ class _LogsViewState extends State<LogsView> {
                               log.user?.email ?? widget.userDto!.email,
                               style: const TextStyle(fontSize: 12),
                             ),
-                          ),
-                        );
-                      },
+                            onTap: widget.approve ? () async {
+                          if (log.logEntryType == LogEntryType.Driving) {
+                            // if driving log and manager => display images for approval 
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ManagerApproveView(
+                                  imageUrls: Future.value(log.imageUrls),
+                                  log: log,
+                                  token: widget.token,
+                                  onApprove: widget.onApprove, 
+                                ),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('This is not a driving log!')),
+                            );
+                          }
+                        } 
+                        : () async {
+                          if (log.logEntryType == LogEntryType.Driving) {
+                            // if driving log => display images 
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DrivingLogImagesView(
+                                  imageUrls: Future.value(log.imageUrls),
+                                  log: log,
+                                  token: widget.token, 
+                                ),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('This is not a driving log!')),
+                            );
+                          }
+                        }
+                      ),
                     );
-                  }
-                },
-              ),
-            ),
-          ],
+                  },
+                );
+              }
+            },
+          ),
         ),
-        floatingActionButton: isGeneratingPdf
-            ? const CircularProgressIndicator()
-            : null,
-      ),
-    );
-  }
+      ],
+    ),
+    floatingActionButton: isGeneratingPdf
+        ? const CircularProgressIndicator()
+        : null,
+  ),
+);
+}
 
   Widget _buildDrivingLogInfo(LogEntry log) {
     return Column(
