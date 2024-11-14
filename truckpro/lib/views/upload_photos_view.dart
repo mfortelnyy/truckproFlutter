@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:truckpro/utils/driver_api_service.dart';
 
@@ -22,6 +23,8 @@ class UploadPhotosScreen extends StatefulWidget {
 
 class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   final String token;
+  final ImagePicker _picker = ImagePicker();
+
 
   Map<String, List<PromptImage>>  promptImages = {
     'Front truck side with Head lights + Emergency flashers and marker lights ON': [],
@@ -50,53 +53,52 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
 
   _UploadPhotosScreenState({required this.token});
 
-  // pick images for a specific prompt using FilePicker
+  // pick images for a specific prompt, allowing camera or gallery
   Future<void> _pickImages(String prompt, int promptIndex, int maxImages) async {
-  try {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['png', 'jpg', 'jpeg', 'heic', 'heics'], // only images
-      allowMultiple: true, 
-    );
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera, 
+        imageQuality: 85,
+        maxWidth: 800,
+        maxHeight: 800,
+      );
 
-    if (result != null && result.files.length + promptImages[prompt]!.length <= maxImages) {
-      setState(() {
-        // append new PromptImage instances to the existing list
-        promptImages[prompt]!.addAll(result.files.map((file) => PromptImage(file.path!, promptIndex)).toList());
-      });
-    } else {
+      if (image != null && promptImages[prompt]!.length < maxImages) {
+        setState(() {
+          promptImages[prompt]!.add(PromptImage(image.path, promptIndex));
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('You can only upload up to $maxImages images for this prompt!'),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('You can only upload up to $maxImages images for this prompt!'),
+          content: Text('Error while picking the image: $e'),
         ),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error while picking the file: $e'),
-      ),
-    );
   }
-}
 
   Future<void> _submitLog() async {
     bool allImagesUploaded = true;
-    List<Map<String, dynamic>> imagesJson = []; //holds JSON objects
-  
+    List<Map<String, dynamic>> imagesJson = [];
+
     promptImages.forEach((key, value) {
       if (value.isEmpty) {
-        //allImagesUploaded = false; // Check if any prompt has no images
+        allImagesUploaded = false;
       }
-      imagesJson.addAll(value.map((promptImage) => promptImage.toJson())); // add JSON objects to the list
+      imagesJson.addAll(value.map((promptImage) => promptImage.toJson()));
     });
-
 
     if (allImagesUploaded) {
       await widget.driverApiService.createDrivingLog(imagesJson);
       widget.onPhotoUpload();
       widget.resetOffDuty();
-      Navigator.pop(context); 
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Photos uploaded successfully! \nDriving Log started!'),
       ));
@@ -116,9 +118,8 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
       ),
       body: ListView(
         children: promptImages.keys.toList().asMap().entries.map((entry) {
-          int promptIndex = entry.key;  //index of the prompt
-          String prompt = entry.value;  //prompt text  
-          //get how many images are required for each prompt
+          int promptIndex = entry.key;
+          String prompt = entry.value;
           int maxImages = _getMaxImagesForPrompt(prompt);
           return Padding(
             padding: const EdgeInsets.all(8.0),
@@ -132,54 +133,53 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                     subtitle: Text('Max $maxImages photos'),
                   ),
                   ElevatedButton(
-                    onPressed: () => _pickImages(prompt,promptIndex, maxImages ),
+                    onPressed: () => _pickImages(prompt, promptIndex, maxImages),
                     child: const Text('Select Photos'),
                   ),
                   const SizedBox(height: 10),
-                  // disp the selected images using the file path
                   promptImages[prompt]!.isNotEmpty
-                  ? Wrap(
-                      spacing: 10,
-                      children: promptImages[prompt]!.map((image) {
-                        return Stack(
-                          children: [
-                            Image.file(
-                              File(image.path), // convert path back to File for display
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    promptImages[prompt]!.remove(image);
-                                  });
-                                },
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  padding: const EdgeInsets.all(4),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 16,
+                      ? Wrap(
+                          spacing: 10,
+                          children: promptImages[prompt]!.map((image) {
+                            return Stack(
+                              children: [
+                                Image.file(
+                                  File(image.path),
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        promptImages[prompt]!.remove(image);
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      padding: const EdgeInsets.all(4),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    )
-                  : const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('No images selected'),
-                    ),
+                              ],
+                            );
+                          }).toList(),
+                        )
+                      : const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('No images selected'),
+                        ),
                 ],
               ),
             ),
@@ -193,14 +193,13 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
     );
   }
 
-  // function to determine how many images are needed per prompt
   int _getMaxImagesForPrompt(String prompt) {
     if (prompt.contains('(3 pictures)')) {
       return 3;
     } else if (prompt.contains('(1 picture)')) {
       return 1;
     } else {
-      return 1; 
+      return 1;
     }
   }
 }
