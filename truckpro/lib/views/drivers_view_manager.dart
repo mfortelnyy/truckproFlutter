@@ -97,18 +97,25 @@ class _DriversViewManagerState extends State<DriversViewManager> {
                       },
                     ),
                     onTap: () async {
-                      var logs = await ManagerApiService().getLogsByDriverId(driver.id, widget.token);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LogsView(
-                            logsFuture: Future.value(logs),
-                            token: widget.token,
-                            approve: true,
-                            driverId: driver.id,
+                      try
+                      {
+                        var logs = await ManagerApiService().getLogsByDriverId(driver.id, widget.token);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LogsView(
+                              logsFuture: Future.value(logs),
+                              token: widget.token,
+                              approve: true,
+                              driverId: driver.id,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
+                      catch(e)
+                      {
+                        _showSnackBar(context, "Error: ${e.toString()}");
+                      }
                     },
                   ),
                 );
@@ -138,4 +145,15 @@ String roleToString(int role) {
     default:
       return "default";
   }
+}
+
+void _showSnackBar(BuildContext context, String message)
+{
+  if(context.mounted)
+    {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+
 }
