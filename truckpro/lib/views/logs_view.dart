@@ -35,10 +35,10 @@ class LogsView extends StatefulWidget {
 class _LogsViewState extends State<LogsView> {
   DateTime? startDate;
   DateTime? endDate;
-  LogEntryType? selectedLogType;
+  List<LogEntryType> selectedLogTypes = LogEntryType.values; 
   late Future<List<LogEntry>> filteredLogsFuture;
   bool showFilters = false;
-  bool isGeneratingPdf = false; // flag to disable interactions during PDF generation
+  bool isGeneratingPdf = false;
   Uint8List? _pdfBytes;
 
   @override
@@ -75,27 +75,35 @@ class _LogsViewState extends State<LogsView> {
             return log.startTime.isAfter(startDate!) && log.startTime.isBefore(endDate!);
           }).toList();
         }
-        if (selectedLogType != null) {
-          logs = logs.where((log) => log.logEntryType == selectedLogType).toList();
+        if (selectedLogTypes.isNotEmpty) {
+          logs = logs.where((log) => selectedLogTypes.contains(log.logEntryType)).toList();
         }
         return logs;
       });
     });
   }
 
-  bool get isFilterActive => startDate != null || endDate != null || selectedLogType != null;
+  bool get isFilterActive => startDate != null || endDate != null || selectedLogTypes.isNotEmpty;
+
+  void _resetFilters() {
+    setState(() {
+      startDate = null;
+      endDate = null;
+      selectedLogTypes = LogEntryType.values;
+      filteredLogsFuture = widget.logsFuture;
+    });
+  }
 
   Future<void> _generatePdf() async {
     setState(() {
       isGeneratingPdf = true;
     });
-
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Generating PDF...')),
     );
 
     ReportApiService apiService = ReportApiService();
-    Uint8List? pdfBytes = await apiService.generatePDF(startDate!, endDate!, widget.token, widget.driverId);
+    Uint8List? pdfBytes = await apiService.generatePDF(startDate!, endDate!, widget.token, widget.driverId, selectedLogTypes);
 
     if (pdfBytes != null) {
       setState(() {
@@ -112,221 +120,208 @@ class _LogsViewState extends State<LogsView> {
     });
   }
 
-  void _resetFilters() {
-    setState(() {
-      startDate = null;
-      endDate = null;
-      selectedLogType = null;
-      filteredLogsFuture = widget.logsFuture;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return AbsorbPointer(
-      absorbing: isGeneratingPdf, // disable all interactions while generating PDF
-      child: Stack(
-        children: [
-          Scaffold(
-            appBar: AppBar(
-              title: const Text('Logs'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.filter_alt),
+      absorbing: isGeneratingPdf,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Logs'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_alt),
+              onPressed: () {
+                setState(() {
+                  showFilters = !showFilters;
+                });
+              },
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Visibility(
+              visible: showFilters,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Wrap(
+                  spacing: 16.0,
+                  runSpacing: 8.0,
+                  alignment: WrapAlignment.start,
+                  children: [
+                    TextButton(
+                      onPressed: () => _selectDate(context, true),
+                      child: Text(
+                        startDate == null
+                            ? 'Select Start Date'
+                            : DateFormat('MMMM dd, yyyy').format(startDate!),
+                        style: TextStyle(color: startDate == null ? Colors.grey : Colors.blue),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => _selectDate(context, false),
+                      child: Text(
+                        endDate == null
+                            ? 'Select End Date'
+                            : DateFormat('MMMM dd, yyyy').format(endDate!),
+                        style: TextStyle(color: endDate == null ? Colors.grey : Colors.blue),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        List<LogEntryType>? selected = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            List<LogEntryType> tempSelected = List.from(selectedLogTypes);
+                            // allows the inner dialog to update
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                return AlertDialog(
+                                  title: const Text("Select Log Types"),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: LogEntryType.values.map((type) {
+                                        return CheckboxListTile(
+                                          title: Text(type.toString().split('.').last),
+                                          value: tempSelected.contains(type),
+                                          onChanged: (bool? checked) {
+                                            setStateDialog(() {
+                                              if (checked == true) {
+                                                if (!tempSelected.contains(type)) {
+                                                  tempSelected.add(type);
+                                                }
+                                              } else {
+                                                tempSelected.remove(type);
+                                              }
+                                            });
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context, tempSelected); 
+                                      },
+                                      child: const Text("OK"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        );
+
+                        if (selected != null) {
+                          setState(() {
+                            selectedLogTypes = selected;
+                            _applyFilters(); 
+                          });
+                        }
+                      },
+                      child: Text(
+                        selectedLogTypes.isEmpty
+                            ? "Select Log Types"
+                            : "Selected (${selectedLogTypes.length})",
+                      ),
+                    ),
+
+                    if (isFilterActive)
+                      ElevatedButton(
+                        onPressed: _resetFilters,
+                        child: const Text('Reset Filters'),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            if (isFilterActive)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text('Generate PDF'),
+                  onPressed: _generatePdf,
+                ),
+              ),
+            if (_pdfBytes != null)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text('View PDF'),
                   onPressed: () {
-                    setState(() {
-                      showFilters = !showFilters;
-                    });
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        content: PDFViewerWidget(pdfBytes: _pdfBytes!),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      ),
+                    );
                   },
                 ),
-              ],
-            ),
-            body: Column(
-              children: [
-                Visibility(
-                  visible: showFilters,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Wrap(
-                      spacing: 16.0,
-                      runSpacing: 8.0,
-                      alignment: WrapAlignment.start,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () => _selectDate(context, true),
-                          child: Text(
-                            startDate == null
-                                ? 'Select Start Date'
-                                : DateFormat('MMMM dd, yyyy').format(startDate!),
-                            overflow: TextOverflow.ellipsis,
+              ),
+            Expanded(
+              child: FutureBuilder<List<LogEntry>>(
+                future: filteredLogsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text('Error loading logs'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('No logs found. Try adjusting the filters.'),
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: _resetFilters,
+                            child: const Text('Reset Filters'),
                           ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => _selectDate(context, false),
-                          child: Text(
-                            endDate == null
-                                ? 'Select End Date'
-                                : DateFormat('MMMM dd, yyyy').format(endDate!),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        DropdownButton<LogEntryType>(
-                          value: selectedLogType,
-                          hint: const Text("Select Type"),
-                          onChanged: (LogEntryType? newType) {
-                            setState(() {
-                              selectedLogType = newType;
-                              _applyFilters();
-                            });
-                          },
-                          items: LogEntryType.values.map((LogEntryType type) {
-                            return DropdownMenuItem<LogEntryType>(
-                              value: type,
-                              child: Text(type.toString().split('.').last),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (isFilterActive)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.picture_as_pdf),
-                      label: const Text('Generate PDF'),
-                      onPressed: _generatePdf,
-                    ),
-                  ),
-                if (_pdfBytes != null)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.picture_as_pdf),
-                      label: const Text('View PDF'),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            content: PDFViewerWidget(pdfBytes: _pdfBytes!),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Close'),
-                              ),
-                            ],
+                        ],
+                      ),
+                    );
+                  } else {
+                    final logs = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: logs.length,
+                      itemBuilder: (context, index) {
+                        var log = logs[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          child: ListTile(
+                            title: Text(
+                              "${log.logEntryType?.toString().split(".")[1] ?? 'Unknown'} Log by ${log.user?.firstName ?? widget.userDto!.firstName} ${log.user?.lastName ?? widget.userDto!.lastName}",
+                            ),
+                            subtitle: log.logEntryType == LogEntryType.Driving
+                                ? _buildDrivingLogInfo(log)
+                                : _buildNonDrivingLogInfo(log),
+                            trailing: Text(
+                              log.user?.email ?? widget.userDto!.email,
+                              style: const TextStyle(fontSize: 12),
+                            ),
                           ),
                         );
                       },
-                    ),
-                  ),
-                Expanded(
-                  child: FutureBuilder<List<LogEntry>>(
-                    future: filteredLogsFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return const Center(child: Text('Error loading logs'));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'No logs found. Try adjusting the filters.',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              const SizedBox(height: 10),
-                              ElevatedButton(
-                                onPressed: _resetFilters,
-                                child: const Text('Reset Filters'),
-                              ),
-                            ],
-                          ),
-                        );
-                      } else {
-                        final logs = snapshot.data!;
-                        return ListView.builder(
-                          itemCount: logs.length,
-                          itemBuilder: (context, index) {
-                            var log = logs[index];
-                            return Card(
-                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              elevation: 4,
-                              child: Column(
-                                children: [
-                                  ListTile(
-                                    title: Text(
-                                      "${log.logEntryType?.toString().split(".")[1] ?? 'Unknown'} Log by ${log.user?.firstName ?? widget.userDto!.firstName} ${log.user?.lastName ?? widget.userDto!.lastName}",
-                                      style: const TextStyle(fontWeight: FontWeight.w600),
-                                    ),
-                                    subtitle: log.logEntryType == LogEntryType.Driving
-                                        ? _buildDrivingLogInfo(log)
-                                        : _buildNonDrivingLogInfo(log),
-                                    trailing: Text(
-                                      log.user?.email ?? widget.userDto!.email,
-                                      style: const TextStyle(fontSize: 10),
-                                    ),
-                                    onTap: widget.approve
-                                        ? () async {
-                                            if (log.logEntryType == LogEntryType.Driving) {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => ManagerApproveView(
-                                                    imageUrls: Future.value(log.imageUrls),
-                                                    log: log,
-                                                    token: widget.token,
-                                                    onApprove: widget.onApprove,
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text('This is not a driving log!')),
-                                              );
-                                            }
-                                          }
-                                        : () async {
-                                            if (log.logEntryType == LogEntryType.Driving) {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => DrivingLogImagesView(
-                                                    imageUrls: Future.value(log.imageUrls),
-                                                    log: log,
-                                                    token: widget.token,
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text('This is not a driving log!')),
-                                              );
-                                            }
-                                          },
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
+                    );
+                  }
+                },
+              ),
             ),
-          ),
-          if (isGeneratingPdf)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-        ],
+          ],
+        ),
+        floatingActionButton: isGeneratingPdf
+            ? const CircularProgressIndicator()
+            : null,
       ),
     );
   }
