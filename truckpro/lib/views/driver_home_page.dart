@@ -132,17 +132,20 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   }
 
   Future<void> _fetchLogEntries() async {
+    setState(() {
+      isLoading = true;
+    });
+    
     try
     {
-
-    totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
+      totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
     }
     catch(e)
     {
       _showSnackBar(context, "Failed to get total on duty hours");
     }
     
-    _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
+    // _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
 
     try
     {
@@ -165,9 +168,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
       drivingButtonActive = false;
     }
     if (!mounted) return;
-    setState(() {
-      isLoading = true;
-    });
+    
 
     try {
       List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
