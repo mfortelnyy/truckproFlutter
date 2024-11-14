@@ -167,21 +167,42 @@ class _LogsViewState extends State<LogsView> {
                         style: TextStyle(color: endDate == null ? Colors.grey : Colors.blue),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        List<LogEntryType>? selected = await showDialog(
-                          context: context,
-                          builder: (context) {
-                            List<LogEntryType> tempSelected = List.from(selectedLogTypes);
-                            // allows the inner dialog to update
-                            return StatefulBuilder(
-                              builder: (context, setStateDialog) {
-                                return AlertDialog(
-                                  title: const Text("Select Log Types"),
-                                  content: SingleChildScrollView(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: LogEntryType.values.map((type) {
+                   ElevatedButton(
+                    onPressed: () async {
+                      List<LogEntryType>? selected = await showDialog(
+                        context: context,
+                        builder: (context) {
+                          List<LogEntryType> tempSelected = List.from(selectedLogTypes);
+
+                          return StatefulBuilder(
+                            builder: (context, setStateDialog) {
+                              return AlertDialog(
+                                title: const Text("Select Log Types"),
+                                content: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Select All / Deselect All Button
+                                      TextButton(
+                                        onPressed: () {
+                                          setStateDialog(() {
+                                            if (tempSelected.length == LogEntryType.values.length) {
+                                              tempSelected.clear();
+                                            } else {
+                                              // get all log types
+                                              tempSelected = List.from(LogEntryType.values);
+                                            }
+                                          });
+                                        },
+                                        child: Text(
+                                          tempSelected.length == LogEntryType.values.length
+                                              ? "Deselect All"
+                                              : "Select All",
+                                          style: const TextStyle(color: Colors.blue),
+                                        ),
+                                      ),
+                                      // Checkbox List of Log Entry Types
+                                      ...LogEntryType.values.map((type) {
                                         return CheckboxListTile(
                                           title: Text(type.toString().split('.').last),
                                           value: tempSelected.contains(type),
@@ -198,35 +219,38 @@ class _LogsViewState extends State<LogsView> {
                                           },
                                         );
                                       }).toList(),
-                                    ),
+                                    ],
                                   ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context, tempSelected); 
-                                      },
-                                      child: const Text("OK"),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        );
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, tempSelected); 
+                                    },
+                                    child: const Text("OK"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      );
 
-                        if (selected != null) {
-                          setState(() {
-                            selectedLogTypes = selected;
-                            _applyFilters(); 
-                          });
-                        }
-                      },
-                      child: Text(
-                        selectedLogTypes.isEmpty
-                            ? "Select Log Types"
-                            : "Selected (${selectedLogTypes.length})",
-                      ),
+                      if (selected != null) {
+                        setState(() {
+                          //upd the parent widget's selectedLogTypes with the new list
+                          selectedLogTypes = selected;
+                          // apply filters with the updated selected types
+                          _applyFilters(); 
+                        });
+                      }
+                    },
+                    child: Text(
+                      selectedLogTypes.isEmpty
+                          ? "Select Log Types"
+                          : "Selected (${selectedLogTypes.length})",
                     ),
+                  ),
 
                     if (isFilterActive)
                       ElevatedButton(
