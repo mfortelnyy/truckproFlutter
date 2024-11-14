@@ -257,7 +257,7 @@ class _LogsViewState extends State<LogsView> {
                       child: Text(
                         selectedLogTypes.isEmpty
                             ? "Select Log Types"
-                            : "Selected (${selectedLogTypes.length})",
+                            : "Selected Log Types (${selectedLogTypes.length})",
                       ),
                     ),
 
@@ -407,7 +407,7 @@ class _LogsViewState extends State<LogsView> {
         log.endTime != null
             ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
             : const Text('Log In Progress'),
-        Text('Approved By Manager: ${boolToString(log.isApprovedByManager)}'),
+        Text('Approved: ${boolToString(log.isApprovedByManager)}'),
         Text('Images attached: ${log.imageUrls?.length ?? 0}'),
       ],
     );
