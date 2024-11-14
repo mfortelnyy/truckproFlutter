@@ -232,7 +232,7 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => LogsView(logsFuture: logs, token: widget.token, approve: false,),
+                                        builder: (context) => LogsView(logsFuture: logs, token: widget.token, approve: false, driverId: driver.id,),
                                       ),
                                     );
                                   },

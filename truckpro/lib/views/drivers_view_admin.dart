@@ -109,6 +109,7 @@ class _DriversViewAdminState extends State<DriversViewAdmin> {
                             logsFuture: logs,
                             token: widget.token,
                             approve: false,
+                            driverId: driver.id,
                           ),
                         ),
                       );

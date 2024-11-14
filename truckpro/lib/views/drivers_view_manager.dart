@@ -105,6 +105,7 @@ class _DriversViewManagerState extends State<DriversViewManager> {
                             logsFuture: Future.value(logs),
                             token: widget.token,
                             approve: true,
+                            driverId: driver.id,
                           ),
                         ),
                       );
