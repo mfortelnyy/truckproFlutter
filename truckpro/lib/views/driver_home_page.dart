@@ -132,8 +132,16 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   }
 
   Future<void> _fetchLogEntries() async {
-    
+    try
+    {
+
     totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
+    }
+    catch(e)
+    {
+      _showSnackBar(context, "Failed to get total on duty hours");
+    }
+    
     _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
 
     try
@@ -674,7 +682,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false, userDto: user),
+                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false, userDto: user, driverId: user!.id,),
                 ),
               );
             },
@@ -687,7 +695,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false, userDto: user,),
+                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false, userDto: user, driverId: user!.id,),
                 ),
               );
             },
