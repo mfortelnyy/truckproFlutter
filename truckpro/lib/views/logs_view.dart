@@ -1,14 +1,19 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:intl/intl.dart';
+import 'package:truckpro/views/pdf_view.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/userDto.dart';
 import 'package:truckpro/views/manager_approve_view.dart';
+import '../utils/report_api_service.dart';
 import 'drvinglog_images_view.dart';
 
 class LogsView extends StatefulWidget {
   final Future<List<LogEntry>> logsFuture;
   final String token;
+  final int driverId;
   final bool approve;
   final void Function()? onApprove;
   final UserDto? userDto;
@@ -20,6 +25,7 @@ class LogsView extends StatefulWidget {
     required this.approve,
     this.userDto,
     this.onApprove,
+    required this.driverId,
   });
 
   @override
@@ -32,6 +38,8 @@ class _LogsViewState extends State<LogsView> {
   LogEntryType? selectedLogType;
   late Future<List<LogEntry>> filteredLogsFuture;
   bool showFilters = false;
+  bool isGeneratingPdf = false; // flag to disable interactions during PDF generation
+  Uint8List? _pdfBytes;
 
   @override
   void initState() {
@@ -78,9 +86,30 @@ class _LogsViewState extends State<LogsView> {
   bool get isFilterActive => startDate != null || endDate != null || selectedLogType != null;
 
   Future<void> _generatePdf() async {
+    setState(() {
+      isGeneratingPdf = true;
+    });
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Generating PDF...')),
+      const SnackBar(content: Text('Generating PDF...')),
     );
+
+    ReportApiService apiService = ReportApiService();
+    Uint8List? pdfBytes = await apiService.generatePDF(startDate!, endDate!, widget.token, widget.driverId);
+
+    if (pdfBytes != null) {
+      setState(() {
+        _pdfBytes = pdfBytes;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to generate PDF.')),
+      );
+    }
+
+    setState(() {
+      isGeneratingPdf = false;
+    });
   }
 
   void _resetFilters() {
@@ -94,174 +123,209 @@ class _LogsViewState extends State<LogsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Logs'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () {
-              setState(() {
-                showFilters = !showFilters;
-              });
-            },
-          ),
-        ],
-      ),
-      body: Column(
+    return AbsorbPointer(
+      absorbing: isGeneratingPdf, // disable all interactions while generating PDF
+      child: Stack(
         children: [
-          Visibility(
-            visible: showFilters,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Wrap(
-                spacing: 16.0,
-                runSpacing: 8.0,
-                alignment: WrapAlignment.start,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => _selectDate(context, true),
-                    child: Text(
-                      startDate == null
-                          ? 'Select Start Date'
-                          : DateFormat('MMMM dd, yyyy').format(startDate!),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => _selectDate(context, false),
-                    child: Text(
-                      endDate == null
-                          ? 'Select End Date'
-                          : DateFormat('MMMM dd, yyyy').format(endDate!),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  DropdownButton<LogEntryType>(
-                    value: selectedLogType,
-                    hint: const Text("Select Type"),
-                    onChanged: (LogEntryType? newType) {
-                      setState(() {
-                        selectedLogType = newType;
-                        _applyFilters();
-                      });
-                    },
-                    items: LogEntryType.values.map((LogEntryType type) {
-                      return DropdownMenuItem<LogEntryType>(
-                        value: type,
-                        child: Text(type.toString().split('.').last),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
+          Scaffold(
+            appBar: AppBar(
+              title: const Text('Logs'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.filter_alt),
+                  onPressed: () {
+                    setState(() {
+                      showFilters = !showFilters;
+                    });
+                  },
+                ),
+              ],
             ),
-          ),
-          if (isFilterActive) //show generate PDF button when filters are active
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton.icon(
-                icon: Icon(Icons.picture_as_pdf),
-                label: const Text('Generate PDF'),
-                onPressed: _generatePdf,
-              ),
-            ),
-          Expanded(
-            child: FutureBuilder<List<LogEntry>>(
-              future: filteredLogsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return const Center(child: Text('Error loading logs'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+            body: Column(
+              children: [
+                Visibility(
+                  visible: showFilters,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Wrap(
+                      spacing: 16.0,
+                      runSpacing: 8.0,
+                      alignment: WrapAlignment.start,
                       children: [
-                        const Text(
-                          'No logs found. Try adjusting the filters.',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 10),
                         ElevatedButton(
-                          onPressed: _resetFilters,
-                          child: const Text('Reset Filters'),
+                          onPressed: () => _selectDate(context, true),
+                          child: Text(
+                            startDate == null
+                                ? 'Select Start Date'
+                                : DateFormat('MMMM dd, yyyy').format(startDate!),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _selectDate(context, false),
+                          child: Text(
+                            endDate == null
+                                ? 'Select End Date'
+                                : DateFormat('MMMM dd, yyyy').format(endDate!),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        DropdownButton<LogEntryType>(
+                          value: selectedLogType,
+                          hint: const Text("Select Type"),
+                          onChanged: (LogEntryType? newType) {
+                            setState(() {
+                              selectedLogType = newType;
+                              _applyFilters();
+                            });
+                          },
+                          items: LogEntryType.values.map((LogEntryType type) {
+                            return DropdownMenuItem<LogEntryType>(
+                              value: type,
+                              child: Text(type.toString().split('.').last),
+                            );
+                          }).toList(),
                         ),
                       ],
                     ),
-                  );
-                } else {
-                  final logs = snapshot.data!;
-                  return ListView.builder(
-                    itemCount: logs.length,
-                    itemBuilder: (context, index) {
-                      var log = logs[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        elevation: 4,
-                        child: Column(
-                          children: [
-                            ListTile(
-                              title: Text(
-                                "${log.logEntryType?.toString().split(".")[1] ?? 'Unknown'} Log by ${log.user?.firstName ?? widget.userDto!.firstName} ${log.user?.lastName ?? widget.userDto!.lastName}",
-                                style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                if (isFilterActive)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.picture_as_pdf),
+                      label: const Text('Generate PDF'),
+                      onPressed: _generatePdf,
+                    ),
+                  ),
+                if (_pdfBytes != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.picture_as_pdf),
+                      label: const Text('View PDF'),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            content: PDFViewerWidget(pdfBytes: _pdfBytes!),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Close'),
                               ),
-                              subtitle: log.logEntryType == LogEntryType.Driving
-                                  ? _buildDrivingLogInfo(log)
-                                  : _buildNonDrivingLogInfo(log),
-                              trailing: Text(
-                                log.user?.email ?? widget.userDto!.email,
-                                style: const TextStyle(fontSize: 10),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                Expanded(
+                  child: FutureBuilder<List<LogEntry>>(
+                    future: filteredLogsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return const Center(child: Text('Error loading logs'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'No logs found. Try adjusting the filters.',
+                                style: TextStyle(fontSize: 16),
                               ),
-                              onTap: widget.approve
-                                  ? () async {
-                                      if (log.logEntryType == LogEntryType.Driving) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ManagerApproveView(
-                                              imageUrls: Future.value(log.imageUrls),
-                                              log: log,
-                                              token: widget.token,
-                                              onApprove: widget.onApprove,
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('This is not a driving log!')),
-                                        );
-                                      }
-                                    }
-                                  : () async {
-                                      if (log.logEntryType == LogEntryType.Driving) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => DrivingLogImagesView(
-                                              imageUrls: Future.value(log.imageUrls),
-                                              log: log,
-                                              token: widget.token,
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('This is not a driving log!')),
-                                        );
-                                      }
-                                    },
-                            ),
-                          ],
-                        ),
-                      );
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: _resetFilters,
+                                child: const Text('Reset Filters'),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        final logs = snapshot.data!;
+                        return ListView.builder(
+                          itemCount: logs.length,
+                          itemBuilder: (context, index) {
+                            var log = logs[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              elevation: 4,
+                              child: Column(
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                      "${log.logEntryType?.toString().split(".")[1] ?? 'Unknown'} Log by ${log.user?.firstName ?? widget.userDto!.firstName} ${log.user?.lastName ?? widget.userDto!.lastName}",
+                                      style: const TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                    subtitle: log.logEntryType == LogEntryType.Driving
+                                        ? _buildDrivingLogInfo(log)
+                                        : _buildNonDrivingLogInfo(log),
+                                    trailing: Text(
+                                      log.user?.email ?? widget.userDto!.email,
+                                      style: const TextStyle(fontSize: 10),
+                                    ),
+                                    onTap: widget.approve
+                                        ? () async {
+                                            if (log.logEntryType == LogEntryType.Driving) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => ManagerApproveView(
+                                                    imageUrls: Future.value(log.imageUrls),
+                                                    log: log,
+                                                    token: widget.token,
+                                                    onApprove: widget.onApprove,
+                                                  ),
+                                                ),
+                                              );
+                                            } else {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('This is not a driving log!')),
+                                              );
+                                            }
+                                          }
+                                        : () async {
+                                            if (log.logEntryType == LogEntryType.Driving) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => DrivingLogImagesView(
+                                                    imageUrls: Future.value(log.imageUrls),
+                                                    log: log,
+                                                    token: widget.token,
+                                                  ),
+                                                ),
+                                              );
+                                            } else {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('This is not a driving log!')),
+                                              );
+                                            }
+                                          },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      }
                     },
-                  );
-                }
-              },
+                  ),
+                ),
+              ],
             ),
           ),
+          if (isGeneratingPdf)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
         ],
       ),
     );
