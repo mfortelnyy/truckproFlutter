@@ -5,12 +5,12 @@ import 'package:intl/intl.dart';
 class ReportApiService 
 {
   final String baseUrl = 'https://truckcheck.org:443';
-  Future<Uint8List?> generatePDF(DateTime startDate, DateTime endDate, String token) async {
+  Future<Uint8List?> generatePDF(DateTime startDate, DateTime endDate, String token, int driverId) async {
     // format the dates to match the expected format in the backend
     String startDateString = DateFormat('yyyy-MM-dd').format(startDate);
     String endDateString = DateFormat('yyyy-MM-dd').format(endDate);
 
-    final url = Uri.parse('$baseUrl/getdrivingRecordsPDF?startDate=$startDateString&endDate=$endDateString');
+    final url = Uri.parse('$baseUrl/getdrivingRecordsPDF?startDate=$startDateString&endDate=$endDateString&driverId=$driverId');
 
     final headers = {
       'Authorization': 'Bearer $token',  
