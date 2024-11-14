@@ -43,7 +43,7 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
   Future<List<User>>? _allRegisteredUsers;
   Future<List<PendingUser>>? _notRegistered;
   Future<List<LogEntry>>? _activeDrivingLogs;
-  bool _isLoading = true;
+  bool _isLoading = false;
   String? _errorMessage;
   @override
   UserDto? user;
@@ -90,10 +90,12 @@ Future<void> _fetchManagerData() async {
     _allRegisteredUsers ??= managerService.getRegisteredFromPending(widget.token);
     _notRegistered ??= managerService.getNotRegisteredFromPending(widget.token);
     _activeDrivingLogs ??= managerService.getAllActiveDrivingLogs(widget.token);
-
+    
+    super.checkEmailVerification();
+    
     setState(() {
       _isLoading = false;
-      super.checkEmailVerification();
+      _errorMessage = null;
     });
   } catch (e) {
     setState(() {
@@ -269,44 +271,38 @@ Future<void> _fetchManagerData() async {
 
 
 
-  @override
+  
  @override
 Widget build(BuildContext context) {
-  return FutureBuilder(
-    future: _fetchManagerData(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return Center(child: Text('Error: ${snapshot.error}'));
-      } else {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: const Color.fromARGB(255, 241, 158, 89),
-            title: user != null
-                ? Text(
-                    'Welcome, ${user!.firstName} ${user!.lastName}',
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 24,
-                    ),
-                  )
-                : const Text('Manager Home'),
-            actions: [
-              IconButton(
-                icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
-                onPressed: () {
-                  setState(() {
-                    isDarkMode = !isDarkMode;
-                  });
-                  widget.toggleTheme(isDarkMode);
-                },
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+      title: user != null
+          ? Text(
+              'Welcome, ${user!.firstName} ${user!.lastName}',
+              style: const TextStyle(
+                color: Color.fromARGB(255, 255, 255, 255),
+                fontWeight: FontWeight.w600,
+                fontSize: 24,
               ),
-            ],
-          ),
-          drawer: _buildDrawer(context, widget.toggleTheme),
-          body: Column(
+            )
+          : const Text('Manager Home'),
+      actions: [
+        IconButton(
+          icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+          onPressed: () {
+            setState(() {
+              isDarkMode = !isDarkMode;
+            });
+            widget.toggleTheme(isDarkMode);
+          },
+        ),
+      ],
+    ),
+    drawer: _buildDrawer(context, widget.toggleTheme),
+    body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : Column(
             children: [
               const SizedBox(height: 15,),
               const Text('Active Logs', style: TextStyle(fontSize: 20)),
@@ -338,13 +334,9 @@ Widget build(BuildContext context) {
               ),
               const SizedBox(height: 20,)
             ]
-          ),
-        );
-      }
-    },
+        ),
   );
 }
-
 
   Widget _buildActiveLogsList() {
     return Expanded(
