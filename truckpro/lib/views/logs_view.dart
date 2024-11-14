@@ -35,7 +35,7 @@ class LogsView extends StatefulWidget {
 class _LogsViewState extends State<LogsView> {
   DateTime? startDate;
   DateTime? endDate;
-  List<LogEntryType> selectedLogTypes = LogEntryType.values; 
+  List<LogEntryType> selectedLogTypes = LogEntryType.values;
   late Future<List<LogEntry>> filteredLogsFuture;
   bool showFilters = false;
   bool isGeneratingPdf = false;
@@ -101,6 +101,15 @@ class _LogsViewState extends State<LogsView> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Generating PDF...')),
     );
+    if (startDate == null || endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select both start and end dates!')),
+      );
+      setState(() {
+        isGeneratingPdf = false;
+      });
+      return;
+    }
 
     ReportApiService apiService = ReportApiService();
     Uint8List? pdfBytes = await apiService.generatePDF(startDate!, endDate!, widget.token, widget.driverId, selectedLogTypes);
@@ -144,124 +153,127 @@ class _LogsViewState extends State<LogsView> {
               visible: showFilters,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Wrap(
-                  spacing: 16.0,
-                  runSpacing: 8.0,
-                  alignment: WrapAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextButton(
-                      onPressed: () => _selectDate(context, true),
-                      child: Text(
-                        startDate == null
-                            ? 'Select Start Date'
-                            : DateFormat('MMMM dd, yyyy').format(startDate!),
-                        style: TextStyle(color: startDate == null ? Colors.grey : Colors.blue),
-                      ),
+                    // Date Pickers
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => _selectDate(context, true),
+                          child: Text(
+                            startDate == null
+                                ? 'Select Start Date'
+                                : DateFormat('MMMM dd, yyyy').format(startDate!),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _selectDate(context, false),
+                          child: Text(
+                            endDate == null
+                                ? 'Select End Date'
+                                : DateFormat('MMMM dd, yyyy').format(endDate!),
+                          ),
+                        ),
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () => _selectDate(context, false),
-                      child: Text(
-                        endDate == null
-                            ? 'Select End Date'
-                            : DateFormat('MMMM dd, yyyy').format(endDate!),
-                        style: TextStyle(color: endDate == null ? Colors.grey : Colors.blue),
-                      ),
-                    ),
-                   ElevatedButton(
-                    onPressed: () async {
-                      List<LogEntryType>? selected = await showDialog(
-                        context: context,
-                        builder: (context) {
-                          List<LogEntryType> tempSelected = List.from(selectedLogTypes);
+                    const SizedBox(height: 16),
 
-                          return StatefulBuilder(
-                            builder: (context, setStateDialog) {
-                              return AlertDialog(
-                                title: const Text("Select Log Types"),
-                                content: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      // Select All / Deselect All Button
-                                      TextButton(
-                                        onPressed: () {
-                                          setStateDialog(() {
-                                            if (tempSelected.length == LogEntryType.values.length) {
-                                              tempSelected.clear();
-                                            } else {
-                                              // get all log types
-                                              tempSelected = List.from(LogEntryType.values);
-                                            }
-                                          });
-                                        },
-                                        child: Text(
-                                          tempSelected.length == LogEntryType.values.length
-                                              ? "Deselect All"
-                                              : "Select All",
-                                          style: const TextStyle(color: Colors.blue),
-                                        ),
-                                      ),
-                                      // Checkbox List of Log Entry Types
-                                      ...LogEntryType.values.map((type) {
-                                        return CheckboxListTile(
-                                          title: Text(type.toString().split('.').last),
-                                          value: tempSelected.contains(type),
-                                          onChanged: (bool? checked) {
+                    // Log Types Filter
+                    ElevatedButton(
+                      onPressed: () async {
+                        List<LogEntryType>? selected = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            List<LogEntryType> tempSelected = List.from(selectedLogTypes);
+
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                return AlertDialog(
+                                  title: const Text("Select Log Types"),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextButton(
+                                          onPressed: () {
                                             setStateDialog(() {
-                                              if (checked == true) {
-                                                if (!tempSelected.contains(type)) {
-                                                  tempSelected.add(type);
-                                                }
+                                              if (tempSelected.length == LogEntryType.values.length) {
+                                                tempSelected.clear();
                                               } else {
-                                                tempSelected.remove(type);
+                                                tempSelected = List.from(LogEntryType.values);
                                               }
                                             });
                                           },
-                                        );
-                                      }).toList(),
-                                    ],
+                                          child: Text(
+                                            tempSelected.length == LogEntryType.values.length
+                                                ? "Deselect All"
+                                                : "Select All",
+                                            style: const TextStyle(color: Colors.blue),
+                                          ),
+                                        ),
+                                        ...LogEntryType.values.map((type) {
+                                          return CheckboxListTile(
+                                            title: Text(type.toString().split('.').last),
+                                            value: tempSelected.contains(type),
+                                            onChanged: (bool? checked) {
+                                              setStateDialog(() {
+                                                if (checked == true) {
+                                                  if (!tempSelected.contains(type)) {
+                                                    tempSelected.add(type);
+                                                  }
+                                                } else {
+                                                  tempSelected.remove(type);
+                                                }
+                                              });
+                                            },
+                                          );
+                                        }).toList(),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context, tempSelected); 
-                                    },
-                                    child: const Text("OK"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      );
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context, tempSelected);
+                                      },
+                                      child: const Text("OK"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        );
 
-                      if (selected != null) {
-                        setState(() {
-                          //upd the parent widget's selectedLogTypes with the new list
-                          selectedLogTypes = selected;
-                          // apply filters with the updated selected types
-                          _applyFilters(); 
-                        });
-                      }
-                    },
-                    child: Text(
-                      selectedLogTypes.isEmpty
-                          ? "Select Log Types"
-                          : "Selected (${selectedLogTypes.length})",
+                        if (selected != null) {
+                          setState(() {
+                            selectedLogTypes = selected;
+                            _applyFilters();
+                          });
+                        }
+                      },
+                      child: Text(
+                        selectedLogTypes.isEmpty
+                            ? "Select Log Types"
+                            : "Selected (${selectedLogTypes.length})",
+                      ),
                     ),
-                  ),
 
                     if (isFilterActive)
-                      ElevatedButton(
-                        onPressed: _resetFilters,
-                        child: const Text('Reset Filters'),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: ElevatedButton(
+                          onPressed: _resetFilters,
+                          child: const Text('Reset Filters'),
+                        ),
                       ),
                   ],
                 ),
               ),
             ),
-            if (isFilterActive)
+            if (showFilters)
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton.icon(
@@ -334,60 +346,58 @@ class _LogsViewState extends State<LogsView> {
                               style: const TextStyle(fontSize: 12),
                             ),
                             onTap: widget.approve ? () async {
-                          if (log.logEntryType == LogEntryType.Driving) {
-                            // if driving log and manager => display images for approval 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ManagerApproveView(
-                                  imageUrls: Future.value(log.imageUrls),
-                                  log: log,
-                                  token: widget.token,
-                                  onApprove: widget.onApprove, 
-                                ),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('This is not a driving log!')),
-                            );
-                          }
-                        } 
-                        : () async {
-                          if (log.logEntryType == LogEntryType.Driving) {
-                            // if driving log => display images 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DrivingLogImagesView(
-                                  imageUrls: Future.value(log.imageUrls),
-                                  log: log,
-                                  token: widget.token, 
-                                ),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('This is not a driving log!')),
-                            );
-                          }
-                        }
-                      ),
+                              if (log.logEntryType == LogEntryType.Driving) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ManagerApproveView(
+                                      imageUrls: Future.value(log.imageUrls),
+                                      log: log,
+                                      token: widget.token,
+                                      onApprove: widget.onApprove,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('This is not a driving log!')),
+                                );
+                              }
+                            }
+                            : () async {
+                              if (log.logEntryType == LogEntryType.Driving) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DrivingLogImagesView(
+                                      imageUrls: Future.value(log.imageUrls),
+                                      log: log,
+                                      token: widget.token,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('This is not a driving log!')),
+                                );
+                              }
+                            }
+                          ),
+                        );
+                      },
                     );
-                  },
-                );
-              }
-            },
-          ),
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-      ],
-    ),
-    floatingActionButton: isGeneratingPdf
-        ? const CircularProgressIndicator()
-        : null,
-  ),
-);
-}
+        floatingActionButton: isGeneratingPdf
+            ? const CircularProgressIndicator()
+            : null,
+      ),
+    );
+  }
 
   Widget _buildDrivingLogInfo(LogEntry log) {
     return Column(
