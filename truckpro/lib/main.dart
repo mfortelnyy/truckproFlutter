@@ -99,49 +99,46 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkSession() async {
-    try{
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('authToken');
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('authToken');
+    if (token != null && JwtDecoder.isExpired(token) == false) {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      print("Decoded Role: $role"); // Print the role
 
-      if (token != null && JwtDecoder.isExpired(token) == false) {
-        // Token is valid and not expired
-        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-        String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-
-        // Navigate based on role
-        switch (role) {
-          case "Admin":
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme)),
-            );
-            break;
-          case "Manager":
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => ManagerHomeScreen(token: token, sessionManager:_sessionManager, toggleTheme: widget.toggleTheme,)),
-            );
-            break;
-          case "Driver":
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => DriverHomeView(token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme,)),
-            );
-            break;
-          default:
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
-            );
-        }
-      } else {
-        // token is invalid or expired
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme,)),
-        );
+      // Navigate based on role
+      switch (role) {
+        case "Admin":
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme)),
+          );
+          break;
+        case "Manager":
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => ManagerHomeScreen(token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme)),
+          );
+          break;
+        case "Driver":
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => DriverHomeView(token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme)),
+          );
+          break;
+        default:
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
+          );
       }
+    } else {
+      // token is invalid or expired
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
+      );
     }
-  catch(e)
-  {
-    print(e.toString());
+  } catch (e) {
+    print("Error checking session: ${e.toString()}");
   }
-  }
+}
 
   @override
   Widget build(BuildContext context) {
