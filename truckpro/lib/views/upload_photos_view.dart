@@ -1,11 +1,10 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:truckpro/utils/driver_api_service.dart';
 
+import '../image_picker.dart';
 import 'prompt_image.dart';
 
 class UploadPhotosScreen extends StatefulWidget {
@@ -55,33 +54,30 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
 
   // pick images for a specific prompt, allowing camera or gallery
   Future<void> _pickImages(String prompt, int promptIndex, int maxImages) async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.camera, 
-        imageQuality: 85,
-        maxWidth: 800,
-        maxHeight: 800,
-      );
+  try {
+    //native method for image picker
+    final String? imagePath = await NativeImagePicker.pickImage();
 
-      if (image != null && promptImages[prompt]!.length < maxImages) {
-        setState(() {
-          promptImages[prompt]!.add(PromptImage(image.path, promptIndex));
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('You can only upload up to $maxImages images for this prompt!'),
-          ),
-        );
-      }
-    } catch (e) {
+    if (imagePath != null && promptImages[prompt]!.length < maxImages) {
+      setState(() {
+        promptImages[prompt]!.add(PromptImage(imagePath, promptIndex));
+      });
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error while picking the image: $e'),
+          content: Text('You can only upload up to $maxImages images for this prompt!'),
         ),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error while picking the image: $e'),
+      ),
+    );
   }
+}
+
 
   Future<void> _submitLog() async {
     bool allImagesUploaded = true;
