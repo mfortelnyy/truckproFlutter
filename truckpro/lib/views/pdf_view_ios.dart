@@ -2,10 +2,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
-class PDFViewerWidget extends StatelessWidget {
+class PDFViewerWidgetIos extends StatelessWidget {
   final Uint8List pdfBytes;
 
-  const PDFViewerWidget({super.key, required this.pdfBytes});
+  const PDFViewerWidgetIos({super.key, required this.pdfBytes});
 
   @override
   Widget build(BuildContext context) {
