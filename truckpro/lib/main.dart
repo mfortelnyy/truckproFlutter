@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:truckpro/theme/color_schema.dart';
 import 'package:truckpro/views/admin_home_page.dart';
 import 'utils/admin_api_service.dart';
@@ -30,11 +30,18 @@ class _MyAppState extends State<MyApp> {
 
   // load theme pref 
   Future<void> _loadThemePreference() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isDarkMode = prefs.getBool('isDarkMode') ?? false; // Default to light mode if no preference is saved
-    setState(() {
-      _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
-    });
+    try
+    {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool isDarkMode = prefs.getBool('isDarkMode') ?? false; // Default to light mode if no preference is saved
+      setState(() {
+        _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+      });
+    }
+    catch(e)
+    {
+      print(e.toString());
+    }
   }
 
   // save theme pref to Shared prefs

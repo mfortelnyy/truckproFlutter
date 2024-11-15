@@ -22,8 +22,6 @@ class UploadPhotosScreen extends StatefulWidget {
 
 class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   final String token;
-  final ImagePicker _picker = ImagePicker();
-
 
   Map<String, List<PromptImage>>  promptImages = {
     'Front truck side with Head lights + Emergency flashers and marker lights ON': [],
@@ -52,13 +50,14 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
 
   _UploadPhotosScreenState({required this.token});
 
-  // pick images for a specific prompt, allowing camera or gallery
+  //pick images for a specific prompt, allowing camera or gallery
   Future<void> _pickImages(String prompt, int promptIndex, int maxImages) async {
   try {
-    //native method for image picker
+    //native image picker to select an image
     final String? imagePath = await NativeImagePicker.pickImage();
 
     if (imagePath != null && promptImages[prompt]!.length < maxImages) {
+      //add  picked image to the prompt's list of images
       setState(() {
         promptImages[prompt]!.add(PromptImage(imagePath, promptIndex));
       });
@@ -72,7 +71,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Error while picking the image: $e'),
+        content: Text('Error while picking the file: $e'),
       ),
     );
   }
