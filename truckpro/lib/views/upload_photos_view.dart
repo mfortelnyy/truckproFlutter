@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-
 import 'package:truckpro/utils/driver_api_service.dart';
 
 import '../image_picker.dart';
