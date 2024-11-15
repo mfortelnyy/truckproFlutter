@@ -9,7 +9,7 @@ class BaseHomeView extends StatefulWidget {
   final SessionManager sessionManager;
   final Function(bool) toggleTheme;
 
-  const BaseHomeView({required this.sessionManager, required this.toggleTheme, Key? key}) : super(key: key);
+  const BaseHomeView({required this.sessionManager, required this.toggleTheme, super.key});
 
   @override
   BaseHomeViewState createState() => BaseHomeViewState();
@@ -86,7 +86,7 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
               const SizedBox(height: 16),
               TextField(
                 controller: verificationCodeController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Verification Code',
                   border: OutlineInputBorder(),
                 ),
@@ -143,7 +143,7 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
     }
 
     // Start 1-minute timer
-    _resendTimer = Timer(Duration(minutes: 1), () {
+    _resendTimer = Timer(const Duration(minutes: 1), () {
       setState(() {
         isResendEnabled = true;
       });

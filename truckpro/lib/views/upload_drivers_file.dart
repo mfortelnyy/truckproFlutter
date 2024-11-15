@@ -82,8 +82,8 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
               ? 'File uploaded successfully!'
               : 'File upload failed!\n${res.split("Error: ").last}'),
           backgroundColor: res.contains('successfully')
-              ? Color.fromARGB(219, 79, 194, 70)
-              : Color.fromARGB(230, 247, 42, 66),
+              ? const Color.fromARGB(219, 79, 194, 70)
+              : const Color.fromARGB(230, 247, 42, 66),
         ),
       );
 
@@ -97,7 +97,7 @@ class _UploadDriversScreenState extends State<UploadDriversScreen> {
 
   void _startCooldown() {
     _cooldownSeconds = 30;
-    _cooldownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _cooldownSeconds--;
       });

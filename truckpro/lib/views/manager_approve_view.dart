@@ -185,7 +185,7 @@ class ManagerApproveView extends StatelessWidget {
               imageProvider: NetworkImage(imageUrl),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.covered * 2,
-              backgroundDecoration: BoxDecoration(
+              backgroundDecoration: const BoxDecoration(
                 color: Colors.black,
               ),
               enableRotation: true,
@@ -218,7 +218,7 @@ class ManagerApproveView extends StatelessWidget {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Color.fromARGB(230, 247, 42, 66),),
+        SnackBar(content: Text('Error: $e'), backgroundColor: const Color.fromARGB(230, 247, 42, 66),),
       );
     }
   }

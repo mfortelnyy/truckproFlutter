@@ -168,7 +168,7 @@ Future<void> _deletePendingUser(int userId, int index) async {
         widget.onEmailsSent!();
       }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$res'), backgroundColor:  Color.fromARGB(219, 79, 194, 70),),
+          SnackBar(content: Text(res), backgroundColor:  const Color.fromARGB(219, 79, 194, 70),),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -177,7 +177,7 @@ Future<void> _deletePendingUser(int userId, int index) async {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$e'), backgroundColor: Color.fromARGB(230, 247, 42, 66,)),
+        SnackBar(content: Text('$e'), backgroundColor: const Color.fromARGB(230, 247, 42, 66,)),
       );
     }
   }
