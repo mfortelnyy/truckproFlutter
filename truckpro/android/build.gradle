@@ -1,18 +1,47 @@
-allprojects {
+buildscript {
     repositories {
         google()
-        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        // Ensure you are using the correct version of the Android Gradle plugin
+        classpath 'com.android.tools.build:gradle:8.2.0'
     }
 }
 
-rootProject.buildDir = "../build"
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+rootProject.buildDir = '../build'
+
+// Ensure all subprojects (including dependencies) use the correct SDK version
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+
 subprojects {
-    project.evaluationDependsOn(":app")
+    afterEvaluate { project ->
+        // Apply SDK version settings for Android app or library subprojects
+        if (project.plugins.hasPlugin("com.android.application") ||
+                project.plugins.hasPlugin("com.android.library")) {
+            project.android {
+                compileSdkVersion 34 // Update to your required version
+                buildToolsVersion "34.0.0" // Ensure compatibility with latest tools
+            }
+        }
+    }
 }
 
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+// Add a clean task for cleaning the build directory
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
