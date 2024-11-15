@@ -8,7 +8,8 @@ import 'package:truckpro/utils/login_service.dart';
 import 'package:truckpro/utils/session_manager.dart';
 import 'package:truckpro/views/base_home_view.dart';
 import 'package:truckpro/views/driver_stats_view.dart';
-import 'package:truckpro/views/logs_view.dart';
+import 'package:truckpro/views/logs_view_driver.dart';
+import 'package:truckpro/views/logs_view_manager.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
 import '../models/userDto.dart';
@@ -683,7 +684,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false, userDto: user, driverId: user!.id,),
+                  builder: (context) => LogsViewDriver(token: widget.token, logsFuture: logs, userDto: user, driverId: user!.id,),
                 ),
               );
             },
@@ -696,7 +697,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LogsView(token: widget.token, logsFuture: logs, approve: false, userDto: user, driverId: user!.id,),
+                  builder: (context) => LogsViewDriver(token: widget.token, logsFuture: logs, userDto: user, driverId: user!.id,),
                 ),
               );
             },

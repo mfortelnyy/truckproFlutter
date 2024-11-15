@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:truckpro/models/user.dart';
 import 'package:truckpro/utils/manager_api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'logs_view.dart';
+import 'logs_view_manager.dart';
 
 class DriversViewManager extends StatefulWidget {
   final Future<List<User>> driversFuture;
@@ -103,7 +103,7 @@ class _DriversViewManagerState extends State<DriversViewManager> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => LogsView(
+                            builder: (context) => LogsViewManager(
                               logsFuture: Future.value(logs),
                               token: widget.token,
                               approve: true,

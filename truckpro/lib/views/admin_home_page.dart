@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:truckpro/models/company.dart';
@@ -13,7 +12,7 @@ import '../utils/admin_api_service.dart';
 import 'base_home_view.dart';
 import 'companies_view.dart'; 
 import 'create_company_screen.dart';
-import 'logs_view.dart';
+import 'logs_view_manager.dart';
 import 'manager_signup_view.dart';
 import 'update_password_view.dart';
 import 'user_signin_page.dart'; 
@@ -232,7 +231,7 @@ class AdminHomePageState extends BaseHomeViewState<AdminHomePage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => LogsView(logsFuture: logs, token: widget.token, approve: false, driverId: driver.id,),
+                                        builder: (context) => LogsViewManager(logsFuture: logs, token: widget.token, approve: false, driverId: driver.id,),
                                       ),
                                     );
                                   },

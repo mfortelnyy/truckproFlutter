@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:truckpro/models/user.dart';
 import '../utils/admin_api_service.dart';
-import 'logs_view.dart';
+import 'logs_view_manager.dart';
 
 class DriversViewAdmin extends StatefulWidget {
   final AdminApiService adminService;
@@ -105,7 +105,7 @@ class _DriversViewAdminState extends State<DriversViewAdmin> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LogsView(
+                          builder: (context) => LogsViewManager(
                             logsFuture: logs,
                             token: widget.token,
                             approve: false,

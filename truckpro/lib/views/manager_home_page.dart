@@ -15,7 +15,7 @@ import '../models/user.dart';
 import '../models/userDto.dart';
 import '../utils/manager_api_service.dart';
 import 'drivers_view_manager.dart';
-import 'logs_view.dart';
+import 'logs_view_manager.dart';
 import 'update_password_view.dart';
 import 'upload_drivers_file.dart';
 
@@ -314,7 +314,7 @@ Widget build(BuildContext context) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LogsView(
+                        builder: (context) => LogsViewManager(
                           logsFuture: _activeDrivingLogs!,
                           token: widget.token,
                           approve: true,
@@ -380,7 +380,7 @@ Widget build(BuildContext context) {
                         ),
                         if (log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager) ...[
                           const SizedBox(width: 8),
-                          Icon(Icons.warning, color: Colors.red, size: 18),
+                          const Icon(Icons.warning, color: Colors.red, size: 18),
                           const SizedBox(width: 4),
                           Text(
                             'Needs Approval',
@@ -428,7 +428,7 @@ Widget build(BuildContext context) {
                                 : 'View Log',
                           ),
                         ),
-                        PopupMenuItem(
+                        const PopupMenuItem(
                           value: 2,
                           child: Text('Details'),
                         ),
