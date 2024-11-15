@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
 class NativeImagePicker {
-  static const MethodChannel _channel = MethodChannel('com.yourapp/image_picker');
+  static const MethodChannel _channel = MethodChannel('com.example.truckpro/image_picker');
 
   //picks an image from either the camera or the gallery
   static Future<String?> pickImage() async {
