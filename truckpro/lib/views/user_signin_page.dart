@@ -62,7 +62,7 @@ class SignInPageState extends State<SignInPage> {
       loading = false; 
     });
 
-    if (token != null && token.length > 50) {
+    if (token!.length > 50) {
       
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
