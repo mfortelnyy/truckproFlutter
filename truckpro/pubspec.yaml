@@ -7,7 +7,6 @@ environment:
 
 dependencies:
   path_provider:
-  dio: ^4.0.0 
   photo_view: ^0.14.0
   url_launcher: ^6.1.7
   shared_preferences: ^2.3.0
@@ -22,7 +21,6 @@ dependencies:
   file_picker: ^8.1.2
   fl_chart: ^0.69.0
   flutter_pdfview: ^1.3.4
-  pspdfkit_flutter: ^4.0.0
   easy_pdf_viewer: ^1.0.8 
 
 dev_dependencies:

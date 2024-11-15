@@ -89,14 +89,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
-  dio:
-    dependency: "direct main"
-    description:
-      name: dio
-      sha256: "7d328c4d898a61efc3cd93655a0955858e29a0aa647f0f9e02d59b3bb275e2e8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.6"
   easy_pdf_viewer:
     dependency: "direct main"
     description:
@@ -448,14 +440,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
-  pspdfkit_flutter:
-    dependency: "direct main"
-    description:
-      name: pspdfkit_flutter
-      sha256: "74cba534ac9966e59bf9173031bf5664c8e79b76cf649701d9a0244e3c5f81b4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0"
   rxdart:
     dependency: transitive
     description:

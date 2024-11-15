@@ -38,17 +38,9 @@ PODS:
   - Flutter (1.0.0)
   - flutter_pdfview (1.0.2):
     - Flutter
-  - Instant (14.1.1)
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - PSPDFKit (14.1.1):
-    - PSPDFKit/Core (= 14.1.1)
-  - PSPDFKit/Core (14.1.1)
-  - pspdfkit_flutter (4.0.0):
-    - Flutter
-    - Instant (= 14.1.1)
-    - PSPDFKit (= 14.1.1)
   - SDWebImage (5.20.0):
     - SDWebImage/Core (= 5.20.0)
   - SDWebImage/Core (5.20.0)
@@ -68,7 +60,6 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_pdfview (from `.symlinks/plugins/flutter_pdfview/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
-  - pspdfkit_flutter (from `.symlinks/plugins/pspdfkit_flutter/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -77,8 +68,6 @@ SPEC REPOS:
   trunk:
     - DKImagePickerController
     - DKPhotoGallery
-    - Instant
-    - PSPDFKit
     - SDWebImage
     - SwiftyGif
 
@@ -93,8 +82,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_pdfview/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
-  pspdfkit_flutter:
-    :path: ".symlinks/plugins/pspdfkit_flutter/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sqflite_darwin:
@@ -109,10 +96,7 @@ SPEC CHECKSUMS:
   file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_pdfview: 25f53dd6097661e6395b17de506e6060585946bd
-  Instant: 9de40591d4c736a7c2276a102ae112db506bd6d6
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  PSPDFKit: 308759bdc2c73c5eec76bb3e0528d298646040d5
-  pspdfkit_flutter: 9f261bc8da413d44d3e81186b6db33e1fc2a04f6
   SDWebImage: 73c6079366fea25fa4bb9640d5fb58f0893facd8
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
