@@ -9,7 +9,6 @@ import 'package:truckpro/utils/session_manager.dart';
 import 'package:truckpro/views/base_home_view.dart';
 import 'package:truckpro/views/driver_stats_view.dart';
 import 'package:truckpro/views/logs_view_driver.dart';
-import 'package:truckpro/views/logs_view_manager.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
 import '../models/userDto.dart';
