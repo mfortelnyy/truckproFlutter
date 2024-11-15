@@ -86,8 +86,8 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
       }
       imagesJson.addAll(value.map((promptImage) => promptImage.toJson()));
     });
-
-    if (allImagesUploaded) {
+    //
+    if (true) {
       await widget.driverApiService.createDrivingLog(imagesJson);
       widget.onPhotoUpload();
       widget.resetOffDuty();
