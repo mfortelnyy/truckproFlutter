@@ -22,6 +22,7 @@ class _PDFViewerWidgetAndroidState extends State<PDFViewerWidgetAndroid> {
     _pdfDocumentFuture = _loadPdfDocument();
   }
 
+  //save the PDF bytes to a file and return the document
   Future<PdfDocument> _loadPdfDocument() async {
     //temporary directory to save the file
     final tempDir = await getTemporaryDirectory();
@@ -32,6 +33,24 @@ class _PDFViewerWidgetAndroidState extends State<PDFViewerWidgetAndroid> {
 
     //load PDF document from the saved file
     return PdfDocument.openFile(tempFile.path);
+  }
+
+  //download the PDF to a specific location
+  Future<void> _downloadPdf() async {
+    final appDir = await getExternalStorageDirectory(); 
+    if (appDir == null) return;
+
+    //path to where PDF will be saved
+    final filePath = '${appDir.path}/downloaded_pdf.pdf'; 
+    final file = File(filePath);
+
+    //save PDF bytes to the file
+    await file.writeAsBytes(widget.pdfBytes);
+
+    //display feedback to the user
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('PDF saved to: $filePath')),
+    );
   }
 
   @override
@@ -53,13 +72,27 @@ class _PDFViewerWidgetAndroidState extends State<PDFViewerWidgetAndroid> {
             appBar: AppBar(
               title: const Text('PDF Viewer'),
             ),
-            body: PdfView(
-              controller: PdfController(
-                document: Future.value(doc),  
-              ),
-              onDocumentLoaded: (document) {
-                //print('Document loaded successfully!');
-              },
+            body: Column(
+              children: [
+                Expanded(
+                  child: PdfView(
+                    controller: PdfController(
+                      document: Future.value(doc),  
+                    ),
+                    onDocumentLoaded: (document) {
+                      //print('Document loaded successfully!');
+                    },
+                  ),
+                ),
+                //donwload button
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ElevatedButton(
+                    onPressed: _downloadPdf,
+                    child: const Text('Download PDF'),
+                  ),
+                ),
+              ],
             ),
           );
         } else {
