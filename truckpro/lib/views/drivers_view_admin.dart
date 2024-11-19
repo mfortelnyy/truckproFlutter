@@ -108,7 +108,7 @@ class _DriversViewAdminState extends State<DriversViewAdmin> {
                           builder: (context) => LogsViewManager(
                             logsFuture: logs,
                             token: widget.token,
-                            approve: false,
+                            approve: true,
                             driverId: driver.id,
                           ),
                         ),
