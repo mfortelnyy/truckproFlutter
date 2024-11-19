@@ -6,7 +6,6 @@ import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/userDto.dart';
 import 'package:truckpro/views/manager_approve_view.dart';
 import '../utils/report_api_service.dart';
-import 'drvinglog_images_view.dart';
 import 'pdf_view_widget.dart';
 
 class LogsViewManager extends StatefulWidget {
