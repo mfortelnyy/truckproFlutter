@@ -74,25 +74,30 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           title: const Text(
             'Email Verification Required',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent, fontSize: 20),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const Text(
-                'Please enter the verification code sent to your email:',
+                'Enter the verification code sent to your email:',
                 textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.black87),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               TextField(
                 controller: verificationCodeController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Verification Code',
-                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(color: Colors.grey[700]),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ],
           ),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -101,9 +106,19 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
                   isDialogShowing = false;
                 });
               },
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+              ),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange, // Make the button orange
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               onPressed: () async {
                 String verificationCode = verificationCodeController.text.trim();
                 String res = await LoginService().verifyEmail(token!, verificationCode);
@@ -115,13 +130,20 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
                   isDialogShowing = false;
                 });
               },
-              child: const Text('Verify'),
+              child: const Text(
+                'Verify',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
             ),
             TextButton(
               onPressed: isResendEnabled ? _handleResendCode : null,
               child: Text(
-                isResendEnabled ? 'Resend Code to ${user!.email}' : 'Resend in 1 minute',
-                style: TextStyle(color: isResendEnabled ? Colors.blue : Colors.grey),
+                isResendEnabled ? 'Resend Code' : 'Resend in 1 minute',
+                style: TextStyle(
+                  color: isResendEnabled ? Colors.blueAccent : Colors.grey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
             ),
           ],
