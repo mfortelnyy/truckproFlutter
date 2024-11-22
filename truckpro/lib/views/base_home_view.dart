@@ -97,52 +97,60 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
               ),
             ],
           ),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actionsAlignment: MainAxisAlignment.center, // Center align the buttons
           actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  isDialogShowing = false;
-                });
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange, // Make the button orange
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      isDialogShowing = false;
+                    });
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
                 ),
-              ),
-              onPressed: () async {
-                String verificationCode = verificationCodeController.text.trim();
-                String res = await LoginService().verifyEmail(token!, verificationCode);
-                res.isEmpty
-                    ? _showSnackBar('Cannot verify email!')
-                    : _showSnackBar('Email verified successfully!');
-                Navigator.of(context).pop();
-                setState(() {
-                  isDialogShowing = false;
-                });
-              },
-              child: const Text(
-                'Verify',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () async {
+                    String verificationCode = verificationCodeController.text.trim();
+                    String res = await LoginService().verifyEmail(token!, verificationCode);
+                    res.isEmpty
+                        ? _showSnackBar('Cannot verify email!')
+                        : _showSnackBar('Email verified successfully!');
+                    Navigator.of(context).pop();
+                    setState(() {
+                      isDialogShowing = false;
+                    });
+                  },
+                  child: const Text(
+                    'Verify',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: isResendEnabled ? _handleResendCode : null,
-              child: Text(
-                isResendEnabled ? 'Resend Code' : 'Resend in 1 minute',
-                style: TextStyle(
-                  color: isResendEnabled ? Colors.blueAccent : Colors.grey,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+            const SizedBox(height: 10), // Space between the row of buttons and Resend button
+            Center(
+              child: TextButton(
+                onPressed: isResendEnabled ? _handleResendCode : null,
+                child: Text(
+                  isResendEnabled ? 'Resend Code' : 'Resend in 1 minute',
+                  style: TextStyle(
+                    color: isResendEnabled ? Colors.blueAccent : Colors.grey,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ),
@@ -152,29 +160,29 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
     );
   }
 
-  void _handleResendCode() async {
+void _handleResendCode() async {
+  setState(() {
+    isResendEnabled = false;
+  });
+
+  try {
+    var res = await LoginService().reSendEmailCode(token!, user!.email);
+    res.isNotEmpty ? _showSnackBar(res) : _showSnackBar('Cannot resend email.');
+  } catch (ex) {
+    _showSnackBar(ex.toString());
+  }
+
+  // Disable resend button for 60 seconds using Future.delayed
+  Future.delayed(const Duration(seconds: 60), () {
     setState(() {
-      isResendEnabled = false;
+      isResendEnabled = true;
     });
+  });
+}
 
-    try {
-      var res = await LoginService().reSendEmailCode(token!, user!.email);
-      res.isNotEmpty ? _showSnackBar(res) : _showSnackBar('Cannot resend email.');
-    } catch (ex) {
-      _showSnackBar(ex.toString());
-    }
-
-    // Start 1-minute timer
-    _resendTimer = Timer(const Duration(minutes: 1), () {
-      setState(() {
-        isResendEnabled = true;
-      });
-    });
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
+void _showSnackBar(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
 
   @override
   Widget build(BuildContext context) {
