@@ -126,8 +126,11 @@ class AdminApiService
           },
         body: jsonEncode(manager.toJson()),
         );
-        if(json.decode(response.body) > 0) return "Manager successfully added!";
-        return "Failed to register manager!";
+        if(json.decode(response.body)['message'] == 6) {
+          return "Manager successfully added!";
+        } else {
+          return json.decode(response.body)['message'];
+        }
     }
 
     Future<List<User>> getAllManagers(String token) async {
