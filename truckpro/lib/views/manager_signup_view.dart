@@ -112,11 +112,11 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
     {
       String? res = await _adminService.signUpManager(managerSignupDTO, widget.token);
     
-      if (res!.isNotEmpty) {
+      if (res!.length == 6) {
         if(mounted)
         {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Registration successful $res')),   
+            SnackBar(content: Text('Registration successful!'), backgroundColor:  Color.fromARGB(219, 79, 194, 70),),   
           );
         }
       } else {
