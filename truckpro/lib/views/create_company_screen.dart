@@ -40,17 +40,16 @@ class CreateCompanyScreenState extends State<CreateCompanyScreen> {
           widget.onCompanyCreated(); 
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Company "$companyName" created successfully!')),
+            SnackBar(content: Text('Company "$companyName" created successfully!'), backgroundColor: const Color.fromARGB(219, 79, 194, 70),),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(res)),
+            SnackBar(content: Text(res), backgroundColor: const Color.fromARGB(230, 247, 42, 66)),
           );
         }
-      } catch (e) {
-        
+      } catch (e) {    
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating company: $e')),
+          SnackBar(content: Text(e.toString().split(":").last), backgroundColor: const Color.fromARGB(230, 247, 42, 66),),
         );
       } finally {
         setState(() {
