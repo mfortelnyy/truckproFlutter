@@ -4,7 +4,9 @@ if [ "$1" == "android" ]; then
     flutter pub get
     flutter build apk
 elif [ "$1" == "ios" ]; then
+    #sed -i '' '/pdfx/d' pubspec.yaml
     echo "Adding pspdfkit_flutter for iOS build"
+    flutter clean
     flutter pub get
     flutter build ios
 fi
