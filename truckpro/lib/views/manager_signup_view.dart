@@ -28,7 +28,8 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
   
-  
+  //loading indicator state
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -65,7 +66,7 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
         _companies = companies;
       });
     } catch (e) {
-      //print('Error fetching companies: $e');
+      _showErrorDialog('Failed to fetch companies. ${e.toString().split(":").last}');
     }
   }
 
@@ -108,27 +109,35 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
       companyId: _selectedCompanyId!, 
     );
 
-    try
-    {
+    //display loading indicator
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
       String? res = await _adminService.signUpManager(managerSignupDTO, widget.token);
     
+      setState(() {
+        _isLoading = false;
+      });
+
       if (res!.length == 6) {
-        if(mounted)
-        {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Registration successful!'), backgroundColor:  Color.fromARGB(219, 79, 194, 70),),   
+            SnackBar(content: Text('Registration successful!'), backgroundColor: Color.fromARGB(219, 79, 194, 70)),
           );
         }
       } else {
         _showErrorDialog('Failed to register user. $res');
       } 
-    }catch(e)
-    {
-       _showErrorDialog('Failed to register user. ${e.toString().split(":").last}');
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorDialog('Failed to register user. ${e.toString().split(":").last}');
     }
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,25 +167,36 @@ class ManagerSignupViewState extends State<ManagerSignupView> {
               const SizedBox(height: 24),
               _buildDropdown(),
               const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 241, 158, 89),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+
+              //loading spinner if the form is submitting
+              AnimatedOpacity(
+                opacity: _isLoading ? 0.5 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                ),
-                onPressed: _handleSignup,
-                child: const Text(
-                  'Sign Up',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                   //disable button when loading
+                  onPressed: _isLoading ? null : _handleSignup, 
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : const Text(
+                          'Sign Up',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
                 ),
               ),
             ],
           ),
         ),
       ),
-    );  
+    );
   }
 
    Widget _buildTextField(TextEditingController controller, String label) {
