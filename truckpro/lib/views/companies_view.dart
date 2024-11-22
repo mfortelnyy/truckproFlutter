@@ -167,16 +167,16 @@ class _CompaniesViewState extends State<CompaniesView> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Company "$companyName" deleted successfully!')),
+        SnackBar(content: Text('Company "$companyName" deleted successfully!'), backgroundColor: const Color.fromARGB(219, 79, 194, 70)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response)),
+        SnackBar(content: Text(response), backgroundColor: const Color.fromARGB(230, 247, 42, 66)),
       );
     }
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error deleting company: $e')),
+      SnackBar(content: Text(e.toString().split(":").last), backgroundColor: const Color.fromARGB(230, 247, 42, 66)),
     );
   }
 }
