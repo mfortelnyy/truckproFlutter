@@ -396,15 +396,20 @@ Widget build(BuildContext context) {
                     ),
                     trailing: PopupMenuButton<int>(
                       icon: Icon(
-                        log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
-                            ? Icons.check_circle
-                            : Icons.block,
-                        color: log.logEntryType == LogEntryType.Driving && !log.isApprovedByManager
-                            ? Colors.green
-                            : Colors.red,
+                        log.logEntryType == LogEntryType.Driving 
+                          ? !log.isApprovedByManager
+                              ? Icons.error
+                              : Icons.check
+                          : null,
+                        color: 
+                          log.logEntryType == LogEntryType.Driving  
+                            ? !log.isApprovedByManager
+                                ? Colors.red
+                                : Colors.green
+                            :  Colors.white
                       ),
                       onSelected: (value) {
-                        // Handle menu options here
+                        
                       },
                       itemBuilder: (context) => [
                         PopupMenuItem(
@@ -414,10 +419,6 @@ Widget build(BuildContext context) {
                                 ? 'Approve Driving'
                                 : 'View Log',
                           ),
-                        ),
-                        const PopupMenuItem(
-                          value: 2,
-                          child: Text('Details'),
                         ),
                       ],
                     ),
