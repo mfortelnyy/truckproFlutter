@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:truckpro/models/pending_user.dart';
@@ -14,7 +16,7 @@ class PendingUsersView extends StatefulWidget {
     required this.pendingUsersFuture,
     required this.token,
     required this.sendEmail,
-    this.onEmailsSent
+    this.onEmailsSent,
   });
 
   @override
