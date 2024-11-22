@@ -200,7 +200,7 @@ Future<void> _fetchManagerData() async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PendingUsersView(pendingUsersFuture: _allPendingUsers!, token: widget.token, sendEmail: true, onEmailsSent: _fetchManagerData,),
+                  builder: (context) => PendingUsersView(pendingUsersFuture: _allPendingUsers!, token: widget.token, sendEmail: false ),
                 ),
               );
             },
