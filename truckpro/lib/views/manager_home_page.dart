@@ -236,19 +236,6 @@ Future<void> _fetchManagerData() async {
               );
             },
           ),
-          /*
-          ListTile(
-            leading: const Icon(Icons.local_activity_rounded, color: Colors.black),
-            title: const Text('All Dri Logs', style: TextStyle(color: Colors.black)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LogsView(logsFuture: _activeDrivingLogs, token: widget.token, approve: true, onApprove: _fetchManagerData,)
-                ),
-              );
-            },
-          ),*/
           const Divider(), 
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: Colors.black),
