@@ -64,16 +64,15 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
           });
           if (res!.isNotEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Password updated successfully!'), backgroundColor: Color.fromARGB(219, 79, 194, 70) ,),
+              const SnackBar(content: Text('Password updated successfully!'), backgroundColor: Color.fromARGB(219, 79, 194, 70)),
             );
-            
+
             Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
-                );
-         
+            );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to update password.'), backgroundColor: Color.fromARGB(230, 247, 42, 66,),)
+              const SnackBar(content: Text('Failed to update password.'), backgroundColor: Color.fromARGB(230, 247, 42, 66)),
             );
           }
         }
@@ -96,102 +95,110 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
       appBar: AppBar(
         title: const Text('Update Password'),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    if (_errorMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-                      ),
-                    TextFormField(
-                      controller: _oldPasswordController,
-                      decoration: InputDecoration(
-                        labelText: 'Old Password',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureOldPassword ? Icons.visibility : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureOldPassword = !_obscureOldPassword;
-                            });
-                          },
-                        ),
-                      ),
-                      obscureText: _obscureOldPassword,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your old password';
-                        }
-                        return null;
-                      },
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                ),
+              TextFormField(
+                controller: _oldPasswordController,
+                decoration: InputDecoration(
+                  labelText: 'Old Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureOldPassword ? Icons.visibility : Icons.visibility_off,
                     ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _newPasswordController,
-                      decoration: InputDecoration(
-                        labelText: 'New Password',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureNewPassword ? Icons.visibility : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureNewPassword = !_obscureNewPassword;
-                            });
-                          },
-                        ),
-                      ),
-                      obscureText: _obscureNewPassword,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a new password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password should be at least 6 characters';
-                        }
-                        return null;
-                      },
+                    onPressed: () {
+                      setState(() {
+                        _obscureOldPassword = !_obscureOldPassword;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: _obscureOldPassword,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your old password';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _newPasswordController,
+                decoration: InputDecoration(
+                  labelText: 'New Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureNewPassword ? Icons.visibility : Icons.visibility_off,
                     ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      decoration: InputDecoration(
-                        labelText: 'Confirm New Password',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureConfirmPassword = !_obscureConfirmPassword;
-                            });
-                          },
-                        ),
-                      ),
-                      obscureText: _obscureConfirmPassword,
-                      validator: (value) {
-                        if (value != _newPasswordController.text) {
-                          return 'Passwords do not match';
-                        }
-                        return null;
-                      },
+                    onPressed: () {
+                      setState(() {
+                        _obscureNewPassword = !_obscureNewPassword;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: _obscureNewPassword,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a new password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password should be at least 6 characters';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _confirmPasswordController,
+                decoration: InputDecoration(
+                  labelText: 'Confirm New Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
                     ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: _updatePassword,
-                      child: const Text('Update Password'),
-                    ),
-                  ],
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: _obscureConfirmPassword,
+                validator: (value) {
+                  if (value != _newPasswordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 32),
+              
+              // button with animation 
+              AnimatedOpacity(
+                opacity: _isLoading ? 0.5 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _updatePassword, 
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : const Text('Update Password'),
                 ),
               ),
-            ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
