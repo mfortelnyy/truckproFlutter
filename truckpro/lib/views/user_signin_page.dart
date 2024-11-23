@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:truckpro/utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -5,10 +6,11 @@ import 'package:truckpro/views/driver_home_page.dart';
 import 'package:truckpro/views/driver_signup_page.dart';
 import 'package:truckpro/views/forgot_password_view.dart';
 import 'package:truckpro/views/manager_home_page.dart';
-
 import '../utils/admin_api_service.dart';
+import '../utils/firebase_service.dart';
 import '../utils/session_manager.dart';
 import 'admin_home_page.dart';
+
 
 class SignInPage extends StatefulWidget {
   final Function(bool) toggleTheme;
@@ -27,6 +29,9 @@ class SignInPageState extends State<SignInPage> {
   final TextEditingController _passwordController = TextEditingController();
   final LoginService _loginService = LoginService();
   final SessionManager _sessionManager = SessionManager();
+  final FirebaseService _firebaseService = FirebaseService();
+
+
 
   void _showErrorDialog(String errorMessage) {
     showDialog(
@@ -63,6 +68,15 @@ class SignInPageState extends State<SignInPage> {
     });
 
     if (token!.length > 50) {
+      try
+      {
+        String? fcmToken = await _firebaseService.getDeviceToken();
+        _loginService.SendDeviceToken(token, fcmToken);
+      }catch(e)
+      {
+        print("DeviceToken Not Set Up!");
+      }
+
       
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
