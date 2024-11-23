@@ -16,6 +16,9 @@ class FirebaseService {
 
     _localNotificationsPlugin.initialize(initSettings);
 
+    _requestNotificationPermissions();
+
+
     //subscribe to a company topic based on companyId
     void subscribeToCompanyTopic() async {
       try {
@@ -38,6 +41,22 @@ class FirebaseService {
     // background message handler
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
+
+  //notification permissions for iOS
+  void _requestNotificationPermissions() async {
+    NotificationSettings settings = await _firebaseMessaging.requestPermission();
+
+    // Check the permission status and handle accordingly
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print("Notification permissions granted");
+    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+      print("Notification permissions granted provisionally");
+    } else {
+      print("Notification permissions denied");
+    }
+  }
+
+  
   
   //retrieve current FCM token for the device
   Future<String?> getDeviceToken() async {
@@ -62,20 +81,48 @@ class FirebaseService {
   void configureForegroundMessageHandler() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("Foreground message received: ${message.notification?.title}");
-      //send notficiation
+      _showNotification(message.notification?.title, message.notification?.body);
     });
   }
 
+  
+
   //bg message handler
   static Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    // Log the message when it comes in the background
     print("Background message received: ${message.notification?.title}");
-      //send notficiation
+
+    // Handle notification payload
+    if (message.notification != null) {
+      await _showNotification(message.notification?.title, message.notification?.body);
+    }
+
+    // You can also process data payload here if needed
+    if (message.data.isNotEmpty) {
+      print('Data payload: ${message.data}');
+    }
+  }
+
+  static Future<void> _showNotification(String? title, String? body) async {
+    const androidDetails = AndroidNotificationDetails(
+      'channel_id',
+      'channel_name',
+      channelDescription: 'channel_description',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+    const iOSDetails = DarwinNotificationDetails();
+    const details = NotificationDetails(android: androidDetails, iOS: iOSDetails);
+
+    await FlutterLocalNotificationsPlugin().show(0, title, body, details);
   }
 
   //init background messages
   void initializeBackgroundMessageHandler() {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
+
+  
 
   
 }
