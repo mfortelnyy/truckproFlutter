@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:truckpro/theme/color_schema.dart';
+import 'package:truckpro/utils/firebase_service.dart';
 import 'package:truckpro/views/admin_home_page.dart';
 import 'utils/admin_api_service.dart';
 import 'utils/session_manager.dart';
@@ -9,7 +10,12 @@ import 'views/driver_home_page.dart';
 import 'views/manager_home_page.dart';
 import 'views/user_signin_page.dart';
 
-void main() {
+void main() async {
+  // Initialize Firebase
+  final FirebaseService firebaseService = FirebaseService();
+  firebaseService.initializeBackgroundMessageHandler();
+  firebaseService.configureForegroundMessageHandler();
+
   runApp(const MyApp());
 }
 
