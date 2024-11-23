@@ -4,7 +4,7 @@ import 'package:truckpro/models/change_password_request.dart';
 import 'package:truckpro/models/signup_request.dart';
 import 'package:truckpro/models/userDto.dart'; 
 
-class LoginService {
+class  LoginService {
 
   //base url of .net truckApi
   //final String _baseUrl = 'https://localhost:443';  'https://stunning-tadpole-deadly.ngrok-free.app'; 
@@ -188,6 +188,34 @@ class LoginService {
         }, 
         
       ); 
+      var jsonUserDto = json.decode(response.body);
+      var res = jsonUserDto['message'];
+      if (response.statusCode == 200) {
+        return res;
+      } 
+      else {
+        throw Exception(res);
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<String> SendDeviceToken(String jwtToken, String? fcmToken) async
+  {
+    if(fcmToken == null) throw Exception("FCM token is null");
+    try {
+      final url = Uri.parse('$_baseUrl/UpdateDeviceToken');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
+        body: jsonEncode({
+          'deviceToken': fcmToken,
+        }),
+      );
       var jsonUserDto = json.decode(response.body);
       var res = jsonUserDto['message'];
       if (response.statusCode == 200) {
