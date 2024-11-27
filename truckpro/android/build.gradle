@@ -5,33 +5,37 @@ buildscript {
     }
 
     dependencies {
-        // Ensure you are using the correct version of the Android Gradle plugin
         classpath 'com.android.tools.build:gradle:8.2.0'
+        classpath 'com.google.gms:google-services:4.4.2'    
+        classpath 'com.android.tools.build:gradle:3.3.0'    
     }
 }
+
 
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url 'https://storage.googleapis.com/download.flutter.io' } 
+
     }
 }
 
+
 rootProject.buildDir = '../build'
 
-// Ensure all subprojects (including dependencies) use the correct SDK version
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 
 subprojects {
     afterEvaluate { project ->
-        // Apply SDK version settings for Android app or library subprojects
         if (project.plugins.hasPlugin("com.android.application") ||
-                project.plugins.hasPlugin("com.android.library")) {
+            project.plugins.hasPlugin("com.android.library")) {
             project.android {
-                compileSdkVersion 34 // Update to your required version
-                buildToolsVersion "34.0.0" // Ensure compatibility with latest tools
+                compileSdkVersion 34
+                buildToolsVersion "34.0.0"
             }
         }
     }
@@ -41,7 +45,6 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-// Add a clean task for cleaning the build directory
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
