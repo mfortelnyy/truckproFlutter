@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "487639538102",
+    "project_id": "truckpro-c178e",
+    "storage_bucket": "truckpro-c178e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487639538102:android:6eb1eabd785c1a11440917",
+        "android_client_info": {
+          "package_name": "com.truckpro.appdev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSmI6uL3ZaVoy3Xqisfmohd2vsMmm-gbE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
