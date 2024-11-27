@@ -10,7 +10,6 @@ class UploadPhotosScreen extends StatefulWidget {
   Future<void> Function() onPhotoUpload;
   Future<void> Function() resetOffDuty;
  
-
   UploadPhotosScreen({super.key, required this.token, required this.onPhotoUpload, required this.resetOffDuty});
   late DriverApiService driverApiService = DriverApiService(token: token);
 
@@ -21,7 +20,9 @@ class UploadPhotosScreen extends StatefulWidget {
 class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   final String token;
 
-  Map<String, List<PromptImage>>  promptImages = {
+  bool isUploading = false; // Track upload status
+
+  Map<String, List<PromptImage>> promptImages = {
     'Front truck side with Head lights + Emergency flashers and marker lights ON': [],
     'With open hood left side of engine': [],
     'Truck Left steer axle tire condition and PSI measurements, brakes condition (3 pictures)': [],
@@ -48,35 +49,38 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
 
   _UploadPhotosScreenState({required this.token});
 
-  //pick images for a specific prompt, allowing camera or gallery
+  // Pick images for a specific prompt, allowing camera or gallery
   Future<void> _pickImages(String prompt, int promptIndex, int maxImages) async {
-  try {
-    //native image picker to select an image
-    final String? imagePath = await NativeImagePicker.pickImage();
+    try {
+      // image picke manager to select an image based on platform
+      final String? imagePath = await ImagePickerManager.pickImage();
 
-    if (imagePath != null && promptImages[prompt]!.length < maxImages) {
-      //add  picked image to the prompt's list of images
-      setState(() {
-        promptImages[prompt]!.add(PromptImage(imagePath, promptIndex));
-      });
-    } else {
+      if (imagePath != null && promptImages[prompt]!.length < maxImages) {
+        // Add picked image to the prompt's list of images
+        setState(() {
+          promptImages[prompt]!.add(PromptImage(imagePath, promptIndex));
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('You can only upload up to $maxImages images for this prompt!'),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('You can only upload up to $maxImages images for this prompt!'),
+          content: Text('Error while picking the file: $e'),
         ),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error while picking the file: $e'),
-      ),
-    );
   }
-}
-
 
   Future<void> _submitLog() async {
+    setState(() {
+      isUploading = true; 
+    });
+
     bool allImagesUploaded = true;
     List<Map<String, dynamic>> imagesJson = [];
 
@@ -86,20 +90,32 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
       }
       imagesJson.addAll(value.map((promptImage) => promptImage.toJson()));
     });
-    //
+
     if (true) {
-      await widget.driverApiService.createDrivingLog(imagesJson);
-      widget.onPhotoUpload();
-      widget.resetOffDuty();
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Photos uploaded successfully! \nDriving Log started!'),
-      ));
+      try {
+        // wait for the API request to complete
+        await widget.driverApiService.createDrivingLog(imagesJson);
+        widget.onPhotoUpload();
+        widget.resetOffDuty();
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Photos uploaded successfully! \nDriving Log started!'),
+        ));
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error during upload: $e'),
+        ));
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Please upload all required photos!'),
       ));
     }
+
+    setState(() {
+      isUploading = false; 
+    });
   }
 
   @override
@@ -126,7 +142,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                     subtitle: Text('Max $maxImages photos'),
                   ),
                   ElevatedButton(
-                    onPressed: () => _pickImages(prompt, promptIndex, maxImages),
+                    onPressed: isUploading ? null : () => _pickImages(prompt, promptIndex, maxImages),
                     child: const Text('Select Photos'),
                   ),
                   const SizedBox(height: 10),
@@ -179,10 +195,12 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
           );
         }).toList(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _submitLog,
-        child: const Icon(Icons.upload),
-      ),
+      floatingActionButton: isUploading
+          ? const CircularProgressIndicator() 
+          : FloatingActionButton(
+              onPressed: isUploading ? null : _submitLog,
+              child: const Icon(Icons.upload),
+            ),
     );
   }
 
