@@ -61,7 +61,7 @@ class SessionManager {
 
   // check token validity with server
   Future<bool> isTokenValidWithServer(String token) async {
-    final url = Uri.parse('https://truckcheck.org:443/ValidateToken');
+    final url = Uri.parse('https://truckcheck.org/ValidateToken');
     final response = await http.post(
       url,
       headers: {

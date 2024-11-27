@@ -6,7 +6,7 @@ import 'package:truckpro/models/log_entry_type.dart';
 
 class ReportApiService 
 {
-  final String baseUrl = 'https://truckcheck.org:443';
+  final String baseUrl = 'https://truckcheck.org';
 
   Future<Uint8List?> generatePDF(DateTime startDate, DateTime endDate, String token, int driverId, List<LogEntryType> selectedLogTypes) async {
     // format the dates to match the expected format in the backend

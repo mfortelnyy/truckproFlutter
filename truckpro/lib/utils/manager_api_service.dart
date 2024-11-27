@@ -6,7 +6,7 @@ import 'package:truckpro/models/user.dart';
 
 class ManagerApiService {
   //final String baseUrl = 'https://localhost:443';
-   final String baseUrl = 'https://truckcheck.org:443';
+   final String baseUrl = 'https://truckcheck.org';
 
 
   ManagerApiService();

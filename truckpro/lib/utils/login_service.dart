@@ -8,7 +8,7 @@ class  LoginService {
 
   //base url of .net truckApi
   //final String _baseUrl = 'https://localhost:443';  'https://stunning-tadpole-deadly.ngrok-free.app'; 
-  final String _baseUrl = 'https://truckcheck.org:443'; 
+  final String _baseUrl = 'https://truckcheck.org'; 
 
   //handles user login
   Future<String?> loginUser(String email, String password) async {
@@ -24,7 +24,7 @@ class  LoginService {
           'password': password,
         }),
       );
-        print('Response status: ${response.statusCode}');
+        print('LOGIN Response status: ${response.statusCode}');
         print('Response body: ${response.body}');
         print('Redirect location: ${response.headers['location']}');
 
@@ -201,21 +201,26 @@ class  LoginService {
     }
   }
 
-  Future<String> SendDeviceToken(String jwtToken, String? fcmToken) async
+  Future<String> sendDeviceToken(String jwtToken, String? fcmToken) async
   {
     if(fcmToken == null) throw Exception("FCM token is null");
+
     try {
       final url = Uri.parse('$_baseUrl/UpdateDeviceToken');
       final response = await http.post(
         url,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': 'Bearer $jwtToken',
         },
-        body: jsonEncode({
-          'deviceToken': fcmToken,
-        }),
+        body: {"deviceToken": fcmToken}
+      
       );
+      print('Response body FOR UPDATING FCM DEVICE TOKEN: ${response.body}' +
+            '\nResponse CODE FOR UPDATING DEVUCE TOKEN: ${response.statusCode}'+
+            '\nJWTToken: ${jwtToken}'+
+            '\nFCMToken: ${fcmToken}');
+
       var jsonUserDto = json.decode(response.body);
       var res = jsonUserDto['message'];
       if (response.statusCode == 200) {

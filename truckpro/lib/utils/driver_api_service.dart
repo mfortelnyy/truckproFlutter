@@ -4,7 +4,7 @@ import 'package:truckpro/models/log_entry.dart';
 
 class DriverApiService {
   //final String _baseUrl = 'https://localhost:443'; 'https://stunning-tadpole-deadly.ngrok-free.app';
-  final String _baseUrl = 'https://truckcheck.org:443';
+  final String _baseUrl = 'https://truckcheck.org';
 
   final String token;
 
@@ -135,6 +135,7 @@ Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
   // Add images as multipart files
   for (var imageInfo in imagesJson) {
     String filePath = imageInfo['path'];  // file path of the image
+    print("filePath: $filePath");
     var file = await http.MultipartFile.fromPath(
       'images', 
       filePath,
@@ -150,6 +151,8 @@ Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
   try {
     final response = await request.send();
     final responseBody = await http.Response.fromStream(response);
+    print("Create driving log responseBody: $responseBody");
+    print("Create Driving log reponseCode: ${response.statusCode}");
     if (response.statusCode == 200) {
       return responseBody.body;
     } else {

@@ -10,7 +10,7 @@ class FirebaseService {
   
   FirebaseService() {
     // local notifications
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings('@mipmap-anydpi-v26/ic_launcher');
     const  iOS = DarwinInitializationSettings();
     const initSettings = InitializationSettings(android: android, iOS: iOS);
 
