@@ -21,14 +21,18 @@ dependencies:
   file_picker: ^8.0.7
   fl_chart: ^0.69.0
   flutter_pdfview: ^1.3.4
-  pdfx: ^2.3.0
+  #pdfx: ^2.3.0
   signalr_core: ^1.0.0
   firebase_messaging: ^14.8.2
   flutter_local_notifications: ^17.1.2
+  firebase_core: ^2.32.0
+  image_picker: ^1.0.7
+  image_picker_web: ^3.1.1
+  flutter_localizations:
+    sdk: flutter
+  syncfusion_flutter_charts: ^25.1.40
   
   
-  
-
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1
   flutter_test:
@@ -46,3 +50,4 @@ flutter:
   assets:
     - assets/registration_bg.png
     - assets/PDFs/
+    - assets/ca/lets-encrypt-r3.pem
