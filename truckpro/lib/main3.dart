@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   }
 
   Future<void> _pickImage() async {
-    const platform = MethodChannel('com.example.truckpro/image_picker');
+    const platform = MethodChannel('com.truckpro.appdev/image_picker');
     try {
       final String? imagePath = await platform.invokeMethod('pickImage');
       if (imagePath != null) {
