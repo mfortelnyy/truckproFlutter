@@ -16,7 +16,7 @@ import shared_preferences_foundation
     let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
     
     //custom MethodChannel for the image picker - name - bundle identifier
-    let imagePickerChannel = FlutterMethodChannel(name: "com.example.truckpro/image_picker", binaryMessenger: controller.binaryMessenger)
+    let imagePickerChannel = FlutterMethodChannel(name: "com.truckpro.appdev/image_picker", binaryMessenger: controller.binaryMessenger)
     
     //MethodCallHandler to handle image picker calls
     imagePickerChannel.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
