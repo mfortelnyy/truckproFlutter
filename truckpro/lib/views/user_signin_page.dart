@@ -71,7 +71,7 @@ class SignInPageState extends State<SignInPage> {
       try
       {
         String? fcmToken = await _firebaseService.getDeviceToken();
-        _loginService.SendDeviceToken(token, fcmToken);
+        _loginService.sendDeviceToken(token, fcmToken);
       }catch(e)
       {
         print("DeviceToken Not Set Up!");
