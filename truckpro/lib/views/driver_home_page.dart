@@ -555,6 +555,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
                       widget.toggleTheme(isDarkMode); 
                     },
                   ),
+                  buildSettingsPopupMenu(),
                 ],
       
               backgroundColor: const Color.fromARGB(255, 241, 158, 89),
@@ -668,7 +669,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
                 Text(
                   user != null ? user!.email : 'Loading...',
                   style: const TextStyle(
-                    color: Colors.white70,
+                    color: Color.fromARGB(255, 255, 255, 255),
                     fontSize: 14,
                   ),
                 ),
