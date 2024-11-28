@@ -26,6 +26,8 @@ class _CompaniesViewState extends State<CompaniesView> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -80,6 +82,9 @@ class _CompaniesViewState extends State<CompaniesView> {
                       _confirmAndDeleteCompany(company.id, index, company.name);
                     },
                     child: Card(
+                      borderOnForeground: true,
+                      surfaceTintColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                      shadowColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       elevation: 4,
                       child: ListTile(
