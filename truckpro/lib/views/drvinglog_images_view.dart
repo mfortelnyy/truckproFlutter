@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:truckpro/models/log_entry.dart';
 
 class DrivingLogImagesView extends StatelessWidget {
@@ -6,6 +7,7 @@ class DrivingLogImagesView extends StatelessWidget {
   final LogEntry log;
   final String token;
   final void Function()? onApprove;
+
 
   static const List<String> promptImages = [
     'Front truck side with Head lights + Emergency flashers and marker lights ON',
@@ -42,9 +44,11 @@ class DrivingLogImagesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Driving Log Images'),
+        title: Text('Driving Log at ${formatDateTime(log.startTime)}'),
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: FutureBuilder<List<String>>(
@@ -68,22 +72,25 @@ class DrivingLogImagesView extends StatelessWidget {
                 final images = groupedImages[prompt] ?? [];
 
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  borderOnForeground: true,
+                  surfaceTintColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                  shadowColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                  margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
+                  borderRadius: BorderRadius.circular(20),
+                                ),
                   elevation: 4,
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(18.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           prompt,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
-                            color: Color.fromARGB(255, 2, 2, 2), // prompt color
+                            color: isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2), // prompt color
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -133,6 +140,11 @@ class DrivingLogImagesView extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String formatDateTime(DateTime dateTime) {
+    DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
+    return formatter.format(dateTime);
   }
 
   Map<String, List<String>> _groupImagesByPrompt(List<String> urls) {
