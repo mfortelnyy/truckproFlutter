@@ -82,11 +82,15 @@ class _DriversViewAdminState extends State<DriversViewAdmin> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No drivers found for company: ${widget.companyName}'));
           } else {
+            final bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
             return ListView.builder(
               itemCount: filteredDrivers.length,
               itemBuilder: (context, index) {
                 var driver = filteredDrivers[index];
                 return Card(
+                  borderOnForeground: true,
+                  surfaceTintColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                  shadowColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   elevation: 4,
                   child: ListTile(
