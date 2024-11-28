@@ -184,15 +184,93 @@ void _showSnackBar(String message) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Base Home View'),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Base Home View'),
+
+    ),
+    body: const Center(
+      child: Text('Shared functionality between different home views'),
+    ),
+  );
+}
+
+Widget buildDeleteAccountButton() {
+  return IconButton(
+    icon: const Icon(Icons.delete, color: Colors.red),
+    tooltip: 'Delete Account',
+    onPressed: _showDeleteAccountDialog,
+  );
+}
+
+// Inside BaseHomeView
+Widget buildSettingsPopupMenu() {
+  return PopupMenuButton<int>(
+    onSelected: (value) {
+      if (value == 0) {
+        _showDeleteAccountDialog();
+      }
+    },
+    itemBuilder: (BuildContext context) => [
+      const PopupMenuItem<int>(
+        value: 0,
+        child: Text('Delete Account'),
       ),
-      body: const Center(
-        child: Text('Shared functionality between different home views'),
-      ),
-    );
+    ],
+  );
+}
+
+
+
+void _showDeleteAccountDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+          'Are you sure you want to delete your account? This action cannot be undone.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _deleteAccount();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _deleteAccount() async {
+  try {
+    final result = await LoginService().deleteAccount(token!);
+    if (result!.contains("successfully")) {
+      await widget.sessionManager.clearSession();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
+      );
+      _showSnackBar('Your account has been successfully deleted.');
+    } else {
+      _showSnackBar('Failed to delete account. Please try again later.');
+    }
+  } catch (e) {
+    _showSnackBar('An error occurred while deleting the account: $e');
   }
+}
+
 }
