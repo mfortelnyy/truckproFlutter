@@ -129,7 +129,8 @@ class _LogsViewState extends State<LogsViewManager> {
 
   @override
   Widget build(BuildContext context) {
-  return Scaffold(
+    final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+    return Scaffold(
     appBar: AppBar(
       title: const Text('Logs'),
       actions: [
@@ -334,6 +335,9 @@ class _LogsViewState extends State<LogsViewManager> {
                   itemBuilder: (context, index) {
                     var log = logs[index];
                     return Card(
+                       borderOnForeground: true,
+                      surfaceTintColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                      shadowColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
                       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                       child: ListTile(
                         title: Text(
