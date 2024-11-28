@@ -275,15 +275,15 @@ class SignInPageState extends State<SignInPage> {
             ),
           ),
             //loading indicator 
-                  if (loading)
-                    Container(
-                      color: Colors.black.withOpacity(0.6),
-                      child: const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      ),
-                    ),
-                ],
+            if (loading)
+              Container(
+                color: Colors.black.withOpacity(0.6),
+                child: const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
               ),
-            );
-          }
-        }
+          ],
+        ),
+      );
+    }
+  }
