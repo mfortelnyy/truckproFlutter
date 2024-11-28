@@ -48,6 +48,7 @@ class _DriversViewManagerState extends State<DriversViewManager> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Drivers'),
@@ -75,7 +76,12 @@ class _DriversViewManagerState extends State<DriversViewManager> {
               itemCount: filteredDrivers.length,
               itemBuilder: (context, index) {
                 var driver = filteredDrivers[index];
+                final bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+
                 return Card(
+                  borderOnForeground: true,
+                  surfaceTintColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                  shadowColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   elevation: 4,
                   child: ListTile(
