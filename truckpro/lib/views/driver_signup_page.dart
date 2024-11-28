@@ -9,7 +9,6 @@ class DriverSignupPage extends StatefulWidget {
   @override
   DriverSignupPageState createState() => DriverSignupPageState();
 }
-
 class DriverSignupPageState extends State<DriverSignupPage> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -18,14 +17,15 @@ class DriverSignupPageState extends State<DriverSignupPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  final AdminApiService _adminService = AdminApiService(); 
-  final LoginService _loginService = LoginService(); 
+  final AdminApiService _adminService = AdminApiService();
+  final LoginService _loginService = LoginService();
 
   var _companies = [];
   int? _selectedCompanyId;
 
   bool _isPasswordObscured = true;
   bool _isConfirmPasswordObscured = true;
+  bool _isLoading = false; 
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class DriverSignupPageState extends State<DriverSignupPage> {
 
   Future<void> _fetchCompanies() async {
     try {
-      final companies = await _adminService.getAllCompanies("token"); 
+      final companies = await _adminService.getAllCompanies("token");
       setState(() {
         _companies = companies;
       });
@@ -52,26 +52,22 @@ class DriverSignupPageState extends State<DriverSignupPage> {
     final String password = _passwordController.text;
     final String confirmPassword = _confirmPasswordController.text;
 
-    // ensures company is selected
     if (_selectedCompanyId == null) {
       _showErrorDialog('Please select a company.');
       return;
     }
 
-    // validate email format
     if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(email)) {
       _showErrorDialog('Invalid email format');
       return;
     }
 
-    // validate password matching
     if (password != confirmPassword) {
       _showErrorDialog('Passwords do not match!');
       return;
     }
 
-    // create DTO for signup
     SignUpRequest signupDTO = SignUpRequest(
       firstName: firstName,
       lastName: lastName,
@@ -79,21 +75,31 @@ class DriverSignupPageState extends State<DriverSignupPage> {
       password: password,
       confirmPassword: confirmPassword,
       phoneNumber: phone,
-      companyId: _selectedCompanyId!, 
+      companyId: _selectedCompanyId!,
     );
 
+    setState(() {
+      _isLoading = true; 
+    });
+
     try {
-      // make the signup request
       String? res = await _loginService.registerUser(signupDTO);
-      
+
+      setState(() {
+        _isLoading = false; 
+      });
+
       if (res != null && res.isNotEmpty && res.length == 6) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration successful'), backgroundColor: Color.fromARGB(219, 79, 194, 70) ,),
+          const SnackBar(content: Text('Registration successful'), backgroundColor: Color.fromARGB(219, 79, 194, 70)),
         );
       } else {
         _showErrorDialog('Failed to register user. $res');
       }
     } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
       _showErrorDialog('Failed to register user. ${e.toString()}');
     }
   }
@@ -120,6 +126,9 @@ class DriverSignupPageState extends State<DriverSignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    // get the current theme (light or dark)
+    final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Driver Registration'),
@@ -133,15 +142,15 @@ class DriverSignupPageState extends State<DriverSignupPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _buildTextField(_firstNameController, 'First Name'),
+              _buildTextField(_firstNameController, 'First Name', isDarkTheme),
               const SizedBox(height: 16),
-              _buildTextField(_lastNameController, 'Last Name'),
+              _buildTextField(_lastNameController, 'Last Name', isDarkTheme),
               const SizedBox(height: 16),
-              _buildTextField(_emailController, 'Email'),
+              _buildTextField(_emailController, 'Email', isDarkTheme),
               const SizedBox(height: 16),
-              _buildTextField(_phoneController, 'Phone Number'),
+              _buildTextField(_phoneController, 'Phone Number', isDarkTheme),
               const SizedBox(height: 16),
-              _buildTextField(_passwordController, 'Password', 
+              _buildTextField(_passwordController, 'Password', isDarkTheme, 
                 obscureText: _isPasswordObscured, 
                 toggleObscureText: () {
                   setState(() {
@@ -150,7 +159,7 @@ class DriverSignupPageState extends State<DriverSignupPage> {
                 },
               ),
               const SizedBox(height: 16),
-              _buildTextField(_confirmPasswordController, 'Confirm Password', 
+              _buildTextField(_confirmPasswordController, 'Confirm Password', isDarkTheme, 
                 obscureText: _isConfirmPasswordObscured, 
                 toggleObscureText: () {
                   setState(() {
@@ -161,53 +170,63 @@ class DriverSignupPageState extends State<DriverSignupPage> {
               const SizedBox(height: 24),
               _buildDropdown(),
               const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 241, 158, 89),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              AnimatedOpacity(
+                opacity: _isLoading ? 0.0 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: _handleSignup,
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
-                onPressed: _handleSignup,
-                child: const Text(
-                  'Sign Up',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
               ),
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : const SizedBox.shrink(),
             ],
           ),
         ),
       ),
-    );  
+    );
   }
 
   Widget _buildTextField(
     TextEditingController controller, 
     String label, 
-    {bool obscureText = false, VoidCallback? toggleObscureText}) {
+    bool isDarkTheme, {
+    bool obscureText = false, 
+    VoidCallback? toggleObscureText}) {
     return TextField(
       controller: controller,
       obscureText: obscureText,
+      style: TextStyle(color: isDarkTheme ? Colors.white : Colors.black),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.black54),
+        labelStyle: TextStyle(color: isDarkTheme ? Colors.white : Colors.black54),
         enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.black12),
+          borderSide: BorderSide(color: isDarkTheme ? Colors.white : Colors.black12),
           borderRadius: BorderRadius.circular(8),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.black54),
+          borderSide: BorderSide(color: isDarkTheme ? Colors.white : Colors.black54),
           borderRadius: BorderRadius.circular(8),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        fillColor: Colors.white,
+        fillColor: isDarkTheme ? Colors.black : Colors.white,
         filled: true,
         suffixIcon: toggleObscureText != null
             ? IconButton(
                 icon: Icon(
                   obscureText ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.black54,
+                  color: isDarkTheme ? Colors.white : Colors.black54,
                 ),
                 onPressed: toggleObscureText,
               )
@@ -220,16 +239,17 @@ class DriverSignupPageState extends State<DriverSignupPage> {
     return DropdownButtonFormField<int>(
       decoration: InputDecoration(
         labelText: 'Select Company',
+        labelStyle: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
         enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.black12),
+          borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black12),
           borderRadius: BorderRadius.circular(8),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.black54),
+          borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black54),
           borderRadius: BorderRadius.circular(8),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white,
         filled: true,
       ),
       value: _selectedCompanyId,
@@ -241,7 +261,7 @@ class DriverSignupPageState extends State<DriverSignupPage> {
       items: _companies.map((company) {
         return DropdownMenuItem<int>(
           value: company.id,
-          child: Text(company.name),
+          child: Text(company.name, style: TextStyle(color: Colors.black)),
         );
       }).toList(),
     );
