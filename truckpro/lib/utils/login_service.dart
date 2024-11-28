@@ -239,10 +239,10 @@ class  LoginService {
   {
     try {
     final url = Uri.parse('$_baseUrl/DeleteAccount');
-      final response = await http.post(
+      final response = await http.delete(
         url,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
         },
       
