@@ -201,7 +201,7 @@ class ManagerApproveView extends StatelessWidget {
       ManagerApiService managerApiService = ManagerApiService();
       final response = await managerApiService.approveDrivingLogById(logId, token);
 
-      if(response.isNotEmpty)
+      if(response.contains("successfully"))
       {
         onApprove!();
         ScaffoldMessenger.of(context).showSnackBar(
