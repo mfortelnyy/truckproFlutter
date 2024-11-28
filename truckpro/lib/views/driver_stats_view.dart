@@ -93,8 +93,13 @@ class _DriverStatsViewState extends State<DriverStatsView> {
   }
 
   Widget _buildPieChart() {
+    final bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+
     return Card(
-      elevation: 4, // Adds shadow for depth
+      borderOnForeground: true,
+      surfaceTintColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+      shadowColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+      elevation: 4, //shadow for depth
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
