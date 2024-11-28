@@ -85,11 +85,11 @@ Future<void> _fetchManagerData() async {
   try {
     user ??= await LoginService().getUserById(widget.token);
 
-    _drivers ??= managerService.getAllDriversByCompany(widget.token);
-    _allPendingUsers ??= managerService.getAllPendingUsers(widget.token);
-    _allRegisteredUsers ??= managerService.getRegisteredFromPending(widget.token);
-    _notRegistered ??= managerService.getNotRegisteredFromPending(widget.token);
-    _activeDrivingLogs ??= managerService.getAllActiveDrivingLogs(widget.token);
+    _drivers = managerService.getAllDriversByCompany(widget.token);
+    _allPendingUsers = managerService.getAllPendingUsers(widget.token);
+    _allRegisteredUsers = managerService.getRegisteredFromPending(widget.token);
+    _notRegistered = managerService.getNotRegisteredFromPending(widget.token);
+    _activeDrivingLogs = managerService.getAllActiveDrivingLogs(widget.token);
     
     super.checkEmailVerification();
     
