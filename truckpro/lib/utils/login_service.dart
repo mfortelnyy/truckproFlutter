@@ -233,5 +233,31 @@ class  LoginService {
       throw Exception(e.toString());
     }
   }
+  
+  // only drivers and mangaers can delete their accounts
+  Future<String?> deleteAccount(String jwtToken) async
+  {
+    try {
+    final url = Uri.parse('$_baseUrl/DeleteAccount');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Bearer $jwtToken',
+        },
+      
+      );
+       var jsonUserDto = json.decode(response.body);
+      var res = jsonUserDto['message'];
+      if (response.statusCode == 200) {
+        return res;
+      } 
+      else {
+        throw Exception(res);
+      }
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 
 }
