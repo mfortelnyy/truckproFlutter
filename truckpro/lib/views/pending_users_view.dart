@@ -84,7 +84,7 @@ Widget build(BuildContext context) {
                     },
                   ),
           ),
-          if (widget.sendEmail)
+          if (widget.sendEmail && pendingUsers.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SizedBox(
