@@ -284,6 +284,7 @@ Widget build(BuildContext context) {
             widget.toggleTheme(isDarkMode);
           },
         ),
+        buildSettingsPopupMenu()
       ],
     ),
     drawer: _buildDrawer(context, widget.toggleTheme),
