@@ -314,32 +314,63 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
               ),
             ),
           if (_pdfBytes != null)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 5,
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 5,
+                  ),
+                  icon: const Icon(Icons.picture_as_pdf, size: 20),
+                  label: const Text('View PDF', style: TextStyle(fontSize: 14)),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        // Get the screen height
+                        double height = MediaQuery.of(context).size.height;
+
+                        return Dialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Container(
+                            height: height * 0.8, // 80% of the screen
+                            width: double.infinity, // width-> full screen width
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center, // center the content
+                              children: [
+                                Expanded(
+                                  child: PDFViewerWidget(pdfBytes: _pdfBytes!), //PDF widget
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
-                icon: const Icon(Icons.picture_as_pdf, size: 20),
-                label: const Text('View PDF', style: TextStyle(fontSize: 14)),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      content: PDFViewerWidget(pdfBytes: _pdfBytes!),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 5,
+                  ),
+                  icon: const Icon(Icons.download, size: 20),
+                  label: const Text('Download PDF', style: TextStyle(fontSize: 14)),
+                  onPressed: _downloadPdf,
+                ),
+              ],
             ),
+          ),
           FutureBuilder<List<LogEntry>>(
             future: filteredLogsFuture,
             builder: (context, snapshot) {
