@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/userDto.dart';
@@ -448,4 +450,23 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
     DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
     return formatter.format(dateTime);
   }
+
+  Future<void> _downloadPdf() async {
+  try {
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/Generated_Report_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.pdf';
+
+    final file = File(filePath);
+    await file.writeAsBytes(_pdfBytes!);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('PDF saved to $filePath')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to save PDF: $e')),
+    );
+  }
+}
+
 }
