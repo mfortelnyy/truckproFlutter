@@ -226,46 +226,64 @@ class SignInPageState extends State<SignInPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                       ),
-                      child: const Text(
-                        'Log In',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: loading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              'Log In',
+                              style: TextStyle(color: Colors.white, fontSize: 18),
+                            ),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: loading ? null : () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => const DriverSignupPage()),
-                      ),
+                      onPressed: loading
+                          ? null
+                          : () => Navigator.of(context).push(
+                                MaterialPageRoute(builder: (context) => const DriverSignupPage()),
+                              ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
                         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        textStyle: const TextStyle(fontSize: 18, color: Colors.white),
                       ),
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: loading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              'Sign Up',
+                              style: TextStyle(color: Colors.white, fontSize: 18),
+                            ),
                     ),
                   ],
                 ),
               ),
             ),
           ),
-          //loading indicator 
-          if (loading)
-            Container(
-              color: Colors.black.withOpacity(0.6),
-              child: const Center(
-                child: CircularProgressIndicator(color: Colors.white),
+            //loading indicator 
+                  if (loading)
+                    Container(
+                      color: Colors.black.withOpacity(0.6),
+                      child: const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                    ),
+                ],
               ),
-            ),
-        ],
-      ),
-    );
-  }
-}
+            );
+          }
+        }
