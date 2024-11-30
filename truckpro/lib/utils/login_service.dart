@@ -63,6 +63,21 @@ class  LoginService {
   
   }
 
+  Future<String?> registerIndepUser(SignUpRequest signupDTO) async {
+      final url = Uri.parse('$_baseUrl/signupIndep');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(signupDTO.toJson()),
+      );
+      
+      return jsonDecode(response.body)['message'];
+  
+  }
+
+
 
   // handle user change of password
   Future<String?> updatePassword(ChangePasswordRequest cpr, String token) async {
