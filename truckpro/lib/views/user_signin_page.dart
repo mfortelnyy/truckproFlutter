@@ -5,6 +5,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:truckpro/views/driver_home_page.dart';
 import 'package:truckpro/views/driver_signup_page.dart';
 import 'package:truckpro/views/forgot_password_view.dart';
+import 'package:truckpro/views/independent_driver_signup_view.dart';
 import 'package:truckpro/views/manager_home_page.dart';
 import '../utils/admin_api_service.dart';
 import '../utils/firebase_service.dart';
@@ -200,23 +201,46 @@ class SignInPageState extends State<SignInPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: loading ? null : () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => ForgotPasswordView()),
-                          );
-                        },
-                        child: const Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            color: Color.fromARGB(198, 246, 241, 241),
-                            fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: loading
+                              ? null
+                              : () {
+                                  //Independent Driver Sign Up page
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (context) => const IndependentDriverSignupPage()), 
+                                  );
+                                },
+                          child: const Text(
+                            'Not a company driver?',
+                            style: TextStyle(
+                              color: Color.fromARGB(198, 246, 241, 241),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
+                        TextButton(
+                          onPressed: loading
+                              ? null
+                              : () {
+                                  //Forgot Password page
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (context) => ForgotPasswordView()),
+                                  );
+                                },
+                          child: const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: Color.fromARGB(198, 246, 241, 241),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+
                     const SizedBox(height: 25),
                     ElevatedButton(
                       onPressed: loading ? null : () => _handleSignIn(context),
