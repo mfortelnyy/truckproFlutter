@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,6 +59,25 @@ class _ManagerHomeScreenState extends BaseHomeViewState<ManagerHomeScreen> with 
   @override
 void initState() {
   super.initState();
+  Firebase.initializeApp().then((_) {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    messaging.getToken().then((token) {
+      //print("FCM Token: $token");
+    });
+
+    //foreground notifications
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      //print("Message received: ${message.notification?.title}");
+      _showSnackBar(context, 'New Notification: ${message.notification?.title}' );
+    });
+  });
   _loadSettings();
   _fetchManagerData(); 
   
