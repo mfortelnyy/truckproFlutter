@@ -41,7 +41,7 @@ class _PDFViewerWidgetAndroidState extends State<PDFViewerWidgetAndroid> {
     await file.writeAsBytes(widget.pdfBytes);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('PDF saved to: $filePath')),
+      SnackBar(content: Text('PDF saved to: $filePath'), backgroundColor: Color.fromARGB(219, 79, 194, 70)),
     );
   }
 
