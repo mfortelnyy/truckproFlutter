@@ -75,7 +75,7 @@ void initState() {
     //foreground notifications
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       //print("Message received: ${message.notification?.title}");
-      _showSnackBar(context, 'New Notification: ${message.notification?.title}' );
+      _showSnackBar(context, 'New Notification: ${message.notification?.title}', Color.fromARGB(243, 245, 148, 51).withOpacity(0.80));
     });
   });
   _loadSettings();
@@ -138,12 +138,13 @@ Future<void> _fetchManagerData() async {
     });
   }
 
-  void _showSnackBar(BuildContext context, String message)
+  void _showSnackBar(BuildContext context, String message, Color color)
   {
     if(mounted)
       {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
+          SnackBar(content: Text(message),
+          backgroundColor: color,),
         );
       }
   }
@@ -241,7 +242,7 @@ Future<void> _fetchManagerData() async {
                 );
               }
               else{
-                _showSnackBar(context, "No Registered Users at this time!");
+                _showSnackBar(context, "No Registered Users at this time!",Color.fromARGB(230, 247, 42, 66));
               }
             },
           ),
@@ -333,7 +334,7 @@ Widget build(BuildContext context) {
                       ),
                     );
                   } else {
-                    _showSnackBar(context, "No drivers are active at the moment!");
+                    _showSnackBar(context, "No drivers are active at the moment!", Color.fromARGB(230, 247, 42, 66));
                   }
                 },
                 style: ElevatedButton.styleFrom(
