@@ -146,16 +146,16 @@ Future<void> _deletePendingUser(int userId, int index) async {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pending User with ID $userId deleted successfully!')),
+        SnackBar(content: Text('Pending User with ID $userId deleted successfully!'), backgroundColor: Color.fromARGB(219, 79, 194, 70)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete user.')),
+        const SnackBar(content: Text('Failed to delete user.'), backgroundColor:  const Color.fromARGB(230, 247, 42, 66,),),
       );
     }
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error deleting user: $e')),
+      SnackBar(content: Text('Error deleting user: $e'), backgroundColor:  const Color.fromARGB(230, 247, 42, 66,),),
     );
   }
 }
