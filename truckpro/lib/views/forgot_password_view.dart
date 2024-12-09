@@ -70,12 +70,12 @@ class ForgotPasswordViewState extends State<ForgotPasswordView> {
                           catch(e)
                           { 
                             ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Failed to send an email!')),
+                            const SnackBar(content: Text('Failed to send an email!'), backgroundColor: Color.fromARGB(230, 247, 42, 66),),
                             );
                           }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please enter an email address')),
+                            const SnackBar(content: Text('Please enter an email address'), backgroundColor: Color.fromARGB(198, 244, 134, 55),),
                           );
                         }
                       },
