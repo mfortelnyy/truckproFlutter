@@ -101,15 +101,18 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Photos uploaded successfully! \nDriving Log started!'),
+          backgroundColor: Color.fromARGB(219, 79, 194, 70)
         ));
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Error during upload: $e'),
+          backgroundColor: Color.fromARGB(230, 247, 42, 66)
         ));
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Please upload all required photos!'),
+        backgroundColor: Color.fromARGB(230, 247, 42, 66)
       ));
     }
 
@@ -122,7 +125,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Upload Photos'),
+        title: const Text('Upload Photos to Drive'),
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: ListView(
