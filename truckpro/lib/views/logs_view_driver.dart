@@ -99,7 +99,7 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
     );
     if (startDate == null || endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select both start and end dates!')),
+        const SnackBar(content: Text('Please select both start and end dates!'), backgroundColor: Color.fromARGB(236, 251, 163, 69),),
       );
       setState(() {
         isGeneratingPdf = false;
@@ -116,7 +116,7 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to generate PDF.')),
+        const SnackBar(content: Text('Failed to generate PDF.'), backgroundColor:  Color.fromARGB(230, 247, 42, 66),),
       );
     }
 
@@ -431,7 +431,7 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                               }
                             : () async {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('This is not a driving log!')),
+                                  const SnackBar(content: Text('This is not a driving log!'), backgroundColor:  Color.fromARGB(230, 247, 42, 66),),
                                 );
                               },
                       ),
@@ -491,11 +491,11 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
     await file.writeAsBytes(_pdfBytes!);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('PDF saved to $filePath')),
+      SnackBar(content: Text('PDF saved to $filePath'), backgroundColor: Color.fromARGB(219, 79, 194, 70) ,),
     );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to save PDF: $e')),
+      SnackBar(content: Text('Failed to save PDF: $e',), backgroundColor: Color.fromARGB(230, 247, 42, 66),),
     );
   }
 }
