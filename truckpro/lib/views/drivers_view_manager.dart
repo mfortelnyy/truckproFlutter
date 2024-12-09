@@ -120,7 +120,7 @@ class _DriversViewManagerState extends State<DriversViewManager> {
                       }
                       catch(e)
                       {
-                        _showSnackBar(context, "Error: ${e.toString()}");
+                        _showSnackBar(context, "Error: ${e.toString()}", Color.fromARGB(230, 247, 42, 66));
                       }
                     },
                   ),
@@ -153,12 +153,13 @@ String roleToString(int role) {
   }
 }
 
-void _showSnackBar(BuildContext context, String message)
+void _showSnackBar(BuildContext context, String message, Color color)
 {
   if(context.mounted)
     {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
+        SnackBar(content: Text(message),
+        backgroundColor: color,),
       );
     }
 
