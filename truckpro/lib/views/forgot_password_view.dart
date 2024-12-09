@@ -25,7 +25,7 @@ class ForgotPasswordViewState extends State<ForgotPasswordView> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/registration_bg.png'),
+                image: AssetImage('assets/bgimg.jpeg'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -43,7 +43,7 @@ class ForgotPasswordViewState extends State<ForgotPasswordView> {
                         labelText: 'Email',
                         labelStyle: const TextStyle(color: Colors.black),
                         filled: true,
-                        fillColor: const Color.fromARGB(227, 238, 178, 127).withOpacity(0.75),
+                        fillColor: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.75),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
                           borderSide: BorderSide.none,
@@ -55,10 +55,7 @@ class ForgotPasswordViewState extends State<ForgotPasswordView> {
                             width: 2,
                           ),
                         ),
-                        floatingLabelStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Color.fromARGB(255, 249, 249, 249), // label color when focused (floating above)
-                        ),
+                      
                       ),
                     ),
                     const SizedBox(height: 35),
@@ -83,14 +80,14 @@ class ForgotPasswordViewState extends State<ForgotPasswordView> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+                        backgroundColor: const Color.fromARGB(255, 241, 158, 89).withOpacity(0.88),
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         textStyle: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 158, 236, 221), fontWeight: FontWeight.w400),
                       ),
-                      child: const Text('Send Reset Email', style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 208, 227, 230)),),
+                      child: const Text('Send Reset Email', style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 255, 255, 255)),),
                     ),
                   ],
                 ),
