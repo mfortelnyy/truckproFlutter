@@ -49,5 +49,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/registration_bg.png
+    - assets/bgimg.jpeg
     - assets/PDFs/
     - assets/ca/lets-encrypt-r3.pem
