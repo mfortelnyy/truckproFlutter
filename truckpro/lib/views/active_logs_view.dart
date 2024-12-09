@@ -86,7 +86,8 @@ class ActiveLogsView extends StatelessWidget {
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('This is not a driving log!')),
+                              const SnackBar(content: Text('This is not a driving log!'),
+                              backgroundColor: Color.fromARGB(230, 247, 42, 66)),
                             );
                           }
                         } : () async {
@@ -104,7 +105,9 @@ class ActiveLogsView extends StatelessWidget {
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('This is not a driving log!')),
+                              const SnackBar(content: Text('This is not a driving log!'),
+                              backgroundColor: Color.fromARGB(230, 247, 42, 66)
+                              ),
                             );
                           }
                         } ,
