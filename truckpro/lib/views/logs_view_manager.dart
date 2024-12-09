@@ -101,7 +101,7 @@ class _LogsViewState extends State<LogsViewManager> {
     );
     if (startDate == null || endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select both start and end dates!')),
+        const SnackBar(content: Text('Please select both start and end dates!'), backgroundColor: Color.fromARGB(236, 251, 163, 69)),
       );
       setState(() {
         isGeneratingPdf = false;
@@ -118,7 +118,7 @@ class _LogsViewState extends State<LogsViewManager> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to generate PDF.')),
+        const SnackBar(content: Text('Failed to generate PDF.'), backgroundColor:  Color.fromARGB(230, 247, 42, 66)),
       );
     }
 
@@ -366,7 +366,7 @@ class _LogsViewState extends State<LogsViewManager> {
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('This is not a driving log!')),
+                                    const SnackBar(content: Text('This is not a driving log!'), backgroundColor:  Color.fromARGB(230, 247, 42, 66) ),
                                   );
                                 }
                               }
