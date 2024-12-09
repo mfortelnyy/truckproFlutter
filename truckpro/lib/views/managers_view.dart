@@ -132,16 +132,16 @@ class _ManagersViewState extends State<ManagersView> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Manager "$email" deleted successfully!')),
+          SnackBar(content: Text('Manager "$email" deleted successfully!'), backgroundColor: Color.fromARGB(219, 79, 194, 70)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response)),
+          SnackBar(content: Text(response), backgroundColor:  Color.fromARGB(230, 247, 42, 66)),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting manager: $e')),
+        SnackBar(content: Text('Error deleting manager: $e'), backgroundColor:  Color.fromARGB(230, 247, 42, 66)),
       );
     }
   }
