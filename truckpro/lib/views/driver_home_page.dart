@@ -113,7 +113,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           onDutyButtonActive = false; 
           drivingButtonActive = false;
    
-        _showSnackBar(context, "You have exceeded the weekly on-duty hour limit!");
+        _showSnackBar(context, "You have exceeded the weekly on-duty hour limit!", Color.fromARGB(230, 247, 42, 66));
       } else {
         if (!mounted) return;
       
@@ -142,7 +142,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     }
     catch(e)
     {
-      _showSnackBar(context, "Failed to get total on duty hours");
+      _showSnackBar(context, "Failed to get total on duty hours", Color.fromARGB(230, 247, 42, 66));
     }
     
     // _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
@@ -158,7 +158,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
                 context,
                 MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
               );
-       _showSnackBar(context, "Failed to get user, user is not found!");
+       _showSnackBar(context, "Failed to get user, user is not found!", Color.fromARGB(230, 247, 42, 66));
     }
     super.checkEmailVerification();
     if(convertFromTimespan(totalOnDuty)>60)
@@ -351,12 +351,15 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     return elapsedTime.inSeconds / 36000; // Normalize to 10 hours of rest
   }
 
-  void _showSnackBar(BuildContext context, String message)
+  void _showSnackBar(BuildContext context, String message, Color color)
   {
     if(mounted)
       {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
+          SnackBar(
+            content: Text(message),
+            backgroundColor: color,
+          ),    
         );
       }
 
@@ -402,9 +405,9 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           var message = await widget.driverApiService.createOnDutyLog();
           
           _fetchLogEntries();
-          _showSnackBar(context, message);
+          _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
         } catch (e) {
-          _showSnackBar(context, e.toString());
+          _showSnackBar(context, e.toString(), Color.fromARGB(230, 247, 42, 66));
         }
       }
       else{
@@ -418,9 +421,9 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           _setTimer(_offDutyTimer, Duration.zero, true);
             offDutyLog = null;
           });
-          _showSnackBar(context, message);
+          _showSnackBar(context, message,Color.fromARGB(219, 79, 194, 70));
         } catch (e) {
-          _showSnackBar(context, e.toString());
+          _showSnackBar(context, e.toString(), Color.fromARGB(230, 247, 42, 66));
         }
       }
     } else {
@@ -435,15 +438,15 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           // _onDutyTimer.clearPresetTime();
           // _onDutyTimer.setPresetTime(mSec: 0);
           
-  ();
+          ();
           onDutyLog = null;
           });
-          _showSnackBar(context, 'On Duty log stopped successfully');
+          _showSnackBar(context, 'On Duty log stopped successfully', Color.fromARGB(219, 79, 194, 70));
           //_fetchLogEntries();
         }
         else 
         {
-          _showSnackBar(context, 'On Duty log did not stop!');
+          _showSnackBar(context, 'On Duty log failed to stop!', Color.fromARGB(230, 247, 42, 66));
           
         }
         
@@ -479,11 +482,11 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
             drivingLog = null;
             });
           _fetchLogEntries();
-          _showSnackBar(context, message);
+          _showSnackBar(context, message,Color.fromARGB(219, 79, 194, 70) );
         }
         catch(e){
 
-          _showSnackBar(context, "Failed to stop driving log!");
+          _showSnackBar(context, "Failed to stop driving log!", Color.fromARGB(230, 247, 42, 66));
         }
       }
     }
@@ -505,7 +508,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
            onDutyLog = null;
           });
     _fetchLogEntries();
-    _showSnackBar(context, message);
+    _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
   } else {
       try
       {
@@ -519,11 +522,11 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           offDutyLog = null;
         });
         _fetchLogEntries();
-        _showSnackBar(context, 'Off Duty log stopped successfully');
+        _showSnackBar(context, 'Off Duty log stopped successfully', Color.fromARGB(230, 247, 42, 66));
       }
       catch(e)
       {
-        _showSnackBar(context, 'Off Duty log did not stop!');
+        _showSnackBar(context, 'Off Duty log did not stop!', Color.fromARGB(230, 247, 42, 66));
       }
     }
   }
