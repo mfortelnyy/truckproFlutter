@@ -50,7 +50,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
 
         if (_oldPasswordController.text == _newPasswordController.text) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('New password cannot be the same as your old password!')),
+            const SnackBar(content: Text('New password cannot be the same as your old password!'), backgroundColor: Color.fromARGB(230, 247, 42, 66,),),
           );
         } else {
           ChangePasswordRequest cpr = ChangePasswordRequest(
