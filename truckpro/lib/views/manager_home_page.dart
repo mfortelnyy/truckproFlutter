@@ -77,6 +77,11 @@ void initState() {
       //print("Message received: ${message.notification?.title}");
       _showSnackBar(context, 'New Notification: ${message.notification?.title}', Color.fromARGB(243, 245, 148, 51).withOpacity(0.80));
     });
+
+    //handles notification tap, when app is brought from background or terminated state
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      _handleNotificationClick(message);
+    });
   });
   _loadSettings();
   _fetchManagerData(); 
@@ -93,6 +98,20 @@ void initState() {
   );
 
   _animationController.forward();
+
+  
+}
+
+void _handleNotificationClick(RemoteMessage message) {
+  String? targetScreen = message.data['targetScreen'];
+  
+  //check for a target screen in the notification payload
+  if (targetScreen != null) {
+    Navigator.pushNamed(context, targetScreen);
+  } else {
+    //def navigate to the home screen - routes added in main
+    Navigator.pushNamed(context, '/home');
+  }
 }
 
 Future<void> _fetchManagerData() async {
