@@ -116,9 +116,11 @@ class  LoginService {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded', // form-urlencoded
         },
-        body: {
-          'email': email,  // Form data
-        },
+        body: 
+        {
+          'email': email,
+        }  // query paramater
+        
       );
       if (response.statusCode == 200) { 
         var res = json.decode(response.body);
