@@ -126,8 +126,8 @@ class BaseHomeViewState<T extends BaseHomeView> extends State<T> {
                     String verificationCode = verificationCodeController.text.trim();
                     String res = await LoginService().verifyEmail(token!, verificationCode);
                     res.isEmpty
-                        ? _showSnackBar('Cannot verify email!')
-                        : _showSnackBar('Email verified successfully!');
+                        ? _showSnackBar('Cannot verify email!',  Color.fromARGB(230, 247, 42, 66))
+                        : _showSnackBar('Email verified successfully!', Color.fromARGB(255, 66, 164, 70));
                     Navigator.of(context).pop();
                     setState(() {
                       isDialogShowing = false;
@@ -167,9 +167,9 @@ void _handleResendCode() async {
 
   try {
     var res = await LoginService().reSendEmailCode(token!, user!.email);
-    res.isNotEmpty ? _showSnackBar(res) : _showSnackBar('Cannot resend email.');
+    res.isNotEmpty ? _showSnackBar(res, const Color.fromARGB(255, 66, 164, 70)) : _showSnackBar('Cannot resend email.',  Color.fromARGB(230, 247, 42, 66));
   } catch (ex) {
-    _showSnackBar(ex.toString());
+    _showSnackBar(ex.toString(), Color.fromARGB(230, 247, 42, 66));
   }
 
   // Disable resend button for 60 seconds using Future.delayed
@@ -180,8 +180,8 @@ void _handleResendCode() async {
   });
 }
 
-void _showSnackBar(String message) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+void _showSnackBar(String message, Color color) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: color,));
 }
 
 @override
@@ -264,12 +264,12 @@ Future<void> _deleteAccount() async {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
       );
-      _showSnackBar('Your account has been successfully deleted.');
+      _showSnackBar('Your account has been successfully deleted.',Color.fromARGB(255, 66, 164, 70));
     } else {
-      _showSnackBar('Failed to delete account. Please try again later.');
+      _showSnackBar('Failed to delete account. Please try again later.',Color.fromARGB(230, 247, 42, 66));
     }
   } catch (e) {
-    _showSnackBar('An error occurred while deleting the account: $e');
+    _showSnackBar('An error occurred while deleting the account: $e',Color.fromARGB(230, 247, 42, 66));
   }
 }
 
