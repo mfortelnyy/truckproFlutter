@@ -98,7 +98,13 @@ class _MyAppState extends State<MyApp> {
       ),
       themeMode: _themeMode, 
       home: SplashScreen(toggleTheme: _toggleTheme),  //checks session
-      debugShowCheckedModeBanner: false , 
+      debugShowCheckedModeBanner: false ,
+      initialRoute: '/',
+      routes: {
+        //add routes which are used for navigation from background notificiations
+        '/': (context) => SplashScreen(toggleTheme: _toggleTheme),
+        '/home': (context) => SplashScreen(toggleTheme: _toggleTheme),
+      }, 
     );
   }
 }
