@@ -102,7 +102,6 @@ class _MyAppState extends State<MyApp> {
       initialRoute: '/',
       routes: {
         //add routes which are used for navigation from background notificiations
-        '/': (context) => SplashScreen(toggleTheme: _toggleTheme),
         '/home': (context) => SplashScreen(toggleTheme: _toggleTheme),
       }, 
     );
@@ -133,7 +132,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (token != null && JwtDecoder.isExpired(token) == false) {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
         String role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-        print("Decoded Role: $role"); // Print the role
+        //print("Decoded Role: $role"); // Print the role
 
         // Navigate based on role
         switch (role) {
