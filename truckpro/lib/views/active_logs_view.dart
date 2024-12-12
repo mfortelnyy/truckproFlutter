@@ -1,177 +1,201 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:truckpro/models/log_entry.dart';
-import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/userDto.dart';
-import 'package:truckpro/views/manager_approve_view.dart';
+import '../models/log_entry.dart';
+import '../models/log_entry_type.dart';
 
-
-
-import 'drvinglog_images_view.dart';
-
-class ActiveLogsView extends StatelessWidget {
-  final Future<List<LogEntry>> logsFuture;  
+class ActiveLogView extends StatelessWidget {
+  final LogEntry activeLog; //only one active log
   final String token;
-  final bool approve;
-  final void Function()? onApprove;
   final UserDto? userDto;
-  
-
-  const ActiveLogsView({super.key, required this.logsFuture, required this.token, required this.approve, this.userDto, this.onApprove});
+  final int driverId;
+  const ActiveLogView({Key? key, required this.token, required this.activeLog, required this.userDto, required this.driverId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Logs')),
-      body: FutureBuilder<List<dynamic>>(
-        future: logsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return const Center(child: Text('No logs found'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No logs found'));
-          } else {
-            final logs = snapshot.data!;
-            return ListView.builder(
-              itemCount: logs.length,
-              itemBuilder: (context, index) {
-                var log = logs[index];
-                return Card(
-                  borderOnForeground: true,
-                  surfaceTintColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
-                  shadowColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  elevation: 4,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title:  userDto != null
-                         ? Text( "${log.logEntryType.toString().split(".")[1]} Log by ${userDto!.firstName} ${userDto!.lastName} ",
-                          style: const TextStyle(fontWeight: FontWeight.w600))
-                         :
-                         Text( "${log.logEntryType.toString().split(".")[1]} Log by ${log.user!.firstName} ${log.user!.lastName} ",
-                          style: const TextStyle(fontWeight: FontWeight.w600)
-                          ),
-                       subtitle: log.logEntryType == LogEntryType.Driving
-                            ? _buildDrivingLogInfo(log)
-                            : _buildNonDrivingLogInfo(log),
-                        trailing: Column(
-                                    children: [ 
-                                      userDto != null
-                                        ? Text('${userDto?.email} ',
-                                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
-                                            )
-                                        :   Text('${log.user?.email} ',
-                                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal)
-                                            )
-                                          ]
-                                        ),
-                        onTap: approve ? () async {
-                          if (log.logEntryType == LogEntryType.Driving) {
-                            // if driving log and manager => display images for approval 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ManagerApproveView(
-                                  imageUrls: Future.value(log.imageUrls),
-                                  log: log,
-                                  token: token,
-                                  onApprove: onApprove, 
-                                ),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('This is not a driving log!'),
-                              backgroundColor: Color.fromARGB(230, 247, 42, 66)),
-                            );
-                          }
-                        } : () async {
-                          if (log.logEntryType == LogEntryType.Driving) {
-                            // if driving log => display images 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DrivingLogImagesView(
-                                  imageUrls: Future.value(log.imageUrls),
-                                  log: log,
-                                  token: token, 
-                                ),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('This is not a driving log!'),
-                              backgroundColor: Color.fromARGB(230, 247, 42, 66)
-                              ),
-                            );
-                          }
-                        } ,
-                      ),
-                      
-                    ],
-                  ),
+      appBar: AppBar(
+        title: const Text('Active Log'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Active log details (parent log)
+            _buildLogCard(activeLog, isDarkTheme),
+
+            const SizedBox(height: 20),
+
+            // Time Frame 
+            _buildTimeline(activeLog),
+
+            const SizedBox(height: 20),
+
+            // Child logs (if any)
+            if (activeLog.childLogEntries != null &&
+                activeLog.childLogEntries!.isNotEmpty)
+              ...activeLog.childLogEntries!.map((childLog) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: _buildChildLogCard(childLog, isDarkTheme),
                 );
-              },
-            );
-          }
-        },
+              }).toList(),
+          ],
+        ),
       ),
     );
   }
 
-  
-  Widget _buildDrivingLogInfo(LogEntry log) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        //const Text('Driving Log'),
-        Text('Log Start Date: ${formatDateTime(log.startTime)}'),
-        log.endTime != null
-            ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
-            : const Text('Log In Progress'),
-        Text('Approved By Manager: ${boolToString(log.isApprovedByManager)}'),
-        Text('Images attached: ${log.imageUrls?.length ?? 0}'),
-        
-      ],
-      
+  //parent log details
+  Widget _buildLogCard(LogEntry log, bool isDarkTheme) {
+    return Card(
+      elevation: 5,
+      color: isDarkTheme ? Colors.grey[800] : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Log type and status
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${log.logEntryType == LogEntryType.OnDuty ? "On Duty" : "Off Duty"} Log',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: isDarkTheme ? Colors.white : Colors.black,
+                  ),
+                ),
+                Icon(
+                  log.logEntryType == LogEntryType.OnDuty
+                      ? Icons.work
+                      : Icons.bedtime,
+                  color: log.logEntryType == LogEntryType.OnDuty
+                      ? Colors.green
+                      : Colors.blue,
+                  size: 30,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            //Log time and approval status
+            Text(
+              'Start: ${formatDateTime(log.startTime)}\nEnd: ${log.endTime != null ? formatDateTime(log.endTime!) : "In Progress"}',
+              style: TextStyle(
+                fontSize: 16,
+                color: isDarkTheme ? Colors.white70 : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Approved by Manager: ${log.isApprovedByManager ? "Yes" : "No"}',
+              style: TextStyle(
+                fontSize: 16,
+                color: isDarkTheme ? Colors.white70 : Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  
-  Widget _buildNonDrivingLogInfo(LogEntry log) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        //const Text('Non-Driving Log'),
-        Text('Log Start Date: ${formatDateTime(log.startTime)}'),
-        log.endTime != null
-            ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
-            : const Text('In Progress', style: TextStyle(fontSize: 14)),
-        ],
-    );
-  }
+  //child log details
+  Widget _buildChildLogCard(LogEntry childLog, bool isDarkTheme) {
+    IconData icon;
+    String label;
 
-  String roleToString(int role) {
-    switch (role) 
-    {
-      case 0:
-        return "Admin";
-      case 1:
-        return "Manager";
-      case 2:
-        return "Driver";
+    switch (childLog.logEntryType) {
+      case LogEntryType.Driving:
+        icon = Icons.directions_car;
+        label = "Driving";
+        break;
+      case LogEntryType.Break:
+        icon = Icons.coffee;
+        label = "Break";
+        break;
       default:
-        return "default";
+        icon = Icons.bedtime;
+        label = "Sleep";
+        break;
     }
+
+    return Card(
+      elevation: 3,
+      color: isDarkTheme ? Colors.grey[700] : Colors.grey[100],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: isDarkTheme ? Colors.white70 : Colors.black87,
+        ),
+        title: Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: isDarkTheme ? Colors.white : Colors.black,
+          ),
+        ),
+        subtitle: Text(
+          'Start: ${formatDateTime(childLog.startTime)}\nEnd: ${childLog.endTime != null ? formatDateTime(childLog.endTime!) : "In Progress"}',
+          style: TextStyle(
+            fontSize: 14,
+            color: isDarkTheme ? Colors.white70 : Colors.black87,
+          ),
+        ),
+      ),
+    );
   }
 
-  String boolToString(bool val) {
-    return val ? "Yes" : "No";
+  //timeline for the log
+  Widget _buildTimeline(LogEntry log) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Time Frame",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              flex: log.endTime != null
+                  ? log.endTime!.difference(log.startTime).inMinutes.toInt()
+                  : 100, 
+              child: Container(
+                height: 8,
+                color: log.logEntryType == LogEntryType.OnDuty
+                    ? Colors.green
+                    : Colors.blue,
+              ),
+            ),
+            if (log.endTime != null)
+              Expanded(
+                flex: (100 - log.endTime!.difference(log.startTime).inMinutes).toInt(), 
+                child: Container(
+                  height: 8,
+                  color: Colors.grey,
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
   }
 
   String formatDateTime(DateTime dateTime) {
