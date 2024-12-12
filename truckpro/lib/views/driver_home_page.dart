@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
@@ -12,6 +13,7 @@ import 'package:truckpro/views/logs_view_driver.dart';
 import 'package:truckpro/views/upload_photos_view.dart';
 import '../models/log_entry.dart';
 import '../models/userDto.dart';
+import 'active_logs_view.dart';
 import 'update_password_view.dart';
 import 'user_signin_page.dart';
 
@@ -171,7 +173,9 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     
 
     try {
-      List<LogEntry> activeLogs = await widget.driverApiService.fetchActiveLogs();
+      LogEntry activeLog = await widget.driverApiService.fetchActiveLogs();
+      List<LogEntry> activeLogs = [];
+      activeLogs.add(activeLog);
       if (!mounted) return;
       setState(() {
         //totalOnDuty = _getTotalOnDutyHoursLastWeek();
@@ -682,12 +686,12 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           ListTile(
             leading: Icon(Icons.local_activity_rounded, color:  isDarkMode ? Colors.white : Colors.black),
             title: Text('Active Logs', style: TextStyle(color:  isDarkMode ? Colors.white : Colors.black)),
-            onTap: () {
-              var logs = widget.driverApiService.fetchActiveLogs();
+            onTap: () async {
+              var log = await widget.driverApiService.fetchActiveLogs();
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LogsViewDriver(token: widget.token, logsFuture: logs, userDto: user, driverId: user!.id,),
+                  builder: (context) => ActiveLogView(token: widget.token, activeLog: log, userDto: user, driverId: user!.id,),
                 ),
               );
             },
