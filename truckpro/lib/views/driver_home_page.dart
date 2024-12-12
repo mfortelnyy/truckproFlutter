@@ -39,6 +39,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   LogEntry? onDutyLog;
   LogEntry? drivingLog;
   LogEntry? offDutyLog;
+  LogEntry? breakLog;
   bool isLoading = false;
   Timer? _timer;
   @override
@@ -46,6 +47,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   bool onDutyButtonActive = true;
   bool offDutyButtonActive = true;
   bool drivingButtonActive = true;
+  bool breakButtonActive = true;
   late String totalOnDuty;
   bool isDarkMode = false;
 
@@ -55,6 +57,8 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   final StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
   final StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
   final StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  final StopWatchTimer _breakTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  
   Timer? _notificationTimer;
 
   List<LogEntry>? _allActiveLogs;
@@ -182,8 +186,16 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
         if (activeLogs.isEmpty) {
           _resetAllTimers();
         } else {
+          var limits = {
+              LogEntryType.OnDuty:  14,
+              LogEntryType.Driving: 11,
+              LogEntryType.OffDuty: 10,
+              LogEntryType.Break: 0,
+            };
+
           for (var log in activeLogs) {
-            var elapsed = _calculateElapsedTime(log);
+            
+            var elapsed = _calculateElapsedTime(log, limits[log.logEntryType]?? 0);
 
             if (log.logEntryType == LogEntryType.OnDuty && onDutyLog == null) {
               onDutyLog = log;
@@ -275,7 +287,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
             ? _getProgressDriving(logEntry)
             : _getProgressOffDuty(logEntry);
 
-    Duration elapsedTime = _calculateElapsedTime(logEntry);
+    //Duration elapsedTime = _calculateElapsedTime(logEntry, );
     bool isHovered = false;
 
     return StatefulBuilder(
@@ -331,9 +343,9 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     );
   }
 
-  Duration _calculateElapsedTime(LogEntry? logEntry) {
+  Duration _calculateElapsedTime(LogEntry? logEntry, int limitHrs) {
     if (logEntry?.startTime != null) {
-      return DateTime.now().difference(logEntry!.startTime);
+      return Duration(hours: limitHrs) - DateTime.now().difference(logEntry!.startTime);
     }
     return Duration.zero;
   }
@@ -341,17 +353,17 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
  
   
   double _getProgressOnDuty(LogEntry? logEntry) {
-    Duration elapsedTime = _calculateElapsedTime(logEntry);
+    Duration elapsedTime = _calculateElapsedTime(logEntry, 14);
     return elapsedTime.inSeconds / 50400; // Normalize to 14 hours of on duty
   }
 
   double _getProgressDriving(LogEntry? logEntry) {
-    Duration elapsedTime = _calculateElapsedTime(logEntry);
+    Duration elapsedTime = _calculateElapsedTime(logEntry, 11);
     return elapsedTime.inSeconds / 39600; // Normalize to 11 hours of driving
   }
 
   double _getProgressOffDuty(LogEntry? logEntry) {
-    Duration elapsedTime = _calculateElapsedTime(logEntry);
+    Duration elapsedTime = _calculateElapsedTime(logEntry, 10);
     return elapsedTime.inSeconds / 36000; // Normalize to 10 hours of rest
   }
 
@@ -608,6 +620,10 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
                               Expanded(
                                 child: offDutyButtonActive ? _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog, _offDutyTimer) : const SizedBox(height: 100, child: Text("Weekly On Duty Limit exceeded!") )
                           ),
+                          const SizedBox(width: 10), 
+                              Expanded(
+                                child: breakButtonActive? _buildLogButton( offDutyButtonActive ? 'Sleep' : 'Break', breakLog, toggleDrivingLog, _breakTimer) : const SizedBox(height: 100, child: Text("") ),
+                              ),
                         ],
                       ),
                 ],
