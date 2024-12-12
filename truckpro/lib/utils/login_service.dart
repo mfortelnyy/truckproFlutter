@@ -24,9 +24,9 @@ class  LoginService {
           'password': password,
         }),
       );
-        print('LOGIN Response status: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        print('Redirect location: ${response.headers['location']}');
+        // print('LOGIN Response status: ${response.statusCode}');
+        // print('Response body: ${response.body}');
+        // print('Redirect location: ${response.headers['location']}');
 
       if (response.statusCode == 200) {
         //if the server returns a successful response, parse the JSON. 
