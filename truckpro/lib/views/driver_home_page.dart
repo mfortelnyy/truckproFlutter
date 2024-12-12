@@ -58,7 +58,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
   final StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
   final StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
   final StopWatchTimer _breakTimer = StopWatchTimer(mode: StopWatchMode.countUp);
-  
+
   Timer? _notificationTimer;
 
   List<LogEntry>? _allActiveLogs;
@@ -210,6 +210,10 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
               offDutyLog = log;
               _setTimer(_offDutyTimer, elapsed, false);
             }
+            else if (log.logEntryType == LogEntryType.Break && breakLog == null) {
+              breakLog = log;
+              _setTimer(_breakTimer, elapsed, false);
+            }
           }
         }
 
@@ -222,6 +226,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
         onDutyLog = null;
         drivingLog = null;
         offDutyLog = null;
+        breakLog = null;
         _resetAllTimers();
         isLoading = false;
       });
@@ -547,6 +552,41 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     }
   }
 
+  void toggleBreakLog() async {
+  if (breakLog == null) {
+    var message = await widget.driverApiService.createBreakLog();
+    if (!mounted) return;
+    setState(() {
+            _setTimer(_drivingTimer, Duration.zero, true);
+            _setTimer(_onDutyTimer, Duration.zero, true);         
+           drivingLog = null;
+           onDutyLog = null;
+          });
+    _fetchLogEntries();
+    _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
+  } else {
+      try
+      {
+        var message = await widget.driverApiService.stopBreakLog();
+        if (!mounted) return;
+        setState(() {
+          _setTimer(_breakTimer, Duration.zero, true);
+          // _offDutyTimer.onStopTimer();
+          // _offDutyTimer.clearPresetTime();
+          // _offDutyTimer.setPresetTime(mSec: 0);
+          breakLog = null;
+        });
+        _fetchLogEntries();
+        _showSnackBar(context, message, Color.fromARGB(230, 247, 42, 66));
+      }
+      catch(e)
+      {
+        _showSnackBar(context, 'Sleep log failed to stop!', Color.fromARGB(230, 247, 42, 66));
+      }
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -622,7 +662,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
                           ),
                           const SizedBox(width: 10), 
                               Expanded(
-                                child: breakButtonActive? _buildLogButton( offDutyButtonActive ? 'Sleep' : 'Break', breakLog, toggleDrivingLog, _breakTimer) : const SizedBox(height: 100, child: Text("") ),
+                                child: breakButtonActive? _buildLogButton( offDutyButtonActive ? 'Sleep' : 'Break', breakLog, toggleBreakLog, _breakTimer) : const SizedBox(height: 100, child: Text("") ),
                               ),
                         ],
                       ),
