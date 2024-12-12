@@ -227,7 +227,7 @@ Future<String> createOffDutyLog() async {
     }
   }
 
-  Future<List<LogEntry>> fetchActiveLogs() async {     
+  Future<LogEntry> fetchActiveLogs() async {     
       final response = await http.get(
         Uri.parse('$_baseUrl/getActiveLogs'),
         headers: {
@@ -238,7 +238,8 @@ Future<String> createOffDutyLog() async {
       
       if (response.statusCode == 200) {
         var jsonList =  jsonDecode(response.body);
-        return jsonList.map<LogEntry>((json) => LogEntry.fromJson(json)).toList();
+        //returns one object
+        return LogEntry.fromJson(jsonList);
         
       } else {
         throw Exception('Failed to load active logs: ${response.body}');
