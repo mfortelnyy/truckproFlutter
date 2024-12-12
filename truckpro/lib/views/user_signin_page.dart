@@ -294,10 +294,6 @@ class SignInPageState extends State<SignInPage> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
                             )
                           : const Text(
                               'Log In',
@@ -322,10 +318,6 @@ class SignInPageState extends State<SignInPage> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
                             )
                           : const Text(
                               'Sign Up',
