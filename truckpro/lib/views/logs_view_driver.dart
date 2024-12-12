@@ -8,6 +8,7 @@ import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/userDto.dart';
 import '../utils/report_api_service.dart';
 import 'drvinglog_images_view.dart';
+import 'logEntryDetailPage.dart';
 import 'pdf_view_widget.dart';
 
 class LogsViewDriver extends StatefulWidget {
@@ -314,63 +315,63 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
               ),
             ),
           if (_pdfBytes != null)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 5,
-                  ),
-                  icon: const Icon(Icons.picture_as_pdf, size: 20),
-                  label: const Text('View PDF', style: TextStyle(fontSize: 14)),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        // Get the screen height
-                        double height = MediaQuery.of(context).size.height;
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 5,
+                    ),
+                    icon: const Icon(Icons.picture_as_pdf, size: 20),
+                    label: const Text('View PDF', style: TextStyle(fontSize: 14)),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          // Get the screen height
+                          double height = MediaQuery.of(context).size.height;
 
-                        return Dialog(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          child: Container(
-                            height: height * 0.8, // 80% of the screen
-                            width: double.infinity, // width-> full screen width
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center, // center the content
-                              children: [
-                                Expanded(
-                                  child: PDFViewerWidget(pdfBytes: _pdfBytes!), //PDF widget
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Close'),
-                                ),
-                              ],
+                          return Dialog(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: Container(
+                              height: height * 0.8, // 80% of the screen
+                              width: double.infinity, // width-> full screen width
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center, // center the content
+                                children: [
+                                  Expanded(
+                                    child: PDFViewerWidget(pdfBytes: _pdfBytes!), //PDF widget
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Close'),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 5,
+                          );
+                        },
+                      );
+                    },
                   ),
-                  icon: const Icon(Icons.download, size: 20),
-                  label: const Text('Download PDF', style: TextStyle(fontSize: 14)),
-                  onPressed: _downloadPdf,
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 5,
+                    ),
+                    icon: const Icon(Icons.download, size: 20),
+                    label: const Text('Download PDF', style: TextStyle(fontSize: 14)),
+                    onPressed: _downloadPdf,
+                  ),
+                ],
+              ),
             ),
-          ),
           FutureBuilder<List<LogEntry>>(
             future: filteredLogsFuture,
             builder: (context, snapshot) {
@@ -400,40 +401,77 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                   itemCount: logs.length,
                   itemBuilder: (context, index) {
                     var log = logs[index];
+
+                    // If the log has a parent, we need to display the parent log entry
+                    final parentLog = log.parentLogEntryId;
+
                     return Card(
                       borderOnForeground: true,
-                      surfaceTintColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
-                      shadowColor:  isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
-                      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                      child: ListTile(
-                        title: Text(
-                          "${log.logEntryType.toString().split(".")[1] ?? 'Unknown'} Log by ${log.user?.firstName ?? widget.userDto!.firstName} ${log.user?.lastName ?? widget.userDto!.lastName}",
+                      surfaceTintColor: isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                      shadowColor: isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                      color: isDarkTheme ? Color.fromARGB(255, 15, 13, 13) : Colors.white,
+                      child: InkWell(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LogEntryDetailPage(parentLog: log, childrenLogs: log.childLogEntries,),
+                          ),
                         ),
-                        subtitle: log.logEntryType == LogEntryType.Driving
-                            ? _buildDrivingLogInfo(log)
-                            : _buildNonDrivingLogInfo(log),
-                        trailing: Text(
-                          log.user?.email ?? widget.userDto!.email,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        onTap: log.logEntryType == LogEntryType.Driving
-                            ? () async {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DrivingLogImagesView(
-                                      imageUrls: Future.value(log.imageUrls),
-                                      log: log,
-                                      token: widget.token,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${log.logEntryType.toString().split(".").last} Log',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: isDarkTheme ? Colors.white : Colors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              // Show parent log if exists
+                              if (parentLog != null)
+                                Text(
+                                  'Parent Log: ${parentLog}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: isDarkTheme ? Colors.grey[400] : Colors.grey[600],
+                                  ),
+                                ),
+                              Text(
+                                'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: isDarkTheme ? Colors.white70 : Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              // Conditionally show 'Images' and 'Approved by Manager'
+                              if (log.logEntryType == LogEntryType.OnDuty) ...[
+                                // Show number of images if logEntryType is not Driving
+                                if (log.imageUrls != null && log.imageUrls!.isNotEmpty)
+                                  Text(
+                                    'Images: ${log.imageUrls!.length} images',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: isDarkTheme ? Colors.white70 : Colors.black87,
                                     ),
                                   ),
-                                );
-                              }
-                            : () async {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('This is not a driving log!'), backgroundColor:  Color.fromARGB(230, 247, 42, 66),),
-                                );
-                              },
+                                // Show 'Approved by Manager' if logEntryType is not Driving
+                                Text(
+                                  'Approved by Manager',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: isDarkTheme ? Colors.white70 : Colors.black87,
+                                  ),
+                                ),
+                              ], 
+                            ],
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -447,57 +485,34 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
   );
 }
 
-  Widget _buildDrivingLogInfo(LogEntry log) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Log Start Date: ${formatDateTime(log.startTime)}'),
-        log.endTime != null
-            ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
-            : const Text('Log In Progress'),
-        Text('Approved: ${boolToString(log.isApprovedByManager)}'),
-        Text('Images attached: ${log.imageUrls?.length ?? 0}'),
-      ],
-    );
-  }
-
-  Widget _buildNonDrivingLogInfo(LogEntry log) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Log Start Date: ${formatDateTime(log.startTime)}'),
-        log.endTime != null
-            ? Text('Log End Date: ${formatDateTime(log.endTime!)}')
-            : const Text('In Progress', style: TextStyle(fontSize: 14)),
-      ],
-    );
-  }
-
-  String boolToString(bool val) {
-    return val ? "Yes" : "No";
-  }
-
-  String formatDateTime(DateTime dateTime) {
-    DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
-    return formatter.format(dateTime);
-  }
-
   Future<void> _downloadPdf() async {
-  try {
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/Generated_Report_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.pdf';
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/Generated_Report_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.pdf';
 
-    final file = File(filePath);
-    await file.writeAsBytes(_pdfBytes!);
+      final file = File(filePath);
+      await file.writeAsBytes(_pdfBytes!);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('PDF saved to $filePath'), backgroundColor: Color.fromARGB(219, 79, 194, 70) ,),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to save PDF: $e',), backgroundColor: Color.fromARGB(230, 247, 42, 66),),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('PDF saved to $filePath'), backgroundColor: Color.fromARGB(219, 79, 194, 70) ,),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save PDF: $e',), backgroundColor: Color.fromARGB(230, 247, 42, 66),),
+      );
+    }
   }
-}
+
+   String formatDateTime(DateTime? dateTime) {
+    if (dateTime != null) {
+      DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
+      return formatter.format(dateTime); 
+    } 
+    //DateTime is null -> it's in progress
+    else {
+      return 'In progress'; 
+    }
+  }
+
 
 }
