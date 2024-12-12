@@ -80,9 +80,9 @@ class DriverApiService {
     );
     print(response.statusCode);
     if (response.statusCode == 200) {
-      return 'On Duty log created: ${response.body}';
+      return response.body;
     } else {
-      throw Exception('Failed to create On Duty log: ${response.body}');
+      throw Exception(response.body);
     }
   }
   
@@ -151,12 +151,12 @@ Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
   try {
     final response = await request.send();
     final responseBody = await http.Response.fromStream(response);
-    print("Create driving log responseBody: $responseBody");
-    print("Create Driving log reponseCode: ${response.statusCode}");
+    // print("Create driving log responseBody: $responseBody");
+    // print("Create Driving log reponseCode: ${response.statusCode}");
     if (response.statusCode == 200) {
       return responseBody.body;
     } else {
-      throw Exception('Failed to upload images: ${responseBody.body}');
+      throw Exception(responseBody.body);
     }
   } catch (e) {
     throw Exception('Error: $e');
@@ -179,6 +179,24 @@ Future<String> createOffDutyLog() async {
     }
   }
 
+  Future<String> createBreakLog() async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/createBreakLog'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception(response.body);
+    }
+  }
+
+
+
   Future<String> stopDrivingLog() async {
     final response = await http.post(
       Uri.parse('$_baseUrl/stopDrivingLog'),
@@ -189,9 +207,9 @@ Future<String> createOffDutyLog() async {
     );
 
     if (response.statusCode == 200) {
-      return 'Driving log stopped: ${response.body}';
+      return response.body;
     } else {
-      throw Exception('Failed to stop Driving log: ${response.body}');
+      throw Exception(response.body);
     }
   }
 
@@ -205,9 +223,9 @@ Future<String> createOffDutyLog() async {
     );
 
     if (response.statusCode == 200) {
-      return 'On Duty log stopped: ${response.body}';
+      return response.body;
     } else {
-      throw Exception('Failed to stop On Duty log: ${response.body}');
+      throw Exception(response.body);
     }
   }
 
@@ -221,9 +239,25 @@ Future<String> createOffDutyLog() async {
     );
 
     if (response.statusCode == 200) {
-      return 'Off Duty log stopped: ${response.body}';
+      return response.body;
     } else {
-      throw Exception('Failed to stop Off Duty log: ${response.body}');
+      throw Exception(response.body);
+    }
+  }
+
+  Future<String> stopBreakLog() async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/stopBreakLog'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception(response.body);
     }
   }
 
