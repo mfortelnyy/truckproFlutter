@@ -142,11 +142,15 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                 children: [
                   ListTile(
                     title: Text(prompt),
-                    subtitle: Text('Max $maxImages photos'),
+                    trailing:  Text('Max $maxImages photos'),             
                   ),
-                  ElevatedButton(
-                    onPressed: isUploading ? null : () => _pickImages(prompt, promptIndex, maxImages),
-                    child: const Text('Select Photos'),
+                  const SizedBox(height: 5),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: ElevatedButton(
+                      onPressed: isUploading ? null : () => _pickImages(prompt, promptIndex, maxImages),
+                      child: const Text('Select Photos'),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   promptImages[prompt]!.isNotEmpty
@@ -189,7 +193,7 @@ class _UploadPhotosScreenState extends State<UploadPhotosScreen> {
                           }).toList(),
                         )
                       : const Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.only(left: 20.0, bottom: 10),
                           child: Text('No images selected'),
                         ),
                 ],
