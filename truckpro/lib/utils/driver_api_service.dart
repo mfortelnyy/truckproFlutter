@@ -32,7 +32,7 @@ class DriverApiService {
         throw Exception('Failed to add image: ${responseBody.body}');
       }
     } catch (e) {
-      throw Exception('Error: $e');
+      throw Exception('$e');
     }
   }
 
@@ -66,7 +66,7 @@ class DriverApiService {
         throw Exception('Failed to add image: ${responseBody.body}');
       }
     } catch (e) {
-      throw Exception('Error: $e');
+      throw Exception('$e');
     }
   }
 
@@ -82,7 +82,7 @@ class DriverApiService {
     if (response.statusCode == 200) {
       return response.body;
     } else {
-      throw Exception(response.body);
+      throw Exception(response.body.toString().split(":").last);
     }
   }
   
@@ -159,7 +159,7 @@ Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
       throw Exception(responseBody.body);
     }
   } catch (e) {
-    throw Exception('Error: $e');
+    throw Exception(e);
   }
 }
 
@@ -276,7 +276,7 @@ Future<String> createOffDutyLog() async {
         return LogEntry.fromJson(jsonList);
         
       } else {
-        throw Exception('Failed to load active logs: ${response.body}');
+        throw Exception('Failed to load active logs!');
       }
 
   }
