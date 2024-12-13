@@ -514,6 +514,9 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     setState(() {
             _setTimer(_drivingTimer, Duration.zero, true);
             _setTimer(_onDutyTimer, Duration.zero, true);
+            drivingButtonActive = false;
+            onDutyButtonActive = false;
+            offDutyButtonActive = true;
       
           // _drivingTimer.onStopTimer();
           // _drivingTimer.clearPresetTime();
@@ -534,6 +537,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           // _offDutyTimer.onStopTimer();
           // _offDutyTimer.clearPresetTime();
           // _offDutyTimer.setPresetTime(mSec: 0);
+          offDutyButtonActive = false;
           offDutyLog = null;
         });
         _fetchLogEntries();
@@ -546,40 +550,59 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     }
   }
 
-  void toggleBreakLog() async {
+  void toggleBreakLog(bool sleep) async {
   if (breakLog == null) {
-    if(offDutyLog !=  null)
+    //create sleep log for off duty
+    if(offDutyLog !=  null && sleep)
     {
       var message = await widget.driverApiService.createBreakLog();
       if (!mounted) return;
-      setState(() {
-              _setTimer(_drivingTimer, Duration.zero, true);
-              _setTimer(_onDutyTimer, Duration.zero, true);         
+      setState(() {    
             drivingLog = null;
             onDutyLog = null;
             });
-      _fetchLogEntries();
-      _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
+      if(message.contains("successfully"))
+      {
+        _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
+        _fetchLogEntries();
+
+      }
+      else  
+      {
+        _showSnackBar(context, message.split(":").last, Color.fromARGB(230, 247, 42, 66));
+      }
     }
-  } else {
+    //create break log for on duty
+    else if(onDutyLog != null && !sleep) {
       try
       {
-        if(offDutyLog  != null)
-        {
-          var message = await widget.driverApiService.stopBreakLog();
+          var message = await widget.driverApiService.createBreakLog();
           if (!mounted) return;
           setState(() {
             _setTimer(_breakTimer, Duration.zero, true);
             // _offDutyTimer.onStopTimer();
             // _offDutyTimer.clearPresetTime();
             // _offDutyTimer.setPresetTime(mSec: 0);
-            breakLog = null;
           });
-          _fetchLogEntries();
-          _showSnackBar(context, message, Color.fromARGB(230, 247, 42, 66));
+          if(message.contains("successfully"))
+          {
+            if(drivingLog != null) 
+            {
+              var msg = await widget.driverApiService.stopDrivingLog();
+              if(msg.contains("successfully"))
+              {
+                _showSnackBar(context, msg, Color.fromARGB(219, 79, 194, 70));
+              }
+            }
+            _fetchLogEntries();
 
-        }
-        
+            _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
+
+          }
+          else  
+          {
+            _showSnackBar(context, message.split(":").last, Color.fromARGB(230, 247, 42, 66));
+          }
       }
       catch(e)
       {
@@ -587,6 +610,26 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
       }
     }
   }
+  //stop break log 
+  else
+  {
+    try
+    {
+      var message = await widget.driverApiService.stopBreakLog();
+      if (!mounted) return;
+      setState(() {
+        _setTimer(_breakTimer, Duration.zero, true);
+        breakLog = null;
+      });
+      _fetchLogEntries();
+      _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
+    }
+    catch(e)
+    {
+      _showSnackBar(context, 'Break log failed to stop!', Color.fromARGB(230, 247, 42, 66));
+    }
+  }
+}
 
   void processActiveLogs(List<LogEntry> activeLogs, Map<LogEntryType, int> limits) {
   if (activeLogs.isEmpty) return;
@@ -688,26 +731,45 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
                             ],
                           ),
                           const SizedBox(height: 20),
-
                           // Off Duty button in its own section
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Expanded(
-                                child: offDutyButtonActive ? _buildLogButton('Off Duty', offDutyLog, toggleOffDutyLog, _offDutyTimer) : const SizedBox(height: 100, child: Text("Weekly On Duty Limit exceeded!") )
-                          ),
+                                 child: offDutyButtonActive
+                                    ? _buildLogButton(
+                                        'Off Duty', 
+                                        offDutyLog, 
+                                        toggleOffDutyLog, 
+                                        _offDutyTimer,
+                                      )
+                                    : const SizedBox(
+                                        height: 100,
+                                        child: Text("Weekly On Duty Limit exceeded!"),
+                                      ),
+                              ),
                           const SizedBox(width: 10), 
                               Expanded(
-                                child: breakButtonActive? _buildLogButton( offDutyButtonActive ? 'Sleep' : 'Break', breakLog, toggleBreakLog, _breakTimer) : const SizedBox(height: 100, child: Text("") ),
+                                child: breakButtonActive
+                                    ? _buildLogButton(
+                                        offDutyLog != null ? 'Sleep' : 'Break', 
+                                        breakLog, 
+                                        () => toggleBreakLog(offDutyLog != null), // Pass true if 'Sleep', false if 'Break'
+                                        _breakTimer,
+                                      )
+                                    : const SizedBox(
+                                        height: 100,
+                                        child: Text(""),
+                                      ),
                               ),
+                            ],
+                          ),
                         ],
                       ),
-                ],
-            ),
-          )
-        )
-      );
-  }
+                    )
+                  )
+                );
+              }
 
   
   // Method to create each section
