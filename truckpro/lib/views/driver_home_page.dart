@@ -466,7 +466,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
 
   void toggleDrivingLog() async {
     if (drivingLog == null) {
-      if(offDutyButtonActive)
+      if(offDutyLog != null)
       {
         _showSnackBar(context, "Please Stop Off Duty Log before Driving. \nMake sure you've been Off duty for 10 hours to reset your Daily Driving Limit (11 hours)", Color.fromARGB(255, 250, 140, 44));
         return;
