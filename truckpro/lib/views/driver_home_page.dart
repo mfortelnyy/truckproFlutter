@@ -54,10 +54,10 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
 
   
 
-  final StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
-  final StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countUp);
-  final StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countUp);
-  final StopWatchTimer _breakTimer = StopWatchTimer(mode: StopWatchMode.countUp);
+  final StopWatchTimer _onDutyTimer = StopWatchTimer(mode: StopWatchMode.countDown);
+  final StopWatchTimer _drivingTimer = StopWatchTimer(mode: StopWatchMode.countDown);
+  final StopWatchTimer _offDutyTimer = StopWatchTimer(mode: StopWatchMode.countDown);
+  final StopWatchTimer _breakTimer = StopWatchTimer(mode: StopWatchMode.countDown);
 
   Timer? _notificationTimer;
 
@@ -192,29 +192,8 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
               LogEntryType.OffDuty: 10,
               LogEntryType.Break: 0,
             };
-
-          for (var log in activeLogs) {
-            
-            var elapsed = _calculateElapsedTime(log, limits[log.logEntryType]?? 0);
-
-            if (log.logEntryType == LogEntryType.OnDuty && onDutyLog == null) {
-              onDutyLog = log;
-              if (_onDutyTimer.minuteTime.value > 0) {
-                _onDutyTimer.onResetTimer();
-              }
-              _setTimer(_onDutyTimer, elapsed, false);
-            } else if (log.logEntryType == LogEntryType.Driving && drivingLog == null) {
-              drivingLog = log;
-              _setTimer(_drivingTimer, elapsed, false);
-            } else if (log.logEntryType == LogEntryType.OffDuty && offDutyLog == null) {
-              offDutyLog = log;
-              _setTimer(_offDutyTimer, elapsed, false);
-            }
-            else if (log.logEntryType == LogEntryType.Break && breakLog == null) {
-              breakLog = log;
-              _setTimer(_breakTimer, elapsed, false);
-            }
-          }
+          
+          processActiveLogs(activeLogs,limits);
         }
 
         _allActiveLogs = activeLogs;
@@ -425,10 +404,20 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
         try {
           var message = await widget.driverApiService.createOnDutyLog();
           
-          _fetchLogEntries();
-          _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
+          
+          if(message.contains("successfully"))
+          {
+            _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
+            _fetchLogEntries();
+          }
+          else
+          {
+            _showSnackBar(context, message.split(":").last, Color.fromARGB(230, 247, 42, 66));
+          }
         } catch (e) {
-          _showSnackBar(context, e.toString(), Color.fromARGB(230, 247, 42, 66));
+          var msg = e.toString();
+          print(msg);
+          _showSnackBar(context, msg.split(":").last, Color.fromARGB(230, 247, 42, 66));
         }
       }
       else{
@@ -477,6 +466,11 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
 
   void toggleDrivingLog() async {
     if (drivingLog == null) {
+      if(offDutyButtonActive)
+      {
+        _showSnackBar(context, "Please Stop Off Duty Log before Driving. \nMake sure you've been Off duty for 10 hours to reset your Daily Driving Limit (11 hours)", Color.fromARGB(255, 250, 140, 44));
+        return;
+      }
       
       //if (onDutyLog != null) {
         Navigator.push(
@@ -554,30 +548,38 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
 
   void toggleBreakLog() async {
   if (breakLog == null) {
-    var message = await widget.driverApiService.createBreakLog();
-    if (!mounted) return;
-    setState(() {
-            _setTimer(_drivingTimer, Duration.zero, true);
-            _setTimer(_onDutyTimer, Duration.zero, true);         
-           drivingLog = null;
-           onDutyLog = null;
-          });
-    _fetchLogEntries();
-    _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
+    if(offDutyLog !=  null)
+    {
+      var message = await widget.driverApiService.createBreakLog();
+      if (!mounted) return;
+      setState(() {
+              _setTimer(_drivingTimer, Duration.zero, true);
+              _setTimer(_onDutyTimer, Duration.zero, true);         
+            drivingLog = null;
+            onDutyLog = null;
+            });
+      _fetchLogEntries();
+      _showSnackBar(context, message, Color.fromARGB(219, 79, 194, 70));
+    }
   } else {
       try
       {
-        var message = await widget.driverApiService.stopBreakLog();
-        if (!mounted) return;
-        setState(() {
-          _setTimer(_breakTimer, Duration.zero, true);
-          // _offDutyTimer.onStopTimer();
-          // _offDutyTimer.clearPresetTime();
-          // _offDutyTimer.setPresetTime(mSec: 0);
-          breakLog = null;
-        });
-        _fetchLogEntries();
-        _showSnackBar(context, message, Color.fromARGB(230, 247, 42, 66));
+        if(offDutyLog  != null)
+        {
+          var message = await widget.driverApiService.stopBreakLog();
+          if (!mounted) return;
+          setState(() {
+            _setTimer(_breakTimer, Duration.zero, true);
+            // _offDutyTimer.onStopTimer();
+            // _offDutyTimer.clearPresetTime();
+            // _offDutyTimer.setPresetTime(mSec: 0);
+            breakLog = null;
+          });
+          _fetchLogEntries();
+          _showSnackBar(context, message, Color.fromARGB(230, 247, 42, 66));
+
+        }
+        
       }
       catch(e)
       {
@@ -586,6 +588,40 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     }
   }
 
+  void processActiveLogs(List<LogEntry> activeLogs, Map<LogEntryType, int> limits) {
+  if (activeLogs.isEmpty) return;
+
+  var activeParentLog = activeLogs[0];
+  //process the activeParentLog itself
+  _processLog(activeParentLog, limits);
+
+  //process child logs
+  for (var log in activeParentLog.childLogEntries ?? []) {
+    _processLog(log, limits);
+  }
+}
+
+//creates timers for logs presets with elapsed (preset) time
+void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
+  var elapsed = _calculateElapsedTime(log, limits[log.logEntryType] ?? 0);
+
+  if (log.logEntryType == LogEntryType.OnDuty && onDutyLog == null) {
+    onDutyLog = log;
+    if (_onDutyTimer.minuteTime.value > 0) {
+      _onDutyTimer.onResetTimer();
+    }
+    _setTimer(_onDutyTimer, elapsed, false);
+  } else if (log.logEntryType == LogEntryType.Driving && drivingLog == null) {
+    drivingLog = log;
+    _setTimer(_drivingTimer, elapsed, false);
+  } else if (log.logEntryType == LogEntryType.OffDuty && offDutyLog == null) {
+    offDutyLog = log;
+    _setTimer(_offDutyTimer, elapsed, false);
+  } else if (log.logEntryType == LogEntryType.Break && breakLog == null) {
+    breakLog = log;
+    _setTimer(_breakTimer, elapsed, false);
+  }
+}
 
 
   @override
@@ -594,9 +630,9 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           appBar:
             AppBar(
               title: user != null
-                  ? Text('Welcome, ${user!.firstName} ${user!.lastName}',        
-                    //spaceSize: 72,
-                    style: const TextStyle(
+                  ? Text('Welcome, ${user!.firstName} ${user!.lastName}',  
+                    textAlign: TextAlign.right,      
+                    style: const TextStyle(                     
                       color: Color.fromARGB(255, 255, 255, 255),
                       fontWeight: FontWeight.w600,
                       fontSize: 24,
@@ -743,13 +779,22 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
             leading: Icon(Icons.local_activity_rounded, color:  isDarkMode ? Colors.white : Colors.black),
             title: Text('Active Logs', style: TextStyle(color:  isDarkMode ? Colors.white : Colors.black)),
             onTap: () async {
-              var log = await widget.driverApiService.fetchActiveLogs();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ActiveLogView(token: widget.token, activeLog: log, userDto: user, driverId: user!.id,),
-                ),
-              );
+              Navigator.pop(context);
+              try
+              {
+                var log = await widget.driverApiService.fetchActiveLogs();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ActiveLogView(token: widget.token, activeLog: log, userDto: user, driverId: user!.id,),
+                  ),
+                );
+              }
+              catch(e)
+              {
+                _showSnackBar(context, "No Active Logs at this time!", Color.fromARGB(230, 247, 42, 66));
+              }
+              
             },
           ),
           ListTile(
