@@ -61,21 +61,26 @@ class SessionManager {
 
   // check token validity with server
   Future<bool> isTokenValidWithServer(String token) async {
-    final url = Uri.parse('https://truckcheck.org/ValidateToken');
-    final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+    try
+    {
+      final url = Uri.parse('https://truckcheck.org/ValidateToken');
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      // 200 means token is valid
-      return true;
-    } else {
-      return false;
-    }
+      if (response.statusCode == 200) {
+        // 200 means token is valid
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) { //if exception then token not valid 
+        return false;
+      }
   }
 
 
