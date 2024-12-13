@@ -734,7 +734,7 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color:  isDarkMode ? Colors.white : Colors.black,
+              color:Colors.black,
             ),
           ),
           const SizedBox(height: 10),
