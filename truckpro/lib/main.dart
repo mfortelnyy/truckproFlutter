@@ -137,33 +137,42 @@ class _SplashScreenState extends State<SplashScreen> {
         // Navigate based on role
         switch (role) {
           case "Admin":
-            Navigator.of(context).pushReplacement(
+            Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => AdminHomePage(adminService: AdminApiService(), token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme)),
+              (Route<dynamic> route) => false,
             );
             break;
           case "Manager":
-            Navigator.of(context).pushReplacement(
+            Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => ManagerHomeScreen(token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme)),
+              (Route<dynamic> route) => false,
             );
             break;
           case "Driver":
-            Navigator.of(context).pushReplacement(
+            Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => DriverHomeView(token: token, sessionManager: _sessionManager, toggleTheme: widget.toggleTheme)),
+              (Route<dynamic> route) => false,
             );
             break;
           default:
-            Navigator.of(context).pushReplacement(
+            Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
+              (Route<dynamic> route) => false,
             );
         }
       } else {
         // token is invalid or expired
-        Navigator.of(context).pushReplacement(
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
+          (Route<dynamic> route) => false,        
         );
       }
     } catch (e) {
-      print("Error checking session: ${e.toString()}");
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
+          (Route<dynamic> route) => false,
+        );
+      //print("Error checking session: ${e.toString()}");
     }
   }
 
