@@ -128,12 +128,14 @@ Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
 */
 
 Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
+ 
   final url = Uri.parse('$_baseUrl/createDrivingLog');
   var request = http.MultipartRequest('POST', url)
     ..headers['Authorization'] = 'Bearer $token';
-
-  // Add images as multipart files
-  for (var imageInfo in imagesJson) {
+  if(imagesJson.isNotEmpty)
+  {
+    // Add images as multipart files
+    for (var imageInfo in imagesJson) {
     String filePath = imageInfo['path'];  // file path of the image
     print("filePath: $filePath");
     var file = await http.MultipartFile.fromPath(
@@ -143,7 +145,7 @@ Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
     );
     request.files.add(file);
   }
-
+  }
   // Encode and send metadata as JSON
   String promptImagesJson = jsonEncode(imagesJson);
   request.fields['promptImages'] = promptImagesJson;
