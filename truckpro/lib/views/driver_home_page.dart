@@ -121,11 +121,24 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
           drivingButtonActive = false;
           onDutyLog = null;
           drivingLog = null;
-          var drivingStopped = await widget.driverApiService.stopDrivingLog();
-          var onDutyStopped = await widget.driverApiService.stopOnDutyLog();
-          if(drivingStopped.contains("successfully") && onDutyStopped.contains("successfully"))
+          try
           {
-            _showSnackBar(context, "You have exceeded the weekly on-duty hour limit! Driving and On Duty blocked", Color.fromARGB(209, 244, 148, 23));
+            var drivingStopped = await widget.driverApiService.stopDrivingLog();
+            var onDutyStopped = await widget.driverApiService.stopOnDutyLog();
+            if(drivingStopped.contains("successfully") && onDutyStopped.contains("successfully"))
+            {
+              setState(() {
+                drivingButtonActive = false;
+                onDutyButtonActive = false;
+                onDutyLog = null;
+                drivingLog = null;
+              });
+              _showSnackBar(context, "You have exceeded the weekly on-duty hour limit! Driving and On Duty blocked", Color.fromARGB(209, 244, 148, 23));
+            }
+          }
+          catch(e)
+          {
+            _showSnackBar(context, e.toString(), Color.fromARGB(230, 247, 42, 66));
           }
 
        }
@@ -321,7 +334,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
               ElevatedButton(
                 onPressed: () => toggleLog(),
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: logEntry == null ? Colors.teal : Colors.red,
+                  foregroundColor: Colors.white, backgroundColor: logEntry == null ?  Colors.teal : Colors.red,
                   padding: const EdgeInsets.symmetric(
                     vertical: 12,
                     horizontal: 24,
@@ -333,6 +346,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
                 child: Text(
                   logEntry == null ? 'Start $logType' : 'Stop $logType',
                   style: const TextStyle(fontSize: 16),
+
                 ),
               ),
             ],
@@ -608,6 +622,8 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
                   _drivingTimer.onStopTimer();
                   _drivingTimer.clearPresetTime();
                   _drivingTimer.setPresetTime(mSec: 0);
+                  drivingButtonActive = false;
+                  drivingLog = null;
                 });
               }
             }
@@ -739,7 +755,7 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Expanded(
-                                child:onDutyButtonActive ? _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer) : const Center(child: SizedBox(height:  100, child: Text("") )),
+                                child: _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer)
                               ),
                               const SizedBox(width: 10), 
                               Expanded(
