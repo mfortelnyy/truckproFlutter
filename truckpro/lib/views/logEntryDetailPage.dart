@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
+
 class LogEntryDetailPage extends StatelessWidget {
   final LogEntry parentLog;
   final List<LogEntry>? childrenLogs;
@@ -102,59 +103,63 @@ class LogEntryDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Column(
-              children: childrenLogs?.map((log) {
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${log.logEntryType.toString().split('.').last} Log Entry',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: isDarkTheme ? Colors.white : Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: isDarkTheme ? Colors.white70 : Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        // Timeline
-                        Container(
-                          height: 50,
-                          color: Colors.green[200],
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: _getTimelinePosition(log.startTime),
-                                child: Container(color: Colors.transparent),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: childrenLogs?.map((log) {
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${log.logEntryType.toString().split('.').last} Log Entry',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: isDarkTheme ? Colors.white : Colors.black,
                               ),
-                              Expanded(
-                                flex: _getTimelineFlexForEnd(log.startTime, log.endTime ?? now),
-                                child: Container(color: Colors.green[600]),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: isDarkTheme ? Colors.white70 : Colors.black87,
                               ),
-                              Expanded(
-                                flex: 24 - _getTimelinePosition(log.endTime ?? now),
-                                child: Container(color: Colors.transparent),
+                            ),
+                            const SizedBox(height: 8),
+                            // Timeline
+                            Container(
+                              height: 50,
+                              color: Colors.green[200],
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: _getTimelinePosition(log.startTime),
+                                    child: Container(color: Colors.transparent),
+                                  ),
+                                  Expanded(
+                                    flex: _getTimelineFlexForEnd(log.startTime, log.endTime ?? now),
+                                    child: Container(color: Colors.green[600]),
+                                  ),
+                                  Expanded(
+                                    flex: 24 - _getTimelinePosition(log.endTime ?? now),
+                                    child: Container(color: Colors.transparent),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList() ?? [],
+                      ),
+                    );
+                  }).toList() ?? [],
+                ),
+              ),
             ),
           ],
         ),
@@ -180,6 +185,6 @@ class LogEntryDetailPage extends StatelessWidget {
   int _getTimelineFlexForEnd(DateTime startTime, DateTime endTime) {
     final startFlex = _getTimelinePosition(startTime);
     final endFlex = _getTimelinePosition(endTime);
-    return endFlex - startFlex > 0 ? endFlex - startFlex : 1; 
+    return endFlex - startFlex > 0 ? endFlex - startFlex : 1;
   }
 }
