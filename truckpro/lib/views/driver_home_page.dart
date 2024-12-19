@@ -111,15 +111,27 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
 }
 
 */
-  _checkWeeklyLimits(double hours){
+  _checkWeeklyLimits(double hours) async {
     if (hours > 60) { 
        if (!mounted) return;
-        
-          // Deactivate buttons except off duty
+       if(onDutyLog != null || drivingLog != null)
+       {
+          // Deactivate buttons, stop driivng and on duty, and clear logs except off duty
           onDutyButtonActive = false; 
           drivingButtonActive = false;
+          onDutyLog = null;
+          drivingLog = null;
+          var drivingStopped = await widget.driverApiService.stopDrivingLog();
+          var onDutyStopped = await widget.driverApiService.stopOnDutyLog();
+          if(drivingStopped.contains("successfully") && onDutyStopped.contains("successfully"))
+          {
+            _showSnackBar(context, "You have exceeded the weekly on-duty hour limit! Driving and On Duty blocked", Color.fromARGB(209, 244, 148, 23));
+          }
+
+       }
+
    
-        _showSnackBar(context, "You have exceeded the weekly on-duty hour limit!", Color.fromARGB(230, 247, 42, 66));
+        //_showSnackBar(context, "You have exceeded the weekly on-duty hour limit!", Color.fromARGB(230, 247, 42, 66));
       } else {
         if (!mounted) return;
       
