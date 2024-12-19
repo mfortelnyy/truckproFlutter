@@ -160,6 +160,8 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     catch(e)
     {
         widget.sessionManager.clearSession();
+        if(!mounted) return;
+
         Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => SignInPage(toggleTheme: widget.toggleTheme)),
@@ -169,6 +171,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     super.checkEmailVerification();
     if(convertFromTimespan(totalOnDuty)>60)
     {
+      if(!mounted) return;
       showTopSnackBar(context, "Driving Limit Exceeded! \nLimit resets every Monday 12:00 AM");
       onDutyButtonActive = false;
       drivingButtonActive = false;
@@ -577,13 +580,8 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
       try
       {
           var message = await widget.driverApiService.createBreakLog();
-          if (!mounted) return;
-          setState(() {
-            _setTimer(_breakTimer, Duration.zero, true);
-            // _offDutyTimer.onStopTimer();
-            // _offDutyTimer.clearPresetTime();
-            // _offDutyTimer.setPresetTime(mSec: 0);
-          });
+          
+          
           if(message.contains("successfully"))
           {
             if(drivingLog != null) 
@@ -592,6 +590,13 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
               if(msg.contains("successfully"))
               {
                 _showSnackBar(context, msg, Color.fromARGB(219, 79, 194, 70));
+                if (!mounted) return;
+                setState(() {
+                  _setTimer(_breakTimer, Duration.zero, true);
+                  _drivingTimer.onStopTimer();
+                  _drivingTimer.clearPresetTime();
+                  _drivingTimer.setPresetTime(mSec: 0);
+                });
               }
             }
             _fetchLogEntries();
@@ -722,7 +727,7 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Expanded(
-                                child:onDutyButtonActive ? _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer) : const Center(child: SizedBox(height:  100, child: Text("Weekly On Duty Limit exceeded!") )),
+                                child:onDutyButtonActive ? _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer) : const Center(child: SizedBox(height:  100, child: Text("") )),
                               ),
                               const SizedBox(width: 10), 
                               Expanded(
@@ -731,7 +736,7 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          // Off Duty button in its own section
+                          // Off Duty and sleep/break button in its own section
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -748,19 +753,19 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
                                         child: Text("Weekly On Duty Limit exceeded!"),
                                       ),
                               ),
-                          const SizedBox(width: 10), 
+                              const SizedBox(width: 10), 
                               Expanded(
-                                child: breakButtonActive
+                                child: 
+                                onDutyLog != null || offDutyLog != null 
+                                ? breakButtonActive
                                     ? _buildLogButton(
                                         offDutyLog != null ? 'Sleep' : 'Break', 
                                         breakLog, 
                                         () => toggleBreakLog(offDutyLog != null), // Pass true if 'Sleep', false if 'Break'
                                         _breakTimer,
                                       )
-                                    : const SizedBox(
-                                        height: 100,
-                                        child: Text(""),
-                                      ),
+                                    : const Text("")
+                                  : const Text("")   
                               ),
                             ],
                           ),
