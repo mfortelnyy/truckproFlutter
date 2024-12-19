@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
-
 class LogEntryDetailPage extends StatelessWidget {
   final LogEntry parentLog;
   final List<LogEntry>? childrenLogs;
@@ -21,8 +20,9 @@ class LogEntryDetailPage extends StatelessWidget {
     final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
     final parentStartTime = parentLog.startTime;
     final parentEndTime = parentLog.endTime;
+    final now = DateTime.now();
 
-    if (parentStartTime == null || parentEndTime == null) {
+    if (parentStartTime == null) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Log Entry Details'),
@@ -43,7 +43,7 @@ class LogEntryDetailPage extends StatelessWidget {
             // Display the parent log
             Card(
               margin: const EdgeInsets.only(bottom: 16),
-              color: isDarkTheme ? Color.fromARGB(255, 15, 13, 13) : Colors.white,
+              color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -59,7 +59,7 @@ class LogEntryDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Start: ${formatDateTime(parentLog.startTime)} - End: ${formatDateTime(parentLog.endTime)}',
+                      'Start: ${formatDateTime(parentStartTime)}\nEnd: ${formatDateTime(parentEndTime)}',
                       style: TextStyle(
                         fontSize: 16,
                         color: isDarkTheme ? Colors.white70 : Colors.black87,
@@ -73,15 +73,15 @@ class LogEntryDetailPage extends StatelessWidget {
                       child: Row(
                         children: [
                           Expanded(
-                            flex: _getTimelinePosition(parentLog.startTime),
+                            flex: _getTimelinePosition(parentStartTime),
                             child: Container(color: Colors.transparent),
                           ),
                           Expanded(
-                            flex: _getTimelinePosition(parentEndTime) - _getTimelinePosition(parentLog.startTime),
+                            flex: _getTimelineFlexForEnd(parentStartTime, parentEndTime ?? now),
                             child: Container(color: Colors.blue[600]),
                           ),
                           Expanded(
-                            flex: 24 - _getTimelinePosition(parentEndTime),
+                            flex: 24 - _getTimelinePosition(parentEndTime ?? now),
                             child: Container(color: Colors.transparent),
                           ),
                         ],
@@ -103,10 +103,10 @@ class LogEntryDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Column(
-              children: childrenLogs!.map((log) {
+              children: childrenLogs?.map((log) {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 16),
-                  color: isDarkTheme ? Color.fromARGB(255, 15, 13, 13) : Colors.white,
+                  color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -129,7 +129,7 @@ class LogEntryDetailPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        //Timeline
+                        // Timeline
                         Container(
                           height: 50,
                           color: Colors.green[200],
@@ -140,11 +140,11 @@ class LogEntryDetailPage extends StatelessWidget {
                                 child: Container(color: Colors.transparent),
                               ),
                               Expanded(
-                                flex: _getTimelinePosition(parentEndTime) - _getTimelinePosition(log.startTime),
+                                flex: _getTimelineFlexForEnd(log.startTime, log.endTime ?? now),
                                 child: Container(color: Colors.green[600]),
                               ),
                               Expanded(
-                                flex: 24 - _getTimelinePosition(parentEndTime),
+                                flex: 24 - _getTimelinePosition(log.endTime ?? now),
                                 child: Container(color: Colors.transparent),
                               ),
                             ],
@@ -154,7 +154,7 @@ class LogEntryDetailPage extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }).toList() ?? [],
             ),
           ],
         ),
@@ -165,22 +165,21 @@ class LogEntryDetailPage extends StatelessWidget {
   String formatDateTime(DateTime? dateTime) {
     if (dateTime != null) {
       DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
-      return formatter.format(dateTime); 
-    } 
-    //DateTime is null when log in progress
-    else {
-      return 'In Progress'; 
+      return formatter.format(dateTime);
+    } else {
+      return 'In Progress'; // For active logs
     }
   }
 
-  // Helper function to calculate the timeline position for a given time.
-  // 24-hour format and returns a scale based on hours.
   int _getTimelinePosition(DateTime time) {
     final startOfDay = DateTime(time.year, time.month, time.day, 0, 0, 0);
     final duration = time.difference(startOfDay).inMinutes;
-     //timeline position based on hours
     return (duration / 60).round();
   }
 
-  
+  int _getTimelineFlexForEnd(DateTime startTime, DateTime endTime) {
+    final startFlex = _getTimelinePosition(startTime);
+    final endFlex = _getTimelinePosition(endTime);
+    return endFlex - startFlex > 0 ? endFlex - startFlex : 1; 
+  }
 }
