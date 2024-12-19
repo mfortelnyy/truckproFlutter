@@ -70,14 +70,13 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     _loadSettings();
     _notificationTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       _checkUnapprovedDrivingLog();
-      _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
 
     });
       
-    _fetchLogEntries();
-    _timer = Timer.periodic(const Duration(minutes: 15), (timer) {
+     _fetchLogEntries();
+    _timer = Timer.periodic(const Duration(minutes: 15), (timer) async {
       super.checkSession();
-      _fetchLogEntries();
+      await _fetchLogEntries();
       _buildWeeklyHoursSection();
     });
   }
@@ -116,23 +115,27 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
        if (!mounted) return;
        if(onDutyLog != null || drivingLog != null)
        {
-          // Deactivate buttons, stop driivng and on duty, and clear logs except off duty
-          onDutyButtonActive = false; 
-          drivingButtonActive = false;
-          onDutyLog = null;
-          drivingLog = null;
           try
           {
-            var drivingStopped = await widget.driverApiService.stopDrivingLog();
-            var onDutyStopped = await widget.driverApiService.stopOnDutyLog();
-            if(drivingStopped.contains("successfully") && onDutyStopped.contains("successfully"))
+            var onDutyStopped = "";
+            
+            if(onDutyLog != null)
             {
+               onDutyStopped = await widget.driverApiService.stopOnDutyLog();
+            }
+
+            if(onDutyStopped.contains("successfully"))
+            {
+              _showSnackBar(context, "Driving and On Duty stopped!", Color.fromARGB(209, 244, 148, 23));
+
               setState(() {
+                // Deactivate buttons, stop driivng and on duty, and clear logs except off duty
+                onDutyButtonActive = false; 
                 drivingButtonActive = false;
-                onDutyButtonActive = false;
                 onDutyLog = null;
                 drivingLog = null;
               });
+              await _fetchLogEntries();
               _showSnackBar(context, "You have exceeded the weekly on-duty hour limit! Driving and On Duty blocked", Color.fromARGB(209, 244, 148, 23));
             }
           }
@@ -170,9 +173,12 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     try
     {
       totalOnDuty = await widget.driverApiService.getTotalOnDutyHoursLastWeek();
+      await _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
+
     }
     catch(e)
     {
+      if(!mounted) return;
       _showSnackBar(context, "Failed to get total on duty hours", Color.fromARGB(230, 247, 42, 66));
     }
     
@@ -494,14 +500,20 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
 }
 
   void toggleDrivingLog() async {
+    //start log
     if (drivingLog == null) {
       if(offDutyLog != null)
       {
         _showSnackBar(context, "Please Stop Off Duty Log before Driving. \nMake sure you've been Off duty for 10 hours to reset your Daily Driving Limit (11 hours)", Color.fromARGB(255, 250, 140, 44));
         return;
       }
+      else if(false)//breakLog != null)
+      {
+        _showSnackBar(context, "Please Stop Break Log before Driving!", Color.fromARGB(255, 250, 140, 44));
+        return;
+      }
       
-      //if (onDutyLog != null) {
+      if (onDutyLog?.childLogEntries == null) {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -510,8 +522,32 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
         );
 
         //_showSnackBar(context, 'Driving log started successfully');
-      //}
-    } else {
+      }
+      else
+      {
+        var message = "";
+        try
+        {
+          List<Map<String, dynamic>> l = [];
+          message = await widget.driverApiService.createDrivingLog(l);
+          if (!mounted) return;
+          setState(() {
+            _setTimer(_drivingTimer, Duration.zero, false);
+            drivingButtonActive = true;
+            });
+          _fetchLogEntries();
+          if(message.contains("successfully"))
+          {
+            _showSnackBar(context, message,Color.fromARGB(219, 79, 194, 70) );
+          }
+        }
+        catch(e){
+          _showSnackBar(context, message, Color.fromARGB(230, 247, 42, 66));
+        }
+      }
+    }
+    //stop log
+    else {
       if (onDutyLog != null) {
         try
         {
@@ -563,14 +599,17 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
         if (!mounted) return;
         setState(() {
           _setTimer(_offDutyTimer, Duration.zero, true);
-          // _offDutyTimer.onStopTimer();
-          // _offDutyTimer.clearPresetTime();
-          // _offDutyTimer.setPresetTime(mSec: 0);
+          if(breakLog!= null) 
+          {
+            _setTimer(_breakTimer, Duration.zero, true);
+            breakLog = null;
+          }
+
           offDutyButtonActive = false;
           offDutyLog = null;
         });
         _fetchLogEntries();
-        _showSnackBar(context, 'Off Duty log stopped successfully', Color.fromARGB(230, 247, 42, 66));
+        _showSnackBar(context, 'Off Duty log stopped successfully',Color.fromARGB(219, 79, 194, 70));
       }
       catch(e)
       {
@@ -622,7 +661,6 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
                   _drivingTimer.onStopTimer();
                   _drivingTimer.clearPresetTime();
                   _drivingTimer.setPresetTime(mSec: 0);
-                  drivingButtonActive = false;
                   drivingLog = null;
                 });
               }
@@ -755,11 +793,11 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Expanded(
-                                child: _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer)
+                                child: onDutyButtonActive ? _buildLogButton('On Duty', onDutyLog, toggleOnDutyLog, _onDutyTimer) : const SizedBox(height: 10, child: Text(""))
                               ),
                               const SizedBox(width: 10), 
                               Expanded(
-                                child: drivingButtonActive? _buildLogButton('Driving', drivingLog, toggleDrivingLog, _drivingTimer) : const SizedBox(height: 100, child: Text("") ),
+                                child: drivingButtonActive ? _buildLogButton('Driving', drivingLog, toggleDrivingLog, _drivingTimer) : const SizedBox(height: 10, child: Text("") ),
                               ),
                             ],
                           ),
@@ -777,8 +815,7 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
                                         _offDutyTimer,
                                       )
                                     : const SizedBox(
-                                        height: 100,
-                                        child: Text("Weekly On Duty Limit exceeded!"),
+                                        height: 10,
                                       ),
                               ),
                               const SizedBox(width: 10), 
@@ -980,7 +1017,7 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
           }
         }
          
-       // _checkWeeklyLimits(hoursSum);
+        _checkWeeklyLimits(hoursSum);
 
         double progress = hoursSum / 60;
 
