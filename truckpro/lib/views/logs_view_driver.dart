@@ -449,27 +449,28 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              // Conditionally show 'Images' and 'Approved by Manager'
+                              //show 'Images' and 'Approved by Manager' for on duty logs
                               if (log.logEntryType == LogEntryType.OnDuty) ...[
-                                // Show number of images if logEntryType is not Driving
-                                if (log.imageUrls != null && log.imageUrls!.isNotEmpty)
-                                  Text(
-                                    'Images: ${log.imageUrls!.length} images',
+                                //display childLogEntries
+                                for (LogEntry drivingLog in log.childLogEntries ?? [])
+                                  if (drivingLog.logEntryType == LogEntryType.Driving && drivingLog.imageUrls != null && drivingLog.imageUrls!.isNotEmpty) ...[
+                                    Text(
+                                      'Images: ${drivingLog.imageUrls!.length} images',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: isDarkTheme ? Colors.white70 : Colors.black87,
+                                      ),
+                                    ),
+                                  Text(  
+                                    'Approved by Manager : ${drivingLog.isApprovedByManager ? "Yes" : "No"}',
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: isDarkTheme ? Colors.white70 : Colors.black87,
                                     ),
                                   ),
-                                // Show 'Approved by Manager' if logEntryType is not Driving
-                                Text(
-                                  'Approved by Manager',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: isDarkTheme ? Colors.white70 : Colors.black87,
-                                  ),
-                                ),
-                              ], 
-                            ],
+                                ],
+                              ],
+                            ]
                           ),
                         ),
                       ),
