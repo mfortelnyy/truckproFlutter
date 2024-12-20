@@ -48,7 +48,7 @@ class DrivingLogImagesView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Driving Log at ${formatDateTime(log.startTime)}'),
+        title: Text('Driving Log from  ${formatDateTime(log.startTime)}'),
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: FutureBuilder<List<String>>(
@@ -143,9 +143,35 @@ class DrivingLogImagesView extends StatelessWidget {
   }
 
   String formatDateTime(DateTime dateTime) {
-    DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
-    return formatter.format(dateTime);
+    //ordinal suffix to the day
+    String dayWithSuffix = _addOrdinalSuffix(dateTime.day);
+    
+    //"Nov 17th, 2024"
+    DateFormat formatter = DateFormat('MMM dd, yyyy');
+    String formattedDate = formatter.format(dateTime);
+    
+    //replace the day with the one that has the suffix
+    return formattedDate.replaceFirst(RegExp(r'\d{2}'), dayWithSuffix);
   }
+
+  String _addOrdinalSuffix(int day) {
+    if (day >= 11 && day <= 13) {
+      return '${day}th'; //cases for 11th, 12th, 13th
+    }
+    
+    switch (day % 10) {
+      case 1:
+        return '${day}st';
+      case 2:
+        return '${day}nd';
+      case 3:
+        return '${day}rd';
+      default:
+        return '${day}th';
+    }
+  }
+
+ 
 
   Map<String, List<String>> _groupImagesByPrompt(List<String> urls) {
     final Map<String, List<String>> groupedImages = {};
