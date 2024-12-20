@@ -133,6 +133,7 @@ class _LogsViewState extends State<LogsViewManager> {
     return Scaffold(
     appBar: AppBar(
       title: const Text('Logs'),
+      backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       actions: [
         IconButton(
           icon: const Icon(Icons.filter_alt),
