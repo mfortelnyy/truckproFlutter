@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:timeline_tile/timeline_tile.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
-import 'package:timeline_tile/timeline_tile.dart'; 
+import 'package:truckpro/views/custom_timeline.dart';
 
 class LogEntryDetailPage extends StatelessWidget {
   final LogEntry parentLog;
@@ -31,6 +32,7 @@ class LogEntryDetailPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Log Entry Details'),
+        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -40,7 +42,9 @@ class LogEntryDetailPage extends StatelessWidget {
             // Parent Log Card
             Card(
               margin: const EdgeInsets.only(bottom: 16),
+              elevation: 8, // Added shadow for better separation
               color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), // Rounded corners
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -63,8 +67,13 @@ class LogEntryDetailPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Timeline Visualization
-                    _buildTimeline(parentStartTime, parentEndTime),
+                    // Custom Timeline Visualization for Parent Log
+                    CustomTimeline(
+                      parentStartTime: parentStartTime,
+                      parentEndTime: parentEndTime,
+                      childrenLogs: childrenLogs,
+                      logColors: logColors,
+                    ),
                   ],
                 ),
               ),
@@ -81,7 +90,7 @@ class LogEntryDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // Child Log Timeline
+            //Child Log Timeline with Divider
             Expanded(
               child: ListView.builder(
                 itemCount: childrenLogs?.length ?? 0,
@@ -109,29 +118,6 @@ class LogEntryDetailPage extends StatelessWidget {
   //adds a space before uppercase letters (format LogEntry type)
   String _formatLogEntryType(String type) {
     return type.replaceAllMapped(RegExp(r'(?<!^)([A-Z])'), (match) => ' ${match.group(0)}');
-  }
-
-  // Build Timeline for parent and children logs
-  Widget _buildTimeline(DateTime parentStartTime, DateTime parentEndTime) {
-    return TimelineTile(
-      alignment: TimelineAlign.start,
-      lineXY: 0.1,
-      indicatorStyle: IndicatorStyle(
-        color: Colors.blue,
-        width: 20,
-        iconStyle: IconStyle(
-          iconData: Icons.access_time,
-          color: Colors.white,
-        ),
-      ),
-      endChild: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          'Parent Log: ${formatDateTime(parentStartTime)} - ${formatDateTime(parentEndTime)}',
-          style: TextStyle(fontSize: 16),
-        ),
-      ),
-    );
   }
 
   //TimelineItem for each child log
