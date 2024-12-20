@@ -507,9 +507,9 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
         _showSnackBar(context, "Please Stop Off Duty Log before Driving. \nMake sure you've been Off duty for 10 hours to reset your Daily Driving Limit (11 hours)", Color.fromARGB(255, 250, 140, 44));
         return;
       }
-      else if(false)//breakLog != null)
+      else if(onDutyLog == null)//breakLog != null)
       {
-        _showSnackBar(context, "Please Stop Break Log before Driving!", Color.fromARGB(255, 250, 140, 44));
+        _showSnackBar(context, "Please Start On Duty before Driving!", Color.fromARGB(255, 250, 140, 44));
         return;
       }
       
