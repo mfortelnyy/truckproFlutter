@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 
@@ -19,18 +17,15 @@ class LogEntryDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
-    final parentStartTime = parentLog.startTime;
-    final parentEndTime = parentLog.endTime;
-    final now = DateTime.now();
+    final parentStartTime = parentLog.startTime!;
+    final parentEndTime = parentLog.endTime ?? DateTime.now();
 
-    if (parentStartTime == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Log Entry Details'),
-        ),
-        body: Center(child: Text('Invalid log entry times')),
-      );
-    }
+    final logColors = {
+      'driving': Colors.green[400]!,
+      'break': Colors.yellow[600]!,
+      'sleep': Colors.yellow[600]!, // break and sleep use the same color
+      'parent': Colors.blue[400]!,
+    };
 
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +36,7 @@ class LogEntryDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display the parent log
+            // Parent Log Card
             Card(
               margin: const EdgeInsets.only(bottom: 16),
               color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
@@ -51,7 +46,7 @@ class LogEntryDetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${parentLog.logEntryType} Log Entry',
+                      '${_formatLogEntryType(parentLog.logEntryType.toString().split(".").last)}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -66,99 +61,86 @@ class LogEntryDetailPage extends StatelessWidget {
                         color: isDarkTheme ? Colors.white70 : Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    // Visualizing the parent log on the timeline
-                    Container(
-                      height: 50,
-                      color: Colors.blue[200],
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: _getTimelinePosition(parentStartTime),
-                            child: Container(color: Colors.transparent),
-                          ),
-                          Expanded(
-                            flex: _getTimelineFlexForEnd(parentStartTime, parentEndTime ?? now),
-                            child: Container(color: Colors.blue[600]),
-                          ),
-                          Expanded(
-                            flex: 24 - _getTimelinePosition(parentEndTime ?? now),
-                            child: Container(color: Colors.transparent),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 16),
+                    // Timeline Visualization
+                    CustomTimeline(
+                      parentStartTime: parentStartTime,
+                      parentEndTime: parentEndTime,
+                      childrenLogs: childrenLogs,
+                      logColors: logColors,
                     ),
                   ],
                 ),
               ),
             ),
 
-            // Display child logs
+            // Events Legend
             Text(
-              'Children Logs:',
+              'Events:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
                 color: isDarkTheme ? Colors.white : Colors.black,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+
+            // Child Log List
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: childrenLogs?.map((log) {
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${log.logEntryType.toString().split('.').last} Log Entry',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: isDarkTheme ? Colors.white : Colors.black,
-                              ),
+              child: ListView.builder(
+                itemCount: childrenLogs?.length ?? 0,
+                itemBuilder: (context, index) {
+                  final log = childrenLogs![index];
+                  final logType = log.logEntryType.toString().split('.').last.toLowerCase();
+                  final color = logColors[logType] ?? Colors.grey[400]!;
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          // Color indicator for log type
+                          Container(
+                            width: 16,
+                            height: 16,
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(4),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: isDarkTheme ? Colors.white70 : Colors.black87,
-                              ),
+                          ),
+                          // Log details
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  log.logEntryType == LogEntryType.Break && parentLog.logEntryType == LogEntryType.OffDuty
+                                  ? 'Sleep'
+                                  : '${log.logEntryType.toString().split('.').last}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: isDarkTheme ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: isDarkTheme ? Colors.white70 : Colors.black87,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            // Timeline
-                            Container(
-                              height: 50,
-                              color: Colors.green[200],
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: _getTimelinePosition(log.startTime),
-                                    child: Container(color: Colors.transparent),
-                                  ),
-                                  Expanded(
-                                    flex: _getTimelineFlexForEnd(log.startTime, log.endTime ?? now),
-                                    child: Container(color: Colors.green[600]),
-                                  ),
-                                  Expanded(
-                                    flex: 24 - _getTimelinePosition(log.endTime ?? now),
-                                    child: Container(color: Colors.transparent),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    );
-                  }).toList() ?? [],
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -172,19 +154,90 @@ class LogEntryDetailPage extends StatelessWidget {
       DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
       return formatter.format(dateTime);
     } else {
-      return 'In Progress'; // For active logs
+      return 'In Progress';
     }
   }
 
-  int _getTimelinePosition(DateTime time) {
-    final startOfDay = DateTime(time.year, time.month, time.day, 0, 0, 0);
-    final duration = time.difference(startOfDay).inMinutes;
-    return (duration / 60).round();
+  // Adds a space before uppercase letters
+  String _formatLogEntryType(String type) {
+    return type.replaceAllMapped(RegExp(r'(?<!^)([A-Z])'), (match) => ' ${match.group(0)}');
+  }
+}
+
+// Custom Timeline Widget
+class CustomTimeline extends StatelessWidget {
+  final DateTime parentStartTime;
+  final DateTime parentEndTime;
+  final List<LogEntry>? childrenLogs;
+  final Map<String, Color> logColors;
+
+  const CustomTimeline({
+    Key? key,
+    required this.parentStartTime,
+    required this.parentEndTime,
+    required this.childrenLogs,
+    required this.logColors,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final totalDuration = parentEndTime.difference(parentStartTime).inMinutes;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Stack(
+          children: [
+            // Parent timeline (base line)
+            Container(
+              height: 10,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ),
+            // Children log segments
+            ...?childrenLogs?.asMap().entries.map((entry) {
+              final index = entry.key;
+              final log = entry.value;
+              final logType = log.logEntryType.toString().split('.').last.toLowerCase();
+              final logColor = logColors[logType] ?? Colors.grey[400]!;
+
+              final startOffset = log.startTime.difference(parentStartTime).inMinutes / totalDuration;
+              final endOffset = log.endTime?.difference(parentStartTime).inMinutes ?? 0 / totalDuration;
+
+              return Positioned(
+                left: startOffset * 100,
+                width: (endOffset - startOffset) * 100,
+                height: 10,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: logColor,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+              );
+            }),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Time labels underneath the timeline
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(formatDateTime(parentStartTime), style: const TextStyle(fontSize: 10)),
+            Text(formatDateTime(parentEndTime), style: const TextStyle(fontSize: 10)),
+          ],
+        ),
+      ],
+    );
   }
 
-  int _getTimelineFlexForEnd(DateTime startTime, DateTime endTime) {
-    final startFlex = _getTimelinePosition(startTime);
-    final endFlex = _getTimelinePosition(endTime);
-    return endFlex - startFlex > 0 ? endFlex - startFlex : 1;
+  String formatDateTime(DateTime? dateTime) {
+    if (dateTime != null) {
+      return DateFormat('MM/dd/yyyy h:mma').format(dateTime);
+    } else {
+      return 'N/A';
+    }
   }
 }
