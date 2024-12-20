@@ -47,31 +47,52 @@ class DrivingLogImagesView extends StatelessWidget {
     final bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: 'Driving Log\n',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 24, 
-                color: isDarkTheme ? Colors.white70 : Colors.black54
-              ),
-            ),
-            TextSpan(
-              text: formatDateTime(log.startTime),
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 14, // Make the date smaller
-              ),
-            ),
-          ],
-        ),
-      ),
+     appBar: AppBar(
+      toolbarHeight: 70,
+      automaticallyImplyLeading: false, // Prevent default back button
       backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+      title: Stack(
+        children: [
+          // Centered title
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Driving Log',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 24, // Larger size for the title
+                    color: isDarkTheme ? Colors.white70 : Colors.black,
+                  ),
+                ),
+                Text(
+                  formatDateTime(log.startTime),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14, // Smaller size for the date
+                    color: isDarkTheme ? Colors.white70 : Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Back button positioned at the left
+          Positioned(
+            left: 10,
+            top: 10,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pop(); 
+              },
+            ),
+          ),
+        ],
       ),
-      body: FutureBuilder<List<String>>(
+    ),
+    body: FutureBuilder<List<String>>(
         future: imageUrls,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
