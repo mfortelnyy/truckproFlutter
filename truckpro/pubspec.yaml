@@ -31,6 +31,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   syncfusion_flutter_charts: ^25.1.40
+  timeline_tile: ^2.0.0
   
   
 dev_dependencies:
