@@ -31,7 +31,7 @@ class LogEntryDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Log Entry Details'),
+        title: const Text('Log Entry Overview', style: TextStyle(fontWeight: FontWeight.w500) ),
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: Padding(
@@ -48,13 +48,13 @@ class LogEntryDetailPage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       '${_formatLogEntryType(parentLog.logEntryType.toString().split(".").last)}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 20,
                         color: isDarkTheme ? Colors.white : Colors.black,
                       ),
                     ),
@@ -81,14 +81,14 @@ class LogEntryDetailPage extends StatelessWidget {
 
             // Events Legend
             Text(
-              'Events:',
+              'Events',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                fontSize: 22,
                 color: isDarkTheme ? Colors.white : Colors.black,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 5),
 
             //Child Log Timeline with Divider
             Expanded(
