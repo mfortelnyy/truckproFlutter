@@ -32,7 +32,10 @@ class LogsViewDriver extends StatefulWidget {
 class _LogsViewDriverState extends State<LogsViewDriver> {
   DateTime? startDate;
   DateTime? endDate;
-  List<LogEntryType> selectedLogTypes = LogEntryType.values;
+  List<LogEntryType> selectedLogTypes =[
+    LogEntryType.OffDuty, 
+    LogEntryType.OnDuty
+  ];
   late Future<List<LogEntry>> filteredLogsFuture;
   bool showFilters = false;
   bool isGeneratingPdf = false;
@@ -227,11 +230,11 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                                                   tempSelected = List.from(LogEntryType.values);
                                                 }
                                               });
-                                            },
+                                            }, 
                                             child: Text(
                                               tempSelected.length == LogEntryType.values.length
                                                   ? "Deselect All"
-                                                  : "Select All",
+                                                  : "Select All", 
                                               style: const TextStyle(color: Colors.blue),
                                             ),
                                           ),
