@@ -48,8 +48,28 @@ class DrivingLogImagesView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Driving Log from  ${formatDateTime(log.startTime)}'),
-        backgroundColor: const Color.fromARGB(255, 241, 158, 89),
+        title: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: 'Driving Log\n',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 24, 
+                color: isDarkTheme ? Colors.white70 : Colors.black54
+              ),
+            ),
+            TextSpan(
+              text: formatDateTime(log.startTime),
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 14, // Make the date smaller
+              ),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: FutureBuilder<List<String>>(
         future: imageUrls,
