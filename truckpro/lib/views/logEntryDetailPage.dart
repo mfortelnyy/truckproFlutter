@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
+import 'package:timeline_tile/timeline_tile.dart'; 
 
 class LogEntryDetailPage extends StatelessWidget {
   final LogEntry parentLog;
@@ -63,18 +64,13 @@ class LogEntryDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     // Timeline Visualization
-                    CustomTimeline(
-                      parentStartTime: parentStartTime,
-                      parentEndTime: parentEndTime,
-                      childrenLogs: childrenLogs,
-                      logColors: logColors,
-                    ),
+                    _buildTimeline(parentStartTime, parentEndTime),
                   ],
                 ),
               ),
             ),
 
-            // Events Legend
+            // Events legend
             Text(
               'Events:',
               style: TextStyle(
@@ -85,61 +81,13 @@ class LogEntryDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // Child Log List
+            // Child Log Timeline
             Expanded(
               child: ListView.builder(
                 itemCount: childrenLogs?.length ?? 0,
                 itemBuilder: (context, index) {
                   final log = childrenLogs![index];
-                  final logType = log.logEntryType.toString().split('.').last.toLowerCase();
-                  final color = logColors[logType] ?? Colors.grey[400]!;
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          // Color indicator for log type
-                          Container(
-                            width: 16,
-                            height: 16,
-                            margin: const EdgeInsets.only(right: 8),
-                            decoration: BoxDecoration(
-                              color: color,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          // Log details
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  log.logEntryType == LogEntryType.Break && parentLog.logEntryType == LogEntryType.OffDuty
-                                  ? 'Sleep'
-                                  : '${log.logEntryType.toString().split('.').last}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: isDarkTheme ? Colors.white : Colors.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: isDarkTheme ? Colors.white70 : Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  return _buildTimelineItem(log);
                 },
               ),
             ),
@@ -158,86 +106,89 @@ class LogEntryDetailPage extends StatelessWidget {
     }
   }
 
-  // Adds a space before uppercase letters
+  //adds a space before uppercase letters (format LogEntry type)
   String _formatLogEntryType(String type) {
     return type.replaceAllMapped(RegExp(r'(?<!^)([A-Z])'), (match) => ' ${match.group(0)}');
   }
-}
 
-// Custom Timeline Widget
-class CustomTimeline extends StatelessWidget {
-  final DateTime parentStartTime;
-  final DateTime parentEndTime;
-  final List<LogEntry>? childrenLogs;
-  final Map<String, Color> logColors;
-
-  const CustomTimeline({
-    Key? key,
-    required this.parentStartTime,
-    required this.parentEndTime,
-    required this.childrenLogs,
-    required this.logColors,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final totalDuration = parentEndTime.difference(parentStartTime).inMinutes;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Stack(
-          children: [
-            // Parent timeline (base line)
-            Container(
-              height: 10,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(5),
-              ),
-            ),
-            // Children log segments
-            ...?childrenLogs?.asMap().entries.map((entry) {
-              final index = entry.key;
-              final log = entry.value;
-              final logType = log.logEntryType.toString().split('.').last.toLowerCase();
-              final logColor = logColors[logType] ?? Colors.grey[400]!;
-
-              final startOffset = log.startTime.difference(parentStartTime).inMinutes / totalDuration;
-              final endOffset = log.endTime?.difference(parentStartTime).inMinutes ?? 0 / totalDuration;
-
-              return Positioned(
-                left: startOffset * 100,
-                width: (endOffset - startOffset) * 100,
-                height: 10,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: logColor,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
-              );
-            }),
-          ],
+  // Build Timeline for parent and children logs
+  Widget _buildTimeline(DateTime parentStartTime, DateTime parentEndTime) {
+    return TimelineTile(
+      alignment: TimelineAlign.start,
+      lineXY: 0.1,
+      indicatorStyle: IndicatorStyle(
+        color: Colors.blue,
+        width: 20,
+        iconStyle: IconStyle(
+          iconData: Icons.access_time,
+          color: Colors.white,
         ),
-        const SizedBox(height: 8),
-        // Time labels underneath the timeline
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(formatDateTime(parentStartTime), style: const TextStyle(fontSize: 10)),
-            Text(formatDateTime(parentEndTime), style: const TextStyle(fontSize: 10)),
-          ],
+      ),
+      endChild: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          'Parent Log: ${formatDateTime(parentStartTime)} - ${formatDateTime(parentEndTime)}',
+          style: TextStyle(fontSize: 16),
         ),
-      ],
+      ),
     );
   }
 
-  String formatDateTime(DateTime? dateTime) {
-    if (dateTime != null) {
-      return DateFormat('MM/dd/yyyy h:mma').format(dateTime);
-    } else {
-      return 'N/A';
+  //TimelineItem for each child log
+  Widget _buildTimelineItem(LogEntry log) {
+    IconData icon;
+    Color color;
+
+    switch (log.logEntryType) {
+      case LogEntryType.Break:
+        icon = Icons.pause;
+        color = Colors.yellow[600]!;
+        break;
+      case LogEntryType.Driving:
+        icon = Icons.drive_eta;
+        color = Colors.green[400]!;
+        break;
+      case LogEntryType.OnDuty:
+        icon = Icons.access_alarm;
+        color = Colors.orange[400]!;
+        break;
+      case LogEntryType.OffDuty:
+        icon = Icons.ac_unit_outlined;
+        color = Colors.blue[400]!;
+        break;
+      default:
+        icon = Icons.help;
+        color = Colors.grey[400]!;
     }
+
+    return TimelineTile(
+      alignment: TimelineAlign.start,
+      lineXY: 0.1,
+      indicatorStyle: IndicatorStyle(
+        color: color,
+        width: 20,
+        iconStyle: IconStyle(
+          iconData: icon,
+          color: Colors.white,
+        ),
+      ),
+      endChild: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _formatLogEntryType(log.logEntryType.toString().split(".").last),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
+              style: TextStyle(fontSize: 14),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
