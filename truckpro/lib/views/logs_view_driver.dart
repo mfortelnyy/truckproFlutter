@@ -132,7 +132,8 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
 
   return Scaffold(
     appBar: AppBar(
-      title: const Text('Logs'),
+      title: const Text('History Overview', style: TextStyle(fontWeight: FontWeight.w700),),
+      backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       actions: [
         IconButton(
           icon: const Icon(Icons.filter_alt),
@@ -168,7 +169,7 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                         onPressed: () => _selectDate(context, true),
                         child: Text(
                           startDate == null
-                              ? 'Select Start Date'
+                              ? 'Select Min Start Date'
                               : DateFormat('MMMM dd, yyyy').format(startDate!),
                           style: const TextStyle(fontSize: 14),
                         ),
@@ -183,7 +184,7 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                         onPressed: () => _selectDate(context, false),
                         child: Text(
                           endDate == null
-                              ? 'Select End Date'
+                              ? 'Select Max Start Date'
                               : DateFormat('MMMM dd, yyyy').format(endDate!),
                           style: const TextStyle(fontSize: 14),
                         ),
@@ -402,8 +403,8 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                   itemBuilder: (context, index) {
                     var log = logs[index];
 
-                    // If the log has a parent, we need to display the parent log entry
-                    final parentLog = log.parentLogEntryId;
+                    //Create stats for the child logs (log types and hours)
+                    Map<String, Map<String, dynamic>> childLogStats = _calculateChildLogStats(log.childLogEntries);
 
                     return Card(
                       borderOnForeground: true,
@@ -415,7 +416,11 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => LogEntryDetailPage(parentLog: log, childrenLogs: log.childLogEntries, token: widget.token,),
+                            builder: (context) => LogEntryDetailPage(
+                              parentLog: log,
+                              childrenLogs: log.childLogEntries,
+                              token: widget.token,
+                            ),
                           ),
                         ),
                         child: Padding(
@@ -424,23 +429,14 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${log.logEntryType.toString().split(".").last} Log',
+                                '${getLogTypeLabel(log.logEntryType)} Log',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
                                   color: isDarkTheme ? Colors.white : Colors.black,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              // Show parent log if exists
-                              if (parentLog != null)
-                                Text(
-                                  'Parent Log: ${parentLog}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: isDarkTheme ? Colors.grey[400] : Colors.grey[600],
-                                  ),
-                                ),
+                              const SizedBox(height: 8),                          
                               Text(
                                 'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
                                 style: TextStyle(
@@ -449,28 +445,26 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              //show 'Images' and 'Approved by Manager' for on duty logs
-                              if (log.logEntryType == LogEntryType.OnDuty) ...[
-                                //display childLogEntries
-                                for (LogEntry drivingLog in log.childLogEntries ?? [])
-                                  if (drivingLog.logEntryType == LogEntryType.Driving && drivingLog.imageUrls != null && drivingLog.imageUrls!.isNotEmpty) ...[
-                                    Text(
-                                      'Images: ${drivingLog.imageUrls!.length} images',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: isDarkTheme ? Colors.white70 : Colors.black87,
-                                      ),
-                                    ),
-                                  Text(  
-                                    'Approved by Manager : ${drivingLog.isApprovedByManager ? "Yes" : "No"}',
+                              //display statistics for child logs
+                              if (log.childLogEntries != null && log.childLogEntries!.isNotEmpty) ...[
+                                Text(
+                                  'Events Statistics:',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDarkTheme ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                                for (var entry in childLogStats.entries)
+                                  Text(
+                                    '${entry.key}: ${entry.value['count']} logs, ${entry.value['totalHours']} hours',
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: isDarkTheme ? Colors.white70 : Colors.black87,
                                     ),
                                   ),
-                                ],
                               ],
-                            ]
+                            ],
                           ),
                         ),
                       ),
@@ -514,6 +508,44 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
       return 'In progress'; 
     }
   }
+
+  //helper function to calculate statistics for child logs
+  Map<String, Map<String, dynamic>> _calculateChildLogStats(List<LogEntry>? childLogEntries) {
+    Map<String, Map<String, dynamic>> stats = {};
+
+    if (childLogEntries != null) {
+      for (var child in childLogEntries) {
+        
+        String logType = child.logEntryType.toString().split('.').last;
+
+        // If the log type doesn't exist in the stats map, initialize it
+        if (!stats.containsKey(logType)) {
+          stats[logType] = {
+            'count': 0, //# of occurrences of this log type
+            'totalHours': 0.0, //total hours for this log type
+          };
+        }
+
+        // ++ the count and add to total hours
+        stats[logType]?['count'] = stats[logType]?['count'] + 1 ?? 1;
+        
+        //find the difference between start and end time to get the hours
+        if (child.startTime != null && child.endTime != null) {
+          Duration logDuration = child.endTime!.difference(child.startTime!);
+          stats[logType]?['totalHours'] = stats[logType]?['totalHours'] + logDuration.inHours.toDouble();
+        }
+      }
+    }
+    return stats;
+  }
+
+  String getLogTypeLabel(LogEntryType logType) {
+  if (logType == LogEntryType.Break) {
+    return "Sleep Log"; //rename break to sleep for user display
+  } else {
+    return logType.toString().split('.').last; //def for other log types
+  }
+}
 
 
 }
