@@ -745,7 +745,7 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
             AppBar(
               title: user != null
                   ? Text('Welcome, ${user!.firstName} ${user!.lastName}',  
-                    textAlign: TextAlign.right,      
+                    textAlign: TextAlign.center,      
                     style: const TextStyle(                     
                       color: Color.fromARGB(255, 255, 255, 255),
                       fontWeight: FontWeight.w600,
@@ -753,6 +753,7 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
                     ),
                   )
                   : const Text('Driver Home Page'),
+                  
                  actions: [
                   IconButton(
                     icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
