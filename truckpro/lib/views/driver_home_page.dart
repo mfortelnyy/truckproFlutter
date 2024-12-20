@@ -179,7 +179,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
     catch(e)
     {
       if(!mounted) return;
-      _showSnackBar(context, "Failed to get total on duty hours", Color.fromARGB(230, 247, 42, 66));
+      //_showSnackBar(context, "Failed to get total on duty hours", Color.fromARGB(230, 247, 42, 66));
     }
     
     // _checkWeeklyLimits(convertFromTimespan(totalOnDuty));
