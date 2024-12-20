@@ -415,7 +415,7 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => LogEntryDetailPage(parentLog: log, childrenLogs: log.childLogEntries,),
+                            builder: (context) => LogEntryDetailPage(parentLog: log, childrenLogs: log.childLogEntries, token: widget.token,),
                           ),
                         ),
                         child: Padding(

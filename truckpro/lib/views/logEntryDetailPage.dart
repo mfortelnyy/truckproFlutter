@@ -5,15 +5,18 @@ import 'package:timeline_tile/timeline_tile.dart';
 import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/views/custom_timeline.dart';
+import 'package:truckpro/views/drvinglog_images_view.dart';
 
 class LogEntryDetailPage extends StatelessWidget {
   final LogEntry parentLog;
   final List<LogEntry>? childrenLogs;
+  final String token;
 
   const LogEntryDetailPage({
     Key? key,
     required this.parentLog,
     required this.childrenLogs,
+    required this.token,
   }) : super(key: key);
 
   @override
@@ -98,7 +101,7 @@ class LogEntryDetailPage extends StatelessWidget {
                   final log = childrenLogs![index];
                   return Column(
                     children: [
-                      _buildTimelineItem(log),
+                      _buildTimelineItem(context, log),
                       // Divider after each log with padding to make it distinct
                       if (index < (childrenLogs?.length ?? 0) - 1) 
                         Padding(
@@ -134,33 +137,66 @@ class LogEntryDetailPage extends StatelessWidget {
   }
 
   //TimelineItem for each child log
-  Widget _buildTimelineItem(LogEntry log) {
-    IconData icon;
-    Color color;
+  //TimelineItem for each child log
+Widget _buildTimelineItem(BuildContext context, LogEntry log) {
+  IconData icon;
+  Color color;
+  String imageText = ''; // To store the number of images or approval status
+  bool hasImages = false;
 
-    switch (log.logEntryType) {
-      case LogEntryType.Break:
-        icon = Icons.pause;
-        color = Colors.yellow[600]!;
-        break;
-      case LogEntryType.Driving:
-        icon = Icons.drive_eta;
-        color = Colors.green[400]!;
-        break;
-      case LogEntryType.OnDuty:
-        icon = Icons.access_alarm;
-        color = Colors.orange[400]!;
-        break;
-      case LogEntryType.OffDuty:
-        icon = Icons.ac_unit_outlined;
-        color = Colors.blue[400]!;
-        break;
-      default:
-        icon = Icons.help;
-        color = Colors.grey[400]!;
+  // Check for images and approval for driving logs
+  if (log.logEntryType == LogEntryType.Driving) {
+    if (log.imageUrls != null && log.imageUrls!.isNotEmpty) {
+      imageText = '${log.imageUrls!.length} images';
+      hasImages = true;
+    } else {
+      imageText = 'No images';
     }
+    // If the log is approved by the manager, display "Approved"
+    if (log.isApprovedByManager) {
+      imageText += ' (Approved)';
+    }
+  }
 
-    return TimelineTile(
+  switch (log.logEntryType) {
+    case LogEntryType.Break:
+      icon = Icons.pause;
+      color = Colors.yellow[600]!;
+      break;
+    case LogEntryType.Driving:
+      icon = Icons.drive_eta;
+      color = Colors.green[400]!;
+      break;
+    case LogEntryType.OnDuty:
+      icon = Icons.access_alarm;
+      color = Colors.orange[400]!;
+      break;
+    case LogEntryType.OffDuty:
+      icon = Icons.ac_unit_outlined;
+      color = Colors.blue[400]!;
+      break;
+    default:
+      icon = Icons.help;
+      color = Colors.grey[400]!;
+  }
+
+  return GestureDetector(
+    onTap: hasImages
+        ? () {
+            // Navigate to the DrivingLogImagesView
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DrivingLogImagesView(
+                  imageUrls: Future.value(log.imageUrls ?? []),
+                  log: log,
+                  token: token,
+                ),
+              ),
+            );
+          }
+        : null, // Disable the tap if no images or not approved
+    child: TimelineTile(
       alignment: TimelineAlign.start,
       lineXY: 0.1,
       indicatorStyle: IndicatorStyle(
@@ -185,9 +221,23 @@ class LogEntryDetailPage extends StatelessWidget {
               'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
               style: TextStyle(fontSize: 14),
             ),
+            if (log.logEntryType == LogEntryType.Driving) 
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  imageText,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: Colors.blue[600],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+  
 }
