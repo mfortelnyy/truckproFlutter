@@ -757,7 +757,6 @@ void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
                   IconButton(
                     icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
                     onPressed: () {
-
                       setState(() {
                         isDarkMode = !isDarkMode;
                       });
