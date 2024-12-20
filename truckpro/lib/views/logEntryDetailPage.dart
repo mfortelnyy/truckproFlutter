@@ -79,7 +79,7 @@ class LogEntryDetailPage extends StatelessWidget {
               ),
             ),
 
-            // Events legend
+            // Events Legend
             Text(
               'Events:',
               style: TextStyle(
@@ -96,7 +96,20 @@ class LogEntryDetailPage extends StatelessWidget {
                 itemCount: childrenLogs?.length ?? 0,
                 itemBuilder: (context, index) {
                   final log = childrenLogs![index];
-                  return _buildTimelineItem(log);
+                  return Column(
+                    children: [
+                      _buildTimelineItem(log),
+                      // Divider after each log with padding to make it distinct
+                      if (index < (childrenLogs?.length ?? 0) - 1) 
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Container(
+                            height: 3,  // Divider height
+                            color: Colors.grey.withOpacity(0.5), 
+                          ),
+                        ),
+                    ],
+                  );
                 },
               ),
             ),
@@ -152,7 +165,7 @@ class LogEntryDetailPage extends StatelessWidget {
       lineXY: 0.1,
       indicatorStyle: IndicatorStyle(
         color: color,
-        width: 20,
+        width: 32,  
         iconStyle: IconStyle(
           iconData: icon,
           color: Colors.white,
