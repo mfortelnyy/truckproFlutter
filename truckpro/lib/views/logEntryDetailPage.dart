@@ -11,12 +11,16 @@ class LogEntryDetailPage extends StatelessWidget {
   final LogEntry parentLog;
   final List<LogEntry>? childrenLogs;
   final String token;
+  final bool? approve;
+  final void Function()? onApprove;
 
   const LogEntryDetailPage({
     Key? key,
     required this.parentLog,
     required this.childrenLogs,
     required this.token,
+    this.approve,
+    this.onApprove,
   }) : super(key: key);
 
   @override
@@ -142,6 +146,8 @@ class LogEntryDetailPage extends StatelessWidget {
     Color color;
     String imageText = ''; // To store the number of images or approval status
     bool hasImages = false;
+    bool isApproved = approve ?? false;
+
 
     // Check for images 
     if (log.logEntryType == LogEntryType.Driving) {
@@ -181,19 +187,34 @@ class LogEntryDetailPage extends StatelessWidget {
 
     return GestureDetector(
       onTap: hasImages
-          ? () {
-              // Navigate to the DrivingLogImagesView
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DrivingLogImagesView(
-                    imageUrls: Future.value(log.imageUrls ?? []),
-                    log: log,
-                    token: token,
+          ? !isApproved
+              ? () {
+                // Navigate to the DrivingLogImagesView for driver
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DrivingLogImagesView(
+                      imageUrls: Future.value(log.imageUrls ?? []),
+                      log: log,
+                      token: token,
+                    ),
                   ),
-                ),
-              );
-            }
+                );
+              }
+              : () {
+                // Navigate to the DrivingLogImagesView for manager
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DrivingLogImagesView(
+                      imageUrls: Future.value(log.imageUrls ?? []),
+                      log: log,
+                      token: token,
+                      onApprove: onApprove,
+                    ),
+                  ),
+                );
+              }
           : null, // Disable the tap if no images 
       child: TimelineTile(
         alignment: TimelineAlign.start,
