@@ -44,7 +44,7 @@ class LogEntryDetailPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Parent Log Card
             Card(
@@ -126,14 +126,14 @@ class LogEntryDetailPage extends StatelessWidget {
     );
   }
 
-  String formatDateTime(DateTime? dateTime) {
+  String formatDateTime(DateTime? dateTime, {String prefix = ''}) {
     if (dateTime != null) {
-      DateFormat formatter = DateFormat('MMMM dd, yyyy \'at\' hh:mm a');
-      return formatter.format(dateTime);
+      return "$prefix ${DateFormat('MMM dd, yyyy, hh:mm a').format(dateTime)}";
     } else {
-      return 'In Progress';
+      return 'In progress';
     }
   }
+
 
   //adds a space before uppercase letters (format LogEntry type)
   String _formatLogEntryType(String type) {
@@ -142,51 +142,48 @@ class LogEntryDetailPage extends StatelessWidget {
 
   //TimelineItem for each child log
   Widget _buildTimelineItem(BuildContext context, LogEntry log) {
-  IconData icon;
-  Color color;
-  String imageText = ''; // To store the number of images or approval status
-  bool hasImages = false;
-  bool isApproved = approve ?? false;
+    IconData icon;
+    Color color;
+    String imageText = '';
+    bool hasImages = false;
+    bool isApproved = approve ?? false;
 
-  // Check for images
-  if (log.logEntryType == LogEntryType.Driving) {
-    if (log.imageUrls != null && log.imageUrls!.isNotEmpty) {
-      imageText = '${log.imageUrls!.length} images';
-      hasImages = true;
-    } else {
-      imageText = 'No images';
+    if (log.logEntryType == LogEntryType.Driving) {
+      if (log.imageUrls != null && log.imageUrls!.isNotEmpty) {
+        imageText = '${log.imageUrls!.length} images';
+        hasImages = true;
+      } else {
+        imageText = 'No images';
+      }
+      if (log.isApprovedByManager) {
+        imageText += ' (Approved)';
+      }
     }
-    // If the log is approved by the manager, display "Approved"
-    if (log.isApprovedByManager) {
-      imageText += ' (Approved)';
+
+    switch (log.logEntryType) {
+      case LogEntryType.Break:
+        icon = Icons.pause;
+        color = Colors.yellow[600]!;
+        break;
+      case LogEntryType.Driving:
+        icon = Icons.drive_eta;
+        color = Colors.green[400]!;
+        break;
+      case LogEntryType.OnDuty:
+        icon = Icons.access_alarm;
+        color = Colors.orange[400]!;
+        break;
+      case LogEntryType.OffDuty:
+        icon = Icons.ac_unit_outlined;
+        color = Colors.blue[400]!;
+        break;
+      default:
+        icon = Icons.help;
+        color = Colors.grey[400]!;
     }
-  }
 
-  switch (log.logEntryType) {
-    case LogEntryType.Break:
-      icon = Icons.pause;
-      color = Colors.yellow[600]!;
-      break;
-    case LogEntryType.Driving:
-      icon = Icons.drive_eta;
-      color = Colors.green[400]!;
-      break;
-    case LogEntryType.OnDuty:
-      icon = Icons.access_alarm;
-      color = Colors.orange[400]!;
-      break;
-    case LogEntryType.OffDuty:
-      icon = Icons.ac_unit_outlined;
-      color = Colors.blue[400]!;
-      break;
-    default:
-      icon = Icons.help;
-      color = Colors.grey[400]!;
-  }
-
-  return GestureDetector(
-  onTap: hasImages
-      ? !isApproved
+    return GestureDetector(
+      onTap: hasImages
           ? () {
               Navigator.push(
                 context,
@@ -195,85 +192,88 @@ class LogEntryDetailPage extends StatelessWidget {
                     imageUrls: Future.value(log.imageUrls ?? []),
                     log: log,
                     token: token,
+                    onApprove: isApproved ? null : onApprove,
                   ),
                 ),
               );
             }
-          : () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DrivingLogImagesView(
-                    imageUrls: Future.value(log.imageUrls ?? []),
-                    log: log,
-                    token: token,
-                    onApprove: onApprove,
-                  ),
-                ),
-              );
-            }
-      : null,
-  child: TimelineTile(
-    alignment: TimelineAlign.manual,
-    lineXY: 0.2, // Adjusts the horizontal alignment of the timeline line
-    isFirst: log == childrenLogs?.first,
-    isLast: log == childrenLogs?.last,
-    beforeLineStyle: LineStyle(color: color, thickness: 4),
-    indicatorStyle: IndicatorStyle(
-      color: color,
-      width: 32,
-      iconStyle: IconStyle(
-        iconData: icon,
-        color: Colors.white,
-      ),
-    ),
-    startChild: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0), // Add more vertical padding
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center, // Center-align the text vertically
-        children: [
-          Text(
-            formatDateTime(log.startTime),
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-            textAlign: TextAlign.center, // Ensure the text is centered
+          : null,
+      child: TimelineTile(
+        alignment: TimelineAlign.manual,
+        lineXY: 0.7,
+        isFirst: log == childrenLogs?.first,
+        isLast: log == childrenLogs?.last,
+        beforeLineStyle: LineStyle(color: color, thickness: 4),
+        indicatorStyle: IndicatorStyle(
+          color: color,
+          width: 32,
+          iconStyle: IconStyle(
+            iconData: icon,
+            color: Colors.white,
           ),
-          const SizedBox(height: 8),
-          Text(
-            formatDateTime(log.endTime),
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-            textAlign: TextAlign.center,
+        ),
+        startChild: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildDateCard(formatDateTime(log.startTime), Icons.arrow_upward),
+              const SizedBox(height: 8),
+              _buildDateCard(formatDateTime(log.endTime), Icons.arrow_downward),
+            ],
           ),
-        ],
-      ),
-    ),
-    endChild: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _formatLogEntryType(log.logEntryType.toString().split(".").last),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-          if (log.logEntryType == LogEntryType.Driving)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                imageText,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  color: Colors.blue[600],
-                ),
+        ),
+        endChild: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _formatLogEntryType(log.logEntryType.toString().split(".").last),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-            ),
-        ],
+              const SizedBox(height: 8),
+              if (log.logEntryType == LogEntryType.Driving)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    imageText,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Colors.blue[600],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
-    ),
-  ),
-);
+    );
+  }
 
+  Widget _buildDateCard(String dateText, IconData icon) {
+    return Card(
+      elevation: 2,
+      color: Colors.grey[100],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: Colors.blueGrey),
+            const SizedBox(width: 8),
+            Text(
+              dateText,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
 }
