@@ -142,121 +142,138 @@ class LogEntryDetailPage extends StatelessWidget {
 
   //TimelineItem for each child log
   Widget _buildTimelineItem(BuildContext context, LogEntry log) {
-    IconData icon;
-    Color color;
-    String imageText = ''; // To store the number of images or approval status
-    bool hasImages = false;
-    bool isApproved = approve ?? false;
+  IconData icon;
+  Color color;
+  String imageText = ''; // To store the number of images or approval status
+  bool hasImages = false;
+  bool isApproved = approve ?? false;
 
-
-    // Check for images 
-    if (log.logEntryType == LogEntryType.Driving) {
-      if (log.imageUrls != null && log.imageUrls!.isNotEmpty) {
-        imageText = '${log.imageUrls!.length} images';
-        hasImages = true;
-      } else {
-        imageText = 'No images';
-      }
-      // If the log is approved by the manager, display "Approved"
-      if (log.isApprovedByManager) {
-        imageText += ' (Approved)';
-      }
+  // Check for images
+  if (log.logEntryType == LogEntryType.Driving) {
+    if (log.imageUrls != null && log.imageUrls!.isNotEmpty) {
+      imageText = '${log.imageUrls!.length} images';
+      hasImages = true;
+    } else {
+      imageText = 'No images';
     }
-
-    switch (log.logEntryType) {
-      case LogEntryType.Break:
-        icon = Icons.pause;
-        color = Colors.yellow[600]!;
-        break;
-      case LogEntryType.Driving:
-        icon = Icons.drive_eta;
-        color = Colors.green[400]!;
-        break;
-      case LogEntryType.OnDuty:
-        icon = Icons.access_alarm;
-        color = Colors.orange[400]!;
-        break;
-      case LogEntryType.OffDuty:
-        icon = Icons.ac_unit_outlined;
-        color = Colors.blue[400]!;
-        break;
-      default:
-        icon = Icons.help;
-        color = Colors.grey[400]!;
+    // If the log is approved by the manager, display "Approved"
+    if (log.isApprovedByManager) {
+      imageText += ' (Approved)';
     }
+  }
 
-    return GestureDetector(
-      onTap: hasImages
-          ? !isApproved
-              ? () {
-                // Navigate to the DrivingLogImagesView for driver
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DrivingLogImagesView(
-                      imageUrls: Future.value(log.imageUrls ?? []),
-                      log: log,
-                      token: token,
-                    ),
-                  ),
-                );
-              }
-              : () {
-                // Navigate to the DrivingLogImagesView for manager
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DrivingLogImagesView(
-                      imageUrls: Future.value(log.imageUrls ?? []),
-                      log: log,
-                      token: token,
-                      onApprove: onApprove,
-                    ),
-                  ),
-                );
-              }
-          : null, // Disable the tap if no images 
-      child: TimelineTile(
-        alignment: TimelineAlign.start,
-        lineXY: 0.1,
-        indicatorStyle: IndicatorStyle(
-          color: color,
-          width: 32,  
-          iconStyle: IconStyle(
-            iconData: icon,
-            color: Colors.white,
-          ),
-        ),
-        endChild: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _formatLogEntryType(log.logEntryType.toString().split(".").last),
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Start: ${formatDateTime(log.startTime)}\nEnd: ${formatDateTime(log.endTime)}',
-                style: TextStyle(fontSize: 14),
-              ),
-              if (log.logEntryType == LogEntryType.Driving) 
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    imageText,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      color: Colors.blue[600],
-                    ),
+  switch (log.logEntryType) {
+    case LogEntryType.Break:
+      icon = Icons.pause;
+      color = Colors.yellow[600]!;
+      break;
+    case LogEntryType.Driving:
+      icon = Icons.drive_eta;
+      color = Colors.green[400]!;
+      break;
+    case LogEntryType.OnDuty:
+      icon = Icons.access_alarm;
+      color = Colors.orange[400]!;
+      break;
+    case LogEntryType.OffDuty:
+      icon = Icons.ac_unit_outlined;
+      color = Colors.blue[400]!;
+      break;
+    default:
+      icon = Icons.help;
+      color = Colors.grey[400]!;
+  }
+
+  return GestureDetector(
+  onTap: hasImages
+      ? !isApproved
+          ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DrivingLogImagesView(
+                    imageUrls: Future.value(log.imageUrls ?? []),
+                    log: log,
+                    token: token,
                   ),
                 ),
-            ],
-          ),
-        ),
+              );
+            }
+          : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DrivingLogImagesView(
+                    imageUrls: Future.value(log.imageUrls ?? []),
+                    log: log,
+                    token: token,
+                    onApprove: onApprove,
+                  ),
+                ),
+              );
+            }
+      : null,
+  child: TimelineTile(
+    alignment: TimelineAlign.manual,
+    lineXY: 0.2, // Adjusts the horizontal alignment of the timeline line
+    isFirst: log == childrenLogs?.first,
+    isLast: log == childrenLogs?.last,
+    beforeLineStyle: LineStyle(color: color, thickness: 4),
+    indicatorStyle: IndicatorStyle(
+      color: color,
+      width: 32,
+      iconStyle: IconStyle(
+        iconData: icon,
+        color: Colors.white,
       ),
-    );
+    ),
+    startChild: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0), // Add more vertical padding
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center, // Center-align the text vertically
+        children: [
+          Text(
+            formatDateTime(log.startTime),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+            textAlign: TextAlign.center, // Ensure the text is centered
+          ),
+          const SizedBox(height: 8),
+          Text(
+            formatDateTime(log.endTime),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ),
+    endChild: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _formatLogEntryType(log.logEntryType.toString().split(".").last),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 8),
+          if (log.logEntryType == LogEntryType.Driving)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                imageText,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: Colors.blue[600],
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+  ),
+);
+
   }
+
 }
