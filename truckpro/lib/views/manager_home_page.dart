@@ -246,7 +246,7 @@ Future<void> _fetchManagerData() async {
               );
             },
           ),
-           ListTile(
+        /*  ListTile(
             leading: const Icon(Icons.verified_user_rounded, color: Colors.black),
             title: Text('All Registered Users from Pending', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             onTap: () {
@@ -264,7 +264,7 @@ Future<void> _fetchManagerData() async {
                 _showSnackBar(context, "No Registered Users at this time!",Color.fromARGB(230, 247, 42, 66));
               }
             },
-          ),
+          ),*/
           ListTile(
             leading: const Icon(Icons.pending_rounded, color: Colors.black),
             title: Text('Not Registered Pending Users', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
@@ -385,9 +385,13 @@ Widget build(BuildContext context) {
                 var log = snapshot.data![index];
                 return Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: isDarkMode ? Colors.white : Colors.black,
+                      width: 0.15,
+                    ),
                   ),
-                  elevation: 2,
+                  elevation: 5,
                   child: ListTile(
                     title: Row(
                       children: [
