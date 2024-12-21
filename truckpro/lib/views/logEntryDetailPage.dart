@@ -163,23 +163,23 @@ class LogEntryDetailPage extends StatelessWidget {
     switch (log.logEntryType) {
       case LogEntryType.Break:
         icon = Icons.pause;
-        color = Colors.yellow[600]!;
+        color = Colors.yellow[600]!; // Break color
         break;
       case LogEntryType.Driving:
         icon = Icons.drive_eta;
-        color = Colors.green[400]!;
+        color = Colors.green[400]!; // Driving color
         break;
       case LogEntryType.OnDuty:
         icon = Icons.access_alarm;
-        color = Colors.orange[400]!;
+        color = Colors.orange[400]!; // On Duty color
         break;
       case LogEntryType.OffDuty:
         icon = Icons.ac_unit_outlined;
-        color = Colors.blue[400]!;
+        color = Colors.blue[400]!; // Parent/Off Duty color
         break;
       default:
         icon = Icons.help;
-        color = Colors.grey[400]!;
+        color = Colors.grey[400]!; // Default color
     }
 
     return GestureDetector(
@@ -200,7 +200,7 @@ class LogEntryDetailPage extends StatelessWidget {
           : null,
       child: TimelineTile(
         alignment: TimelineAlign.manual,
-        lineXY: 0.7,
+        lineXY: 0.65,
         isFirst: log == childrenLogs?.first,
         isLast: log == childrenLogs?.last,
         beforeLineStyle: LineStyle(color: color, thickness: 4),
@@ -217,9 +217,9 @@ class LogEntryDetailPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildDateCard(formatDateTime(log.startTime), Icons.arrow_upward),
+              _buildDateCard(formatDateTime(log.startTime), Icons.arrow_upward, color),
               const SizedBox(height: 8),
-              _buildDateCard(formatDateTime(log.endTime), Icons.arrow_downward),
+              _buildDateCard(formatDateTime(log.endTime), Icons.arrow_downward, color),
             ],
           ),
         ),
@@ -252,28 +252,40 @@ class LogEntryDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDateCard(String dateText, IconData icon) {
-    return Card(
-      elevation: 2,
-      color: Colors.grey[100],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: Colors.blueGrey),
-            const SizedBox(width: 8),
-            Text(
-              dateText,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-          ],
+  Widget _buildDateCard(String dateText, IconData icon, Color color) {
+  return Container(
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.6), 
+      borderRadius: BorderRadius.circular(18),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 6,
+          offset: Offset(2, 2),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7), 
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 16, 
+          color: Colors.white, 
+        ),
+        const SizedBox(width: 6), 
+        Text(
+          dateText,
+          style: TextStyle(
+            fontSize: 13, 
+            fontWeight: FontWeight.bold,
+            //color:  context.isDarkTheme ? Colors.white : Colors.black, // Use contrasting text color
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 }
