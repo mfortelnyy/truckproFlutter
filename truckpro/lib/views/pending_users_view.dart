@@ -1,5 +1,4 @@
 import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:truckpro/models/pending_user.dart';
@@ -37,7 +36,9 @@ class _PendingUsersViewState extends State<PendingUsersView> {
   }
 
   @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
+    final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pending Drivers'),
@@ -66,7 +67,10 @@ Widget build(BuildContext context) {
                         },
                         child: Card(
                           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          elevation: 4,
+                          elevation: 8,  // Shadow effect
+                          shadowColor: isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                          surfaceTintColor: isDarkTheme ? Color.fromARGB(255, 255, 252, 252) : Color.fromARGB(255, 2, 2, 2),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), // Rounded corners
                           child: ListTile(
                             title: Text('User with id: ${pUser.id}'),
                             subtitle: Column(
@@ -92,8 +96,14 @@ Widget build(BuildContext context) {
                 child: ElevatedButton(
                   onPressed: () {
                     _sendEmailToPendingUsers(widget.token, context);
-                    
                   },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 241, 158, 89)),
+                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    )),
+                    elevation: MaterialStateProperty.all(6), // Shadow effect
+                  ),
                   child: const Text('Send Email to All Pending Users'),
                 ),
               ),
@@ -103,62 +113,62 @@ Widget build(BuildContext context) {
     );
   }
 
-Future<void> _confirmAndDeletePendingUser(int userId, int index) async {
-  bool? shouldDelete = await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Confirm Deletion'),
-        content: Text('Are you sure you want to delete the pending user with ID $userId?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // cancel deletion
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // confirm deletion
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      );
-    },
-  );
+  Future<void> _confirmAndDeletePendingUser(int userId, int index) async {
+    bool? shouldDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: Text('Are you sure you want to delete the pending user with ID $userId?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // cancel deletion
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // confirm deletion
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
 
-  //deletion confirmation
-  if (shouldDelete == true) {
-    _deletePendingUser(userId, index);
+    //deletion confirmation
+    if (shouldDelete == true) {
+      _deletePendingUser(userId, index);
+    }
   }
-}
 
-Future<void> _deletePendingUser(int userId, int index) async {
-  try {
-    ManagerApiService managerService = ManagerApiService();
-    
-    String res = await managerService.deletePendingUser(widget.token, userId);
-    
-    if (res.isNotEmpty) {
-      setState(() {
-        pendingUsers.removeAt(index); 
-      });
+  Future<void> _deletePendingUser(int userId, int index) async {
+    try {
+      ManagerApiService managerService = ManagerApiService();
+      
+      String res = await managerService.deletePendingUser(widget.token, userId);
+      
+      if (res.isNotEmpty) {
+        setState(() {
+          pendingUsers.removeAt(index); 
+        });
 
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Pending User with ID $userId deleted successfully!'), backgroundColor: Color.fromARGB(219, 79, 194, 70)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to delete user.'), backgroundColor: Color.fromARGB(230, 247, 42, 66)),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pending User with ID $userId deleted successfully!'), backgroundColor: Color.fromARGB(219, 79, 194, 70)),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete user.'), backgroundColor:  const Color.fromARGB(230, 247, 42, 66,),),
+        SnackBar(content: Text('Error deleting user: $e'), backgroundColor: Color.fromARGB(230, 247, 42, 66)),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error deleting user: $e'), backgroundColor:  const Color.fromARGB(230, 247, 42, 66,),),
-    );
   }
-}
 
   Future<void> _sendEmailToPendingUsers(String token, BuildContext context) async {
     try {
@@ -167,19 +177,19 @@ Future<void> _deletePendingUser(int userId, int index) async {
 
       if (res.isNotEmpty) {
         if (widget.onEmailsSent != null) {
-        widget.onEmailsSent!();
-      }
+          widget.onEmailsSent!();
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res), backgroundColor:  const Color.fromARGB(219, 79, 194, 70),),
+          SnackBar(content: Text(res), backgroundColor: Color.fromARGB(219, 79, 194, 70)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No response from the server'), backgroundColor: Color.fromARGB(230, 247, 42, 66,)),
+          const SnackBar(content: Text('No response from the server'), backgroundColor: Color.fromARGB(230, 247, 42, 66)),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$e'), backgroundColor: const Color.fromARGB(230, 247, 42, 66,)),
+        SnackBar(content: Text('$e'), backgroundColor: Color.fromARGB(230, 247, 42, 66)),
       );
     }
   }
