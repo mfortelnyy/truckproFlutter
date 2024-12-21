@@ -16,6 +16,8 @@ class LogsViewDriver extends StatefulWidget {
   final String token;
   final int driverId;
   final UserDto? userDto;
+  final bool? approve;
+  final void Function()? onApprove;
 
   const LogsViewDriver({
     super.key,
@@ -23,6 +25,8 @@ class LogsViewDriver extends StatefulWidget {
     required this.token,    
     this.userDto,
     required this.driverId,
+    this.approve,
+    this.onApprove,
   });
 
   @override
@@ -419,11 +423,20 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => LogEntryDetailPage(
+                            builder: (context) => 
+                            widget.approve != null && widget.approve! 
+                            ? LogEntryDetailPage(
                               parentLog: log,
                               childrenLogs: log.childLogEntries,
                               token: widget.token,
-                            ),
+                            )
+                            : LogEntryDetailPage(
+                              parentLog: log,
+                              childrenLogs: log.childLogEntries,
+                              token: widget.token,
+                              approve: widget.approve,
+                              onApprove: widget.onApprove,
+                            )
                           ),
                         ),
                         child: Padding(
