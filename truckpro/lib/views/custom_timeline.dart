@@ -52,8 +52,9 @@ class CustomTimeline extends StatelessWidget {
 
               // Calculate the offsets for start and end of each child log as a proportion of the total duration
               var startOffset = (log.startTime.difference(parentStartTime).inMinutes / totalDuration);
-              var endOffset = (log.endTime!.difference(parentStartTime).inMinutes / totalDuration);
-
+           var endOffset = log.endTime != null
+                ? (log.endTime!.difference(parentStartTime).inMinutes / totalDuration)
+                : (DateTime.now().difference(parentStartTime).inMinutes / totalDuration);
               // Clamp offsets to ensure they stay within 0.0 to 1.0 range
               startOffset = startOffset.clamp(0.0, 1.0);
               endOffset = endOffset.clamp(0.0, 1.0);
