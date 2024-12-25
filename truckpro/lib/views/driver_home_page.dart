@@ -716,7 +716,7 @@ class _DriverHomeViewState extends BaseHomeViewState<DriverHomeView> {
 }
 
 //creates timers for logs presets with elapsed (preset) time
-void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
+  void _processLog(LogEntry log, Map<LogEntryType, int> limits) {
   var elapsed = _calculateElapsedTime(log, limits[log.logEntryType] ?? 0);
 
   if (log.logEntryType == LogEntryType.OnDuty && onDutyLog == null) {
