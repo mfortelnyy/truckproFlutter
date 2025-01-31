@@ -233,10 +233,8 @@ class  LoginService {
         body: {"deviceToken": fcmToken}
       
       );
-      print('Response body FOR UPDATING FCM DEVICE TOKEN: ${response.body}' +
-            '\nResponse CODE FOR UPDATING DEVUCE TOKEN: ${response.statusCode}'+
-            '\nJWTToken: ${jwtToken}'+
-            '\nFCMToken: ${fcmToken}');
+      print('Response body FOR UPDATING FCM DEVICE TOKEN: ${response.body}' '\nResponse CODE FOR UPDATING DEVUCE TOKEN: ${response.statusCode}''\nJWTToken: $jwtToken'+
+            '\nFCMToken: $fcmToken');
 
       var jsonUserDto = json.decode(response.body);
       var res = jsonUserDto['message'];
