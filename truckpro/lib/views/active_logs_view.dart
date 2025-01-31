@@ -9,7 +9,7 @@ class ActiveLogView extends StatelessWidget {
   final String token;
   final UserDto? userDto;
   final int driverId;
-  const ActiveLogView({Key? key, required this.token, required this.activeLog, required this.userDto, required this.driverId}) : super(key: key);
+  const ActiveLogView({super.key, required this.token, required this.activeLog, required this.userDto, required this.driverId});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class ActiveLogView extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: _buildChildLogCard(childLog, isDarkTheme),
                 );
-              }).toList(),
+              }),
           ],
         ),
       ),

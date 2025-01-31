@@ -1,59 +1,130 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:truckpro/models/log_entry.dart';
 
 class LogBarChart extends StatelessWidget {
-  final List<LogEntry> logEntries;  // List of log entries (both parent and children)
-  final Map<String, Color> logColors;  // Map of log entry types to colors
+  final LogEntry parentLog;
+  final List<LogEntry> childLogs;
+  final Map<String, Color> logColors;
 
-  LogBarChart({
-    required this.logEntries,
+  const LogBarChart({
+    super.key,
+    required this.parentLog,
+    required this.childLogs,
     required this.logColors,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: BarChart(
-        BarChartData(
-          gridData: FlGridData(show: false),
-          borderData: FlBorderData(show: false),
-          titlesData: FlTitlesData(show: false),
-          alignment: BarChartAlignment.center,
-          barGroups: _buildBarGroups(),
-          maxY: 1,  // We are working with a single row, so maxY is always 1
-          minY: 0,
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final parentStartTime = parentLog.startTime;
+        final parentEndTime = parentLog.endTime ?? DateTime.now();
+
+        // Calculate the total duration of the parent log in seconds
+        final totalDuration =
+            parentEndTime.difference(parentStartTime).inSeconds.toDouble();
+
+        // Return a CustomPaint widget to render the log bar chart
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomPaint(
+              size: Size(constraints.maxWidth, 10),  // Adjust bar height here
+              painter: _LogBarPainter(
+                parentStartTime: parentStartTime,
+                totalDuration: totalDuration,
+                childLogs: childLogs,
+                logColors: logColors,
+                isParentOffDuty: parentLog.logEntryType.toString().split('.').last.toLowerCase() == 'offduty',
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Time labels underneath the timeline
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(formatDateTime(parentStartTime), style: const TextStyle(fontSize: 10)),
+                Text(formatDateTime(parentEndTime), style: const TextStyle(fontSize: 10)),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
-  // Build the bar groups
-  List<BarChartGroupData> _buildBarGroups() {
-    List<BarChartGroupData> barGroups = [];
-    double startX = 0;
+  String formatDateTime(DateTime dateTime) {
+    // Formats DateTime to a human-readable string
+    return "${dateTime.hour}:${dateTime.minute}"; 
+  }
+}
 
-    for (var log in logEntries) {
-      Color color = logColors[log.logEntryType.toString()] ?? Colors.grey;
-      double duration = log.endTime!.difference(log.startTime!).inMinutes.toDouble();
+class _LogBarPainter extends CustomPainter {
+  final DateTime parentStartTime;
+  final double totalDuration; // in seconds
+  final List<LogEntry> childLogs;
+  final Map<String, Color> logColors;
+  final bool isParentOffDuty;
 
-      barGroups.add(
-        BarChartGroupData(
-          x: 0, // Only one bar is needed since it is a horizontal chart
-          barRods: [
-            BarChartRodData(
-              fromY: 0,
-              toY: 1,  // Full height for each log segment
-              color: color,
-              width: duration,  // Width based on log duration (in minutes)
-              borderRadius: BorderRadius.zero,
-            ),
-          ],
-        ),
+  _LogBarPainter({
+    required this.parentStartTime,
+    required this.totalDuration,
+    required this.childLogs,
+    required this.logColors,
+    required this.isParentOffDuty,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint backgroundPaint = Paint()
+      ..color = logColors['parent']!
+      ..style = PaintingStyle.fill;
+
+    final Paint segmentPaint = Paint()..style = PaintingStyle.fill;
+
+    // Draw the background bar (entire parent log duration)
+    final barHeight = size.height;
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, barHeight),
+      backgroundPaint,
+    );
+
+    for (var log in childLogs) {
+      final startTime = log.startTime;
+      final endTime = log.endTime ?? DateTime.now();
+
+      // Ensure the log's start and end times are within the parent log's range
+      if (startTime.isBefore(parentStartTime) ||
+          endTime.isAfter(parentStartTime.add(Duration(seconds: totalDuration.toInt())))) {
+        continue;
+      }
+
+      // Calculate relative positions (0 to 1 scale) for the child log
+      final startFraction = (startTime.difference(parentStartTime).inSeconds / totalDuration).clamp(0.0, 1.0);
+      final endFraction = (endTime.difference(parentStartTime).inSeconds / totalDuration).clamp(0.0, 1.0);
+
+      // Convert relative positions to pixel positions
+      final left = startFraction * size.width;
+      final right = endFraction * size.width;
+
+      // Determine the appropriate color
+      String logType = log.logEntryType.toString().split('.').last.toLowerCase();
+      if (logType == 'break' && isParentOffDuty) {
+        logType = 'sleep';
+      }
+
+      segmentPaint.color = logColors[logType] ?? Colors.grey;
+
+      // Draw the segment
+      canvas.drawRect(
+        Rect.fromLTWH(left, 0, right - left, barHeight),
+        segmentPaint,
       );
     }
+  }
 
-    return barGroups;
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }

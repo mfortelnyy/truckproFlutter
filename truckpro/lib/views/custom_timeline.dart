@@ -10,12 +10,12 @@ class CustomTimeline extends StatelessWidget {
   final Map<String, Color> logColors;
 
   const CustomTimeline({
-    Key? key,
+    super.key,
     required this.parentStartTime,
     required this.parentEndTime,
     required this.childrenLogs,
     required this.logColors,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class CustomTimeline extends StatelessWidget {
     if (dateTime != null) {
       return DateFormat('MM/dd/yyyy h:mma').format(dateTime);
     } else {
-      return 'N/A';
+      return 'In Progress';
     }
   }
 }
