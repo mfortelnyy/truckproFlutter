@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:truckpro/utils/admin_api_service.dart';
 import '../models/signup_request.dart';
 import '../utils/login_service.dart';
 

@@ -1,4 +1,3 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:truckpro/utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';

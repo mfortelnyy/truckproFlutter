@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:truckpro/models/pending_user.dart';
@@ -98,11 +97,11 @@ class _PendingUsersViewState extends State<PendingUsersView> {
                     _sendEmailToPendingUsers(widget.token, context);
                   },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 241, 158, 89)),
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    backgroundColor: WidgetStateProperty.all(Color.fromARGB(255, 241, 158, 89)),
+                    shape: WidgetStateProperty.all(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     )),
-                    elevation: MaterialStateProperty.all(6), // Shadow effect
+                    elevation: WidgetStateProperty.all(6), // Shadow effect
                   ),
                   child: const Text('Send Email to All Pending Users'),
                 ),

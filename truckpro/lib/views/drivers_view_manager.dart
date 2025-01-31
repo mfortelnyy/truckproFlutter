@@ -3,7 +3,6 @@ import 'package:truckpro/models/user.dart';
 import 'package:truckpro/utils/manager_api_service.dart';
 import 'package:truckpro/views/logs_view_driver.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'logs_view_manager.dart';
 
 class DriversViewManager extends StatefulWidget {
   final Future<List<User>> driversFuture;

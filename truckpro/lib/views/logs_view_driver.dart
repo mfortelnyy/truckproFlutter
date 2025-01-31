@@ -7,7 +7,6 @@ import 'package:truckpro/models/log_entry.dart';
 import 'package:truckpro/models/log_entry_type.dart';
 import 'package:truckpro/models/userDto.dart';
 import '../utils/report_api_service.dart';
-import 'drvinglog_images_view.dart';
 import 'logEntryDetailPage.dart';
 import 'pdf_view_widget.dart';
 
@@ -546,8 +545,8 @@ class _LogsViewDriverState extends State<LogsViewDriver> {
         stats[logType]?['count'] = stats[logType]?['count'] + 1 ?? 1;
         
         //find the difference between start and end time to get the hours
-        if (child.startTime != null && child.endTime != null) {
-          Duration logDuration = child.endTime!.difference(child.startTime!);
+        if (child.endTime != null) {
+          Duration logDuration = child.endTime!.difference(child.startTime);
           stats[logType]?['totalHours'] = stats[logType]?['totalHours'] + logDuration.inHours.toDouble();
         }
       }
