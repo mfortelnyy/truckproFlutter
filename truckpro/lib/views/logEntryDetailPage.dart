@@ -14,52 +14,68 @@ class LogEntryDetailPage extends StatelessWidget {
   final bool? approve;
   final void Function()? onApprove;
 
-  const LogEntryDetailPage({
-    Key? key,
+  final logColors = {
+      'driving': const Color.fromARGB(255, 81, 149, 238),
+      'break':  const Color.fromARGB(255, 249, 219, 85),
+      'sleep': const Color.fromARGB(255, 249, 219, 85), // break and sleep use the same color
+      'parent': const Color.fromARGB(180, 165, 206, 239),
+    };
+
+  LogEntryDetailPage({
+    super.key,
     required this.parentLog,
     required this.childrenLogs,
     required this.token,
     this.approve,
     this.onApprove,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
-    final parentStartTime = parentLog.startTime!;
+    final parentStartTime = parentLog.startTime;
     final parentEndTime = parentLog.endTime ?? DateTime.now();
-
-
-    final logColors = {
-      'driving': Colors.green[400]!,
-      'break': Colors.yellow[600]!,
-      'sleep': Colors.yellow[600]!, // break and sleep use the same color
-      'parent': Colors.blue[400]!,
-    };
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Log Entry Overview', style: TextStyle(fontWeight: FontWeight.w600)),
+        title: const Text(
+          'Log Entry Overview',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         backgroundColor: const Color.fromARGB(255, 241, 158, 89),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Parent Log Card
             Card(
               margin: const EdgeInsets.only(bottom: 16),
-              elevation: 8, 
-              color: isDarkTheme ? const Color.fromARGB(255, 15, 13, 13) : Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 8,
+              color: isDarkTheme
+                  ? const Color.fromARGB(255, 15, 13, 13)
+                  : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: logColors['parent']!, width: 10),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    Container(
+                      width: double.infinity, 
+                      height: 10, 
+                      color: logColors['parent'], 
+                      
+                    // Use the parent log color
+                    ),
+                    const SizedBox(height: 10),
                     Text(
-                      '${_formatLogEntryType(parentLog.logEntryType.toString().split(".").last)}',
+                      _formatLogEntryType(
+                          parentLog.logEntryType.toString().split(".").last),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
@@ -79,11 +95,14 @@ class LogEntryDetailPage extends StatelessWidget {
                     if (childrenLogs != null && childrenLogs!.isNotEmpty)
                       Card(
                         elevation: 6,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: SizedBox(
+                          height: 100, // Adjust height for horizontal bar
                           child: LogBarChart(
-                            logEntries: childrenLogs!,
+                            parentLog: parentLog,
+                            childLogs: childrenLogs!,
                             logColors: logColors,
                           ),
                         ),
@@ -92,41 +111,49 @@ class LogEntryDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            // Events Legend
-            Text(
-              'Events',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 22,
-                color: isDarkTheme ? Colors.white : Colors.black,
+            // Events Legend and Scrollable List
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Events',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 22,
+                      color: isDarkTheme ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: childrenLogs?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        final log = childrenLogs![index];
+                        return Column(
+                          children: [
+                            _buildTimelineItem(context, log),
+                            // if (index < (childrenLogs?.length ?? 0) - 1)
+                            //   Padding(
+                            //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            //     child: Container(
+                            //       height: 3,
+                            //       color: Colors.grey.withOpacity(0.5),
+                            //     ),
+                            //   ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 5),
-            // Child Log Timeline with Divider
-            ListView.builder(
-              shrinkWrap: true, 
-              itemCount: childrenLogs?.length ?? 0,
-              itemBuilder: (context, index) {
-                final log = childrenLogs![index];
-                return Column(
-                  children: [
-                    _buildTimelineItem(context, log),
-                    if (index < (childrenLogs?.length ?? 0) - 1)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Container(
-                          height: 3, 
-                          color: Colors.grey.withOpacity(0.5),
-                        ),
-                      ),
-                  ],
-                );
-              },
             ),
           ],
         ),
       ),
     );
+
   }
 
   String formatDateTime(DateTime? dateTime, {String prefix = ''}) {
@@ -166,23 +193,20 @@ class LogEntryDetailPage extends StatelessWidget {
     switch (log.logEntryType) {
       case LogEntryType.Break:
         icon = Icons.pause;
-        color = Colors.yellow[600]!; // Break color
+        color = logColors['break']!; // Break color
         break;
       case LogEntryType.Driving:
         icon = Icons.drive_eta;
-        color = Colors.green[400]!; // Driving color
+        color = logColors['driving']!; // Driving color
         break;
       case LogEntryType.OnDuty:
         icon = Icons.access_alarm;
-        color = Colors.orange[400]!; // On Duty color
+        color = logColors['parent']!; // On Duty color
         break;
       case LogEntryType.OffDuty:
         icon = Icons.ac_unit_outlined;
-        color = Colors.blue[400]!; // Parent/Off Duty color
+        color = logColors['parent']!; // Parent/Off Duty color
         break;
-      default:
-        icon = Icons.help;
-        color = Colors.grey[400]!; // Default color
     }
 
     return GestureDetector(
@@ -206,21 +230,21 @@ class LogEntryDetailPage extends StatelessWidget {
         lineXY: 0.65,
         isFirst: log == childrenLogs?.first,
         isLast: log == childrenLogs?.last,
-        beforeLineStyle: LineStyle(color: color, thickness: 4),
+        beforeLineStyle: LineStyle(color: color, thickness: 6),
         indicatorStyle: IndicatorStyle(
           color: color,
-          width: 32,
+          width: 36,
           iconStyle: IconStyle(
             iconData: icon,
             color: Colors.white,
           ),
         ),
         startChild: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: 25.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildDateCard(formatDateTime(log.startTime), Icons.arrow_upward, color),
+              _buildDateCard(formatDateTime(log.startTime), Icons.start_rounded, color),
               const SizedBox(height: 8),
               _buildDateCard(formatDateTime(log.endTime), Icons.arrow_downward, color),
             ],
@@ -233,9 +257,8 @@ class LogEntryDetailPage extends StatelessWidget {
             children: [
               Text(
                 _formatLogEntryType(log.logEntryType.toString().split(".").last),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
-              const SizedBox(height: 8),
               if (log.logEntryType == LogEntryType.Driving)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
