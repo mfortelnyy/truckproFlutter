@@ -1,4 +1,4 @@
-import 'package:truckpro/models/user.dart';
+import 'package:trucksnap/models/user.dart';
 import 'log_entry_type.dart';
 
 class LogEntry {

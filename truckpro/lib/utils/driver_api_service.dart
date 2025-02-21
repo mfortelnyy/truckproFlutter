@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:truckpro/models/log_entry.dart';
+import 'package:trucksnap/models/log_entry.dart';
 
 class DriverApiService {
   //final String _baseUrl = 'https://localhost:443'; 'https://stunning-tadpole-deadly.ngrok-free.app';

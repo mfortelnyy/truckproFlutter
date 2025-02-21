@@ -1,4 +1,4 @@
-package com.truckpro.appdev
+package com.trucksnap.appdev
 
 import android.app.Activity
 import android.content.Intent

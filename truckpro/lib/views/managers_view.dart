@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:truckpro/models/user.dart';
+import 'package:trucksnap/models/user.dart';
 import '../utils/admin_api_service.dart';
 
 class ManagersView extends StatefulWidget {

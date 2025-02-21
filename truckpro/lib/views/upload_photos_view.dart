@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:truckpro/utils/driver_api_service.dart';
+import 'package:trucksnap/utils/driver_api_service.dart';
 
 import '../image_picker.dart';
 import 'prompt_image.dart';

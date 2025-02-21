@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:truckpro/utils/manager_api_service.dart';
+import 'package:trucksnap/utils/manager_api_service.dart';
 
 class UploadDriversScreen extends StatefulWidget {
   final String token;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:truckpro/models/log_entry.dart';
+import 'package:trucksnap/models/log_entry.dart';
 
 class LogBarChart extends StatelessWidget {
   final LogEntry parentLog;

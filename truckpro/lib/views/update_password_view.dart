@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:truckpro/views/user_signin_page.dart';
+import 'package:trucksnap/views/user_signin_page.dart';
 import '../models/change_password_request.dart';
 import '../utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';

@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:truckpro/utils/driver_api_service.dart';
-import 'package:truckpro/utils/login_service.dart';
-import 'package:truckpro/utils/session_manager.dart';
-import 'package:truckpro/views/base_home_view.dart';
-import 'package:truckpro/views/upload_photos_view.dart';
-import 'package:truckpro/views/update_password_view.dart';
-import 'package:truckpro/views/user_signin_page.dart';
+import 'package:trucksnap/utils/driver_api_service.dart';
+import 'package:trucksnap/utils/login_service.dart';
+import 'package:trucksnap/utils/session_manager.dart';
+import 'package:trucksnap/views/base_home_view.dart';
+import 'package:trucksnap/views/upload_photos_view.dart';
+import 'package:trucksnap/views/update_password_view.dart';
+import 'package:trucksnap/views/user_signin_page.dart';
 
 import '../models/userDto.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:truckpro/models/log_entry.dart';
-import 'package:truckpro/utils/manager_api_service.dart';
+import 'package:trucksnap/models/log_entry.dart';
+import 'package:trucksnap/utils/manager_api_service.dart';
 
 class ManagerApproveView extends StatelessWidget {
   final Future<List<String>> imageUrls; 

@@ -1,7 +1,7 @@
 import 'dart:core';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:truckpro/utils/driver_api_service.dart';
+import 'package:trucksnap/utils/driver_api_service.dart';
 
 class DriverStatsView extends StatefulWidget {
   final DriverApiService driverApiService;

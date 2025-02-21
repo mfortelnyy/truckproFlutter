@@ -1,8 +1,8 @@
 import 'dart:convert'; //for JSON encoding/decoding
 import 'package:http/http.dart' as http;
-import 'package:truckpro/models/change_password_request.dart';
-import 'package:truckpro/models/signup_request.dart';
-import 'package:truckpro/models/userDto.dart'; 
+import 'package:trucksnap/models/change_password_request.dart';
+import 'package:trucksnap/models/signup_request.dart';
+import 'package:trucksnap/models/userDto.dart'; 
 
 class  LoginService {
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:truckpro/models/manager_signup_dto.dart';
-import 'package:truckpro/utils/admin_api_service.dart';
+import 'package:trucksnap/models/manager_signup_dto.dart';
+import 'package:trucksnap/utils/admin_api_service.dart';
 
 class ManagerSignupView extends StatefulWidget {
   final String token;

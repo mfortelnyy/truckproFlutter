@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:truckpro/models/user.dart';
-import 'package:truckpro/utils/manager_api_service.dart';
-import 'package:truckpro/views/logs_view_driver.dart';
+import 'package:trucksnap/models/user.dart';
+import 'package:trucksnap/utils/manager_api_service.dart';
+import 'package:trucksnap/views/logs_view_driver.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DriversViewManager extends StatefulWidget {

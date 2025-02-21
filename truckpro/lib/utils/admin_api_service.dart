@@ -1,10 +1,10 @@
 
 import 'dart:convert'; //for JSON encoding/decoding
 import 'package:http/http.dart' as http;
-import 'package:truckpro/models/company.dart';
-import 'package:truckpro/models/log_entry.dart';
-import 'package:truckpro/models/manager_signup_dto.dart';
-import 'package:truckpro/models/user.dart'; 
+import 'package:trucksnap/models/company.dart';
+import 'package:trucksnap/models/log_entry.dart';
+import 'package:trucksnap/models/manager_signup_dto.dart';
+import 'package:trucksnap/models/user.dart'; 
 
 class AdminApiService
 {

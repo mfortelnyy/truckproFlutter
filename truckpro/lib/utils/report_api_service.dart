@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:truckpro/models/log_entry_type.dart';
+import 'package:trucksnap/models/log_entry_type.dart';
 
 class ReportApiService 
 {

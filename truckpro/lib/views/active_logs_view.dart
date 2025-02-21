@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:truckpro/models/userDto.dart';
+import 'package:trucksnap/models/userDto.dart';
 import '../models/log_entry.dart';
 import '../models/log_entry_type.dart';
 
