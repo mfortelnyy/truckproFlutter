@@ -1,3 +1,3 @@
-# truckpro
+# trucksnap
 
 A new Flutter project.

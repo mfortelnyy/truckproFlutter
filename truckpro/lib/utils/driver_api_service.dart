@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:truckpro/models/log_entry.dart';
+import 'package:trucksnap/models/log_entry.dart';
 
 class DriverApiService {
   //final String _baseUrl = 'https://localhost:443'; 'https://stunning-tadpole-deadly.ngrok-free.app';
@@ -127,7 +127,7 @@ Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
 }
 */
 
-Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
+  Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
  
   final url = Uri.parse('$_baseUrl/createDrivingLog');
   var request = http.MultipartRequest('POST', url)
@@ -165,7 +165,7 @@ Future<String> createDrivingLog(List<Map<String, dynamic>> imagesJson) async {
   }
 }
 
-Future<String> createOffDutyLog() async {
+  Future<String> createOffDutyLog() async {
     final response = await http.post(
       Uri.parse('$_baseUrl/createOffDutyLog'),
       headers: {
@@ -196,8 +196,6 @@ Future<String> createOffDutyLog() async {
       throw Exception(response.body);
     }
   }
-
-
 
   Future<String> stopDrivingLog() async {
     final response = await http.post(
@@ -304,7 +302,7 @@ Future<String> createOffDutyLog() async {
   }
 
 
-   Future<String> getTotalOnDutyHoursLastWeek() async { 
+  Future<String> getTotalOnDutyHoursLastWeek() async { 
     final response = await http.get(
       Uri.parse('$_baseUrl/getTotalOnDutyHoursLastWeek'),
       headers: {
@@ -324,7 +322,7 @@ Future<String> createOffDutyLog() async {
 
   }
 
-   Future<String> getTotalDrivingHoursLastWeek() async { 
+  Future<String> getTotalDrivingHoursLastWeek() async { 
     final response = await http.get(
       Uri.parse('$_baseUrl/getTotalDrivingHoursLastWeek'),
       headers: {
@@ -344,7 +342,7 @@ Future<String> createOffDutyLog() async {
 
   }
    
-   Future<String> getTotalOffDutyHoursLastWeek() async { 
+  Future<String> getTotalOffDutyHoursLastWeek() async { 
     final response = await http.get(
       Uri.parse('$_baseUrl/getTotalOffDutyHoursLastWeek'),
       headers: {
@@ -362,7 +360,7 @@ Future<String> createOffDutyLog() async {
     }
   }
 
-   Future<String> notifyManager(String message) async {
+  Future<String> notifyManager(String message) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/notifyManager'),
       headers: {
@@ -381,6 +379,14 @@ Future<String> createOffDutyLog() async {
     }
 
    }
+
+  Future<bool> hasUploadedPhotoForToday() async {
+    return false;
+  }
+
+  uploadDailyTruckPhotos(List<Map<String, dynamic>> imagesJson) async {
+
+  }
 
 }
 

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:truckpro/models/log_entry.dart';
-import 'package:truckpro/models/pending_user.dart';
-import 'package:truckpro/models/user.dart';
+import 'package:trucksnap/models/log_entry.dart';
+import 'package:trucksnap/models/pending_user.dart';
+import 'package:trucksnap/models/user.dart';
 
 class ManagerApiService {
   //final String baseUrl = 'https://localhost:443';

@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:truckpro/models/company.dart';
-import 'package:truckpro/utils/admin_api_service.dart';
-import 'package:truckpro/views/drivers_view_admin.dart';
+import 'package:trucksnap/models/company.dart';
+import 'package:trucksnap/utils/admin_api_service.dart';
+import 'package:trucksnap/views/drivers_view_admin.dart';
 
 
 class CompaniesView extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:truckpro/models/userDto.dart';
+import 'package:trucksnap/models/userDto.dart';
 import '../utils/login_service.dart';
 import '../utils/session_manager.dart';
 import 'user_signin_page.dart';

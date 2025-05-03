@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:truckpro/utils/login_service.dart';
+import 'package:trucksnap/utils/login_service.dart';
 
 class ForgotPasswordView extends StatefulWidget {
   final LoginService loginService = LoginService();

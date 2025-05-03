@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:truckpro/utils/login_service.dart';
+import 'package:trucksnap/utils/login_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:truckpro/views/driver_home_page.dart';
-import 'package:truckpro/views/driver_signup_page.dart';
-import 'package:truckpro/views/forgot_password_view.dart';
-import 'package:truckpro/views/independent_driver_signup_view.dart';
-import 'package:truckpro/views/manager_home_page.dart';
+import 'package:trucksnap/views/driver_home_page.dart';
+import 'package:trucksnap/views/driver_signup_page.dart';
+import 'package:trucksnap/views/forgot_password_view.dart';
+import 'package:trucksnap/views/independent_driver_signup_view.dart';
+import 'package:trucksnap/views/manager_home_page.dart';
 import '../utils/admin_api_service.dart';
 import '../utils/firebase_service.dart';
 import '../utils/session_manager.dart';

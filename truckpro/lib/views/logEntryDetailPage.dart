@@ -2,10 +2,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:timeline_tile/timeline_tile.dart';
-import 'package:truckpro/models/log_entry.dart';
-import 'package:truckpro/models/log_entry_type.dart';
-import 'package:truckpro/views/drvinglog_images_view.dart';
-import 'package:truckpro/views/log_bar_chart.dart';
+import 'package:trucksnap/models/log_entry.dart';
+import 'package:trucksnap/models/log_entry_type.dart';
+import 'package:trucksnap/views/drvinglog_images_view.dart';
+import 'package:trucksnap/views/log_bar_chart.dart';
 
 class LogEntryDetailPage extends StatelessWidget {
   final LogEntry parentLog;

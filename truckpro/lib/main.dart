@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:truckpro/firebase_options.dart';
-import 'package:truckpro/theme/color_schema.dart';
-import 'package:truckpro/utils/firebase_service.dart';
-import 'package:truckpro/views/admin_home_page.dart';
+import 'package:trucksnap/firebase_options.dart';
+import 'package:trucksnap/theme/color_schema.dart';
+import 'package:trucksnap/utils/firebase_service.dart';
+import 'package:trucksnap/views/admin_home_page.dart';
 import 'utils/admin_api_service.dart';
 import 'utils/session_manager.dart';
 import 'views/driver_home_page.dart';
@@ -24,21 +24,21 @@ void main() async {
   
   
   // Initialize Firebase before using any Firebase services
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,  
-    );
-    print("Firebase initialized");
-  } catch (e) {
-    print("Firebase initialization error: $e");
-  }
+  // try {
+  //   await Firebase.initializeApp(
+  //     options: DefaultFirebaseOptions.currentPlatform,  
+  //   );
+  //   print("Firebase initialized");
+  // } catch (e) {
+  //   print("Firebase initialization error: $e");
+  // }
 
-  // Initialize FirebaseService after Firebase initialization
-  final FirebaseService firebaseService = FirebaseService();
-  firebaseService.initializeBackgroundMessageHandler();
-  firebaseService.configureForegroundMessageHandler();
+  // // Initialize FirebaseService after Firebase initialization
+  // final FirebaseService firebaseService = FirebaseService();
+  // firebaseService.initializeBackgroundMessageHandler();
+  // firebaseService.configureForegroundMessageHandler();
 
-  runApp(const MyApp());
+  // runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -87,7 +87,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'TruckPro',
+      title: 'TruckSnap',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: lightColorScheme,

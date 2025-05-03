@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:truckpro/models/pending_user.dart';
-import 'package:truckpro/utils/manager_api_service.dart';
+import 'package:trucksnap/models/pending_user.dart';
+import 'package:trucksnap/utils/manager_api_service.dart';
 
 class PendingUsersView extends StatefulWidget {
   final Future<List<PendingUser>> pendingUsersFuture;

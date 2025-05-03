@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:truckpro/models/log_entry.dart';
-import 'package:truckpro/models/log_entry_type.dart';
-import 'package:truckpro/models/userDto.dart';
-import 'package:truckpro/views/manager_approve_view.dart';
+import 'package:trucksnap/models/log_entry.dart';
+import 'package:trucksnap/models/log_entry_type.dart';
+import 'package:trucksnap/models/userDto.dart';
+import 'package:trucksnap/views/manager_approve_view.dart';
 import '../utils/report_api_service.dart';
 import 'pdf_view_widget.dart';
 
